@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prove It — Scenario 1</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --bg-card: #1e293b;
+    --bg-card-hover: #334155;
+    --text: #f1f5f9;
+    --text-muted: #94a3b8;
+    --accent: #f59e0b;
+    --accent-hover: #fbbf24;
+    --danger: #ef4444;
+    --danger-bg: #7f1d1d;
+    --success: #22c55e;
+    --success-bg: #14532d;
+    --info: #3b82f6;
+    --border: #334155;
+    --radius: 12px;
+    --shadow: 0 4px 20px rgba(0,0,0,0.4);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px;
+    line-height: 1.6;
+  }
+  .disclaimer {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: center;
+    padding: 8px 12px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 6px;
+    margin-bottom: 16px;
+    max-width: 560px;
+    width: 100%;
+  }
+  .container {
+    max-width: 560px;
+    width: 100%;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .card {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 28px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    animation: fadeIn 0.3s ease;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  h1 { font-size: 1.6rem; margin-bottom: 8px; color: var(--accent); }
+  h2 { font-size: 1.2rem; margin-bottom: 12px; }
+  p { margin-bottom: 16px; color: var(--text-muted); }
+  .btn {
+    display: block;
+    width: 100%;
+    padding: 14px 20px;
+    margin-bottom: 10px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #0f172a;
+    text-align: center;
+  }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-option {
+    background: var(--bg-card-hover);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-option:hover { background: #475569; border-color: var(--accent); }
+  .btn-back {
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    text-align: center;
+    margin-top: 12px;
+  }
+  .tag {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+  }
+  .tag-simulated { background: #1e3a5f; color: #60a5fa; }
+  .message-bubble {
+    background: #0f172a;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+    font-size: 0.95rem;
+  }
+  .message-bubble .sender {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .message-bubble .timestamp {
+    font-size: 0.7rem;
+    color: #64748b;
+    margin-top: 8px;
+  }
+  .character {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .character-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), #d97706);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: #0f172a;
+    flex-shrink: 0;
+  }
+  .character-info h3 { font-size: 1rem; margin: 0; color: var(--text); }
+  .character-info span { font-size: 0.85rem; color: var(--text-muted); }
+
+  /* Auto-fill animation */
+  .autofill-screen {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(15, 23, 42, 0.98);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 20px;
+  }
+  .autofill-box {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    max-width: 400px;
+    width: 100%;
+  }
+  .fake-field {
+    margin-bottom: 14px;
+  }
+  .fake-field-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+  .fake-field-value {
+    height: 40px;
+    background: #0f172a;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    font-family: monospace;
+    font-size: 0.9rem;
+    color: var(--text);
+    overflow: hidden;
+  }
+  .fake-field-value .typed {
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    animation: typing 1.5s steps(20, end) forwards;
+    width: 0;
+  }
+  @keyframes typing {
+    to { width: 100%; }
+  }
+  .fake-field-value .cursor {
+    display: inline-block;
+    width: 2px;
+    height: 18px;
+    background: var(--accent);
+    animation: blink 0.8s infinite;
+    margin-left: 2px;
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+  .autofill-warning {
+    margin-top: 16px;
+    padding: 12px;
+    background: var(--danger-bg);
+    border-radius: 8px;
+    color: #fecaca;
+    font-size: 0.85rem;
+    text-align: center;
+    opacity: 0;
+    animation: fadeIn 0.5s ease 3s forwards;
+  }
+
+  /* Screenshot placeholder */
+  .screenshot-placeholder {
+    background: #0f172a;
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 40px 20px;
+    text-align: center;
+    margin: 16px 0;
+  }
+  .screenshot-placeholder .label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .screenshot-placeholder .note {
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-top: 8px;
+  }
+
+  .reveal-box {
+    background: rgba(59, 130, 246, 0.08);
+    border-left: 3px solid var(--info);
+    padding: 14px 16px;
+    border-radius: 0 8px 8px 0;
+    margin: 14px 0;
+  }
+  .reveal-box h4 { color: #60a5fa; margin-bottom: 6px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
+  .reveal-box p { margin: 0; color: #cbd5e1; font-size: 0.9rem; }
+
+  .pathway-step {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    margin-bottom: 10px;
+  }
+  .pathway-num {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .pathway-text { font-size: 0.9rem; color: #cbd5e1; }
+
+  .hidden { display: none !important; }
+
+  @media (max-width: 480px) {
+    h1 { font-size: 1.4rem; }
+    .card { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="disclaimer">
+  An independent student project. Not affiliated with or endorsed by the Australian Taxation Office.
+</div>
+
+<div class="container" id="app"></div>
+
+<!-- Auto-fill overlay -->
+<div id="autofill-overlay" class="autofill-screen hidden">
+  <div class="autofill-box">
+    <div class="fake-field">
+      <div class="fake-field-label">Full Name</div>
+      <div class="fake-field-value"><span class="typed" style="animation-delay:0.3s;">Sam T.</span><span class="cursor"></span></div>
+    </div>
+    <div class="fake-field">
+      <div class="fake-field-label">TFN</div>
+      <div class="fake-field-value"><span class="typed" style="animation-delay:1.2s;">••• ••• •••</span><span class="cursor"></span></div>
+    </div>
+    <div class="fake-field">
+      <div class="fake-field-label">Bank BSB / Account</div>
+      <div class="fake-field-value"><span class="typed" style="animation-delay:2.0s;">062-000 / ••••••••</span><span class="cursor"></span></div>
+    </div>
+    <div class="autofill-warning">
+      ⚠️ This information is being sent to an unknown server.
+    </div>
+  </div>
+</div>
+
+<script>
+// === SCENARIO DATA — single object, everything downstream reads from here ===
+const scenario = {
+  id: 1,
+  title: "Fake Tax Refund",
+  character: { name: "Sam", age: 17, initial: "S" },
+  setup: "You lodged your first tax return three weeks ago after starting a part-time job at a café.",
+  message: {
+    channel: "SMS",
+    sender: "+61 4•• ••• 291",
+    timestamp: "Today, 4:12pm",
+    body: `ATO: You are due a tax refund of $642.00 for the 2025-26 financial year. Your refund has been approved but requires verification. Click the link below to confirm your bank details within 24 hours to avoid forfeiture.
+
+[Link: ato-refund-verify.com]`
+  },
+  question: "How would you check if this refund is real?",
+  options: [
+    { text: "Tap the link and enter your details to claim the refund", id: "tap_link", unsafe: true, autofill: true },
+    { text: "Call the number in the message to confirm", id: "call_number", unsafe: true, autofill: false },
+    { text: "Search Google and click the first result", id: "google", unsafe: true, autofill: false },
+    { text: "Open the ATO app or ATO Online services independently", id: "ato_app", unsafe: false, autofill: false },
+    { text: "Ignore the message and hope it goes away", id: "ignore", unsafe: true, autofill: false }
+  ],
+  feedback: {
+    tap_link: "Risky. The ATO will never send unsolicited messages with links asking you to log in or provide personal information. This link leads to a fake website designed to steal your details.",
+    call_number: "Risky. Scammers include fake phone numbers that connect to other scammers. The ATO will never project a number when calling. Use the official number from ato.gov.au: 1800 008 540.",
+    google: "Risky. Scammers pay for ads at the top of search results. These can lead to fake ATO websites. Always type ato.gov.au or my.gov.au directly into your browser.",
+    ignore: "Not ideal. Ignoring a genuine ATO message could mean missing important information. The habit should be to verify, not ignore.",
+    ato_app: "Correct. The safest way is to independently access the ATO app or ATO Online services through myGov. Never use links or numbers from an unexpected message."
+  },
+  reveal: {
+    title: "What you would see in the ATO app",
+    steps: [
+      "Open the ATO app and log in",
+      "Select 'Your tax return for 2025-26'",
+      "The status shows whether a refund has been issued, is processing, or if tax is owed"
+    ],
+    truth: "Sam's return was still processing. No refund had been issued.",
+    realismNote: "Online returns generally process within two weeks, up to 30 days if manual review is needed.",
+    everyday: "This is the same screen Sam would open to track a genuine refund.",
+    source: "ato.gov.au/individuals-and-families/your-tax-return/check-the-progress-of-your-tax-return"
+  }
+};
+
+// === STATE ===
+let currentScreen = 'setup';
+let carryOverFlag = false; // set to true if user picks an unsafe option with autofill
+let lastChoice = null;
+
+// === RENDER ===
+function render() {
+  const app = document.getElementById('app');
+  app.innerHTML = '';
+
+  if (currentScreen === 'setup') renderSetup(app);
+  else if (currentScreen === 'message') renderMessage(app);
+  else if (currentScreen === 'proveit') renderProveIt(app);
+  else if (currentScreen === 'consequence') renderConsequence(app);
+  else if (currentScreen === 'reveal') renderReveal(app);
+}
+
+function renderSetup(container) {
+  container.innerHTML = `
+    <div class="card">
+      <div class="character">
+        <div class="character-avatar">${scenario.character.initial}</div>
+        <div class="character-info">
+          <h3>${scenario.character.name}, ${scenario.character.age}</h3>
+          <span>${scenario.setup}</span>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="goTo('message')">Continue</button>
+    </div>
+  `;
+}
+
+function renderMessage(container) {
+  container.innerHTML = `
+    <div class="card">
+      <span class="tag tag-simulated">Simulated ${scenario.message.channel}</span>
+      <div class="message-bubble">
+        <div class="sender">${scenario.message.sender} · ${scenario.message.timestamp}</div>
+        <div style="white-space:pre-line; color: var(--text);">${scenario.message.body}</div>
+      </div>
+      <button class="btn btn-primary" onclick="goTo('proveit')">How would you check?</button>
+    </div>
+  `;
+}
+
+function renderProveIt(container) {
+  let optionsHtml = '';
+  scenario.options.forEach(opt => {
+    optionsHtml += `<button class="btn btn-option" onclick="chooseOption('${opt.id}', ${opt.unsafe}, ${opt.autofill})">${opt.text}</button>`;
+  });
+  container.innerHTML = `
+    <div class="card">
+      <h2>${scenario.question}</h2>
+      ${optionsHtml}
+    </div>
+  `;
+}
+
+function renderConsequence(container) {
+  const isUnsafe = scenario.options.find(o => o.id === lastChoice).unsafe;
+  const feedbackText = scenario.feedback[lastChoice];
+
+  container.innerHTML = `
+    <div class="card">
+      <h2 style="color: ${isUnsafe ? 'var(--danger)' : 'var(--success)'};">${isUnsafe ? 'Risky choice' : 'Good choice'}</h2>
+      <p style="color: var(--text);">${feedbackText}</p>
+      <button class="btn btn-primary" onclick="goTo('reveal')">See the official ATO pathway</button>
+      ${isUnsafe ? `<button class="btn btn-back" onclick="goTo('proveit')">Choose differently</button>` : ''}
+    </div>
+  `;
+}
+
+function renderReveal(container) {
+  let stepsHtml = '';
+  scenario.reveal.steps.forEach((step, i) => {
+    stepsHtml += `
+      <div class="pathway-step">
+        <div class="pathway-num">${i+1}</div>
+        <div class="pathway-text">${step}</div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = `
+    <div class="card">
+      <h2>${scenario.reveal.title}</h2>
+
+      <div class="screenshot-placeholder">
+        <div class="label">Screenshot placeholder</div>
+        <div class="note">ATO app — Tax return status screen<br>(Replace with genuine framed screenshot)</div>
+      </div>
+
+      ${stepsHtml}
+
+      <div class="reveal-box">
+        <h4>The truth</h4>
+        <p>${scenario.reveal.truth}</p>
+      </div>
+
+      <div class="reveal-box" style="border-left-color: var(--success); background: rgba(34,197,94,0.06);">
+        <h4 style="color: var(--success);">Everyday use</h4>
+        <p>${scenario.reveal.everyday}</p>
+      </div>
+
+      <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 12px;">
+        ${scenario.reveal.realismNote}<br>
+        Source: ${scenario.reveal.source}
+      </p>
+
+      <button class="btn btn-primary" onclick="restart()" style="margin-top: 16px;">Play again</button>
+    </div>
+  `;
+}
+
+// === ACTIONS ===
+function goTo(screen) {
+  currentScreen = screen;
+  render();
+}
+
+function chooseOption(choiceId, isUnsafe, hasAutofill) {
+  lastChoice = choiceId;
+  if (isUnsafe && hasAutofill) {
+    carryOverFlag = true;
+    showAutofill(() => {
+      goTo('consequence');
+    });
+  } else {
+    goTo('consequence');
+  }
+}
+
+function showAutofill(onComplete) {
+  const overlay = document.getElementById('autofill-overlay');
+  overlay.classList.remove('hidden');
+  // Reset animations by re-inserting HTML
+  const box = overlay.querySelector('.autofill-box');
+  box.innerHTML = box.innerHTML;
+
+  setTimeout(() => {
+    overlay.classList.add('hidden');
+    onComplete();
+  }, 4200);
+}
+
+function restart() {
+  currentScreen = 'setup';
+  carryOverFlag = false;
+  lastChoice = null;
+  render();
+}
+
+// === INIT ===
+render();
+</script>
+
+</body>
+</html>
