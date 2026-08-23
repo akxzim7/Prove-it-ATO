@@ -777,6 +777,76 @@
   .sys-rule { margin: 18px 0; }
   .card h2 { line-height: 1.35; margin-bottom: 14px; }
 
+  /* Streak recognition — appears on the verdict, then settles back */
+  .streak-badge {
+    display: inline-block; margin: 2px 0 12px;
+    padding: 7px 13px; border-radius: 7px;
+    font-family: var(--mono); font-size: 0.72rem; font-weight: 700;
+    letter-spacing: 0.9px;
+    animation: streakPop 3.4s cubic-bezier(0.2,0.9,0.3,1.4) forwards;
+  }
+  .streak-badge.on  { color: #fde68a; background: rgba(245,158,11,0.16); border: 1px solid rgba(245,158,11,0.5); }
+  .streak-badge.off { color: #cbd5e1; background: rgba(148,163,184,0.12); border: 1px solid rgba(148,163,184,0.32); }
+  @keyframes streakPop {
+    0%   { transform: scale(0.7); opacity: 0; }
+    10%  { transform: scale(1.08); opacity: 1; }
+    18%  { transform: scale(1); opacity: 1; }
+    72%  { opacity: 1; }
+    100% { transform: scale(1); opacity: 0.34; }
+  }
+
+  /* What the attacker walked away with */
+  .stolen-list {
+    list-style: none; margin: 0 0 16px; padding: 0;
+    text-align: left; display: inline-block;
+  }
+  .stolen-list li {
+    font-family: var(--mono); font-size: 0.74rem; color: #fca5a5;
+    padding: 7px 0 7px 20px; position: relative; line-height: 1.5;
+    border-bottom: 1px solid rgba(239,68,68,0.16);
+  }
+  .stolen-list li:last-child { border-bottom: none; }
+  .stolen-list li::before {
+    content: '✕'; position: absolute; left: 2px; top: 7px;
+    color: var(--danger); font-size: 0.7rem;
+  }
+  .last-move {
+    text-align: left; font-size: 0.83rem; line-height: 1.6;
+    color: #cbd5e1; background: rgba(15,23,42,0.5);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 11px 13px; margin-bottom: 16px;
+  }
+  .last-move-key {
+    display: block; font-family: var(--mono); font-size: 0.55rem;
+    letter-spacing: 1.2px; text-transform: uppercase;
+    color: #64748b; margin-bottom: 4px;
+  }
+
+  /* Perfect run */
+  .vault-ring.perfect {
+    border-color: #fbbf24;
+    box-shadow: 0 0 40px rgba(251,191,36,0.5), inset 0 0 24px rgba(251,191,36,0.2);
+    animation: perfectGlow 2.6s ease-in-out infinite;
+  }
+  @keyframes perfectGlow {
+    0%,100% { box-shadow: 0 0 40px rgba(251,191,36,0.5), inset 0 0 24px rgba(251,191,36,0.2); }
+    50%     { box-shadow: 0 0 58px rgba(251,191,36,0.75), inset 0 0 30px rgba(251,191,36,0.3); }
+  }
+  .perfect-badge {
+    text-align: center; margin: 0 0 18px;
+    padding: 15px 16px; border-radius: 10px;
+    border: 2px solid #fbbf24;
+    background: linear-gradient(160deg, rgba(251,191,36,0.16), rgba(251,191,36,0.05));
+    box-shadow: 0 0 26px rgba(251,191,36,0.22);
+  }
+  .pb-title {
+    font-family: var(--mono); font-weight: 700;
+    font-size: 0.86rem; letter-spacing: 1.8px; text-transform: uppercase;
+    color: #fde68a; text-shadow: 0 0 16px rgba(251,191,36,0.5);
+    line-height: 1.35; margin-bottom: 6px;
+  }
+  .pb-sub { font-size: 0.8rem; color: #e2e8f0; line-height: 1.5; }
+
   /* Defence rating */
   .rank-badge {
     width: 88px; height: 88px; margin: 4px auto 10px;
@@ -987,6 +1057,7 @@ const scenarios = [
     intrusionType: "They sent you a fake text",
     attacker: { name: "PHANTOM", emoji: "🕶" },
     stake: 642,
+    loss: "Refund redirected: $642",
     setup: "Goes after first-time lodgers. You filed your first return three weeks ago.",
     vulnerability: "No baseline for how long a refund should take.",
     message: {
@@ -1045,6 +1116,7 @@ const scenarios = [
     intrusionType: "They sent you a fake email",
     attacker: { name: "GHOST", emoji: "👻" },
     stake: 0,
+    loss: "myGov login stolen",
     setup: "Goes after students with myGov linked to the ATO. That&rsquo;s you.",
     vulnerability: "One myGov login unlocks multiple government services.",
     message: {
@@ -1102,6 +1174,7 @@ const scenarios = [
     intrusionType: "They left you a threatening voicemail",
     attacker: { name: "SPECTER", emoji: "☠" },
     stake: 1204.65,
+    loss: "Fake debt paid: $1,205",
     setup: "Goes after people who just changed jobs. You changed jobs last month.",
     vulnerability: "A job change makes a surprise tax bill sound plausible.",
     message: {
@@ -1159,6 +1232,7 @@ const scenarios = [
     intrusionType: "They are moving your super",
     attacker: { name: "VIPER", emoji: "🐍" },
     stake: 4850,
+    loss: "Super drained: $4,850",
     setup: "Goes after people part-way through merging their super. You started last week.",
     vulnerability: "A transfer between funds would look routine right now.",
     message: {
@@ -1216,6 +1290,7 @@ const scenarios = [
     intrusionType: "They filed a tax return as you",
     attacker: { name: "WRAITH", emoji: "🎭" },
     stake: 0,
+    loss: "Refund stolen in your name",
     setup: "Files before you do. You usually lodge in August. It&rsquo;s early July.",
     vulnerability: "Return not lodged yet — the window is wide open.",
     message: {
@@ -1273,6 +1348,7 @@ const scenarios = [
     intrusionType: "They are calling you right now",
     attacker: { name: "SHADOW", emoji: "🔦" },
     stake: 0,
+    loss: "TFN and myGov password handed over",
     setup: "Calls business owners expecting the ATO. You&rsquo;re expecting a call about your BAS.",
     vulnerability: "Already expecting ATO contact — primed to trust the call.",
     message: {
@@ -1335,7 +1411,7 @@ let vaultHealth = 100;
 
 // Health moves once per attack, on your FIRST answer, so "try again" is neither
 // a way to farm health back nor a second punishment.
-const HEALTH = { safe: 5, unresolved: -9, breach: -18 };
+const HEALTH = { safe: 5, unresolved: -15, breach: -20 };
 
 function phaseOf(i) { return i < 2 ? 1 : i < 4 ? 2 : 3; }
 const PHASES = {
@@ -1354,6 +1430,27 @@ function comboStreak() {
     streak = c.outcome === 'safe' ? streak + 1 : 0;
   }
   return streak;
+}
+
+// The streak as it stood before the current attack was answered.
+function streakBefore() {
+  let n = 0;
+  for (const s of scenarios) {
+    if (s.id === scenarios[currentScenario].id) break;
+    const c = userChoices.find(x => x.scenarioId === s.id);
+    if (!c) break;
+    n = c.outcome === 'safe' ? n + 1 : 0;
+  }
+  return n;
+}
+
+function streakLine(streak) {
+  if (streak >= 6) return streak + ' in a row! Flawless!';
+  if (streak === 5) return '5 in a row! Lockdown Legend!';
+  if (streak === 4) return '4 in a row! Unstoppable!';
+  if (streak === 3) return '3 in a row! On fire!';
+  if (streak === 2) return '2 in a row!';
+  return '';
 }
 
 // Only counts money the scenarios actually name.
@@ -1496,7 +1593,6 @@ function render() {
 
 function renderProgress(opts = {}) {
   const hp = vaultHealth > 60 ? 'good' : vaultHealth > 30 ? 'warn' : 'bad';
-  const streak = comboStreak();
   let dots = '';
   for (let i = 0; i < scenarios.length; i++) {
     let cls = '';
@@ -1521,7 +1617,6 @@ function renderProgress(opts = {}) {
     <div class="hud-stats">
       <span class="hud-stat"><span class="hud-stat-key">Rank</span><span class="hud-stat-val">${rankFor(neutralisedCount()).icon} ${rankFor(neutralisedCount()).label}</span></span>
       <span class="hud-stat"><span class="hud-stat-key">Attacks stopped</span><span class="hud-stat-val">${neutralisedCount()}/${scenarios.length}</span></span>
-      ${streak >= 3 ? `<span class="combo-badge">🔥 ${streak} in a row!</span>` : ''}
     </div>
   `;
 }
@@ -1660,6 +1755,9 @@ function renderScenarioFeedback(container) {
   const consequenceClass = outcome === 'breach' ? 'risky' : outcome === 'unresolved' ? 'unresolved' : 'safe';
   const detailLabel = outcome === 'safe' ? 'Why this works' : 'What went wrong';
   const dead = vaultHealth <= 0;
+  const streakText = outcome === 'safe'
+    ? streakLine(comboStreak())
+    : (streakBefore() >= 2 ? 'Streak broken. Stay sharp.' : '');
 
   container.innerHTML = `
     <div class="card ${phaseClass()} ${view.cardClass}">
@@ -1668,6 +1766,7 @@ function renderScenarioFeedback(container) {
         <div class="verdict-icon ${view.iconClass}">${view.icon}</div>
         <div class="verdict-title ${view.iconClass}">${fb.headline}</div>
       </div>
+      ${streakText ? `<div class="streak-badge ${outcome === 'safe' ? 'on' : 'off'}">${outcome === 'safe' ? '🔥 ' : '💔 '}${streakText}</div>` : ''}
       <div class="consequence ${consequenceClass}">&gt; ${view.consequence}</div>
       <p class="lede">${fb.body}</p>
       <details class="more">
@@ -1729,15 +1828,28 @@ function renderScenarioReveal(container) {
 }
 
 function renderGameOver(container) {
+  clearTimeout(msgTimer);
+  clearTimeout(exfilTimer);
+  document.getElementById('exfil-overlay').classList.add('hidden');
   const amt = stolenTotal();
+  const taken = userChoices.filter(c => c.outcome === 'breach')
+    .map(c => scenarios.find(s => s.id === c.scenarioId))
+    .filter(Boolean);
+  const stolenList = taken.length
+    ? taken.map(s => `<li>${s.loss}</li>`).join('')
+    : `<li>Nothing confirmed gone — but you never actually checked.</li>`;
   const loss = amt > 0
     ? `$${Math.round(amt).toLocaleString()} gone, plus your TFN and your myGov login.`
     : `Your TFN and your myGov login are gone.`;
+  const lastOpt = scenarios[currentScenario].options.find(o => o.id === lastChoice);
+  const lastFb = lastOpt ? scenarios[currentScenario].feedback[lastOpt.id] : null;
   container.innerHTML = `
     <div class="card card-breach phase-3" style="text-align:center;">
       <div class="vault-ring cracked"><span>🔓</span></div>
       <div class="gameover-head">They got in</div>
       <div class="gameover-loss">${loss}</div>
+      <ul class="stolen-list">${stolenList}</ul>
+      ${lastFb ? `<div class="last-move"><span class="last-move-key">Your last move</span>${lastFb.headline} — ${lastFb.body}</div>` : ''}
       <p style="color:var(--text);">Your vault is compromised. Every one of those attacks had the same way out: stop, and check it yourself in the ATO app or at my.gov.au.</p>
       <div class="reveal-box" style="border-left-color:var(--accent); background:rgba(245,158,11,0.08); border-color:rgba(245,158,11,0.25); text-align:left;">
         <h4 style="color:var(--accent);">The one rule</h4>
@@ -1777,7 +1889,12 @@ function renderReport(container) {
     <div class="card">
       <div class="sys-label" style="text-align:center;">Done</div>
       <h1 style="text-align:center; font-family:var(--mono); font-size:1.3rem; letter-spacing:1.6px; text-transform:uppercase;">How you did</h1>
-      <div class="vault-ring ${neutralised === total ? 'sealed' : compromised >= 3 ? 'cracked' : 'held'}"><span>${rank.icon}</span></div>
+      <div class="vault-ring ${neutralised === total ? 'sealed perfect' : compromised >= 3 ? 'cracked' : 'held'}"><span>${rank.icon}</span></div>
+      ${neutralised === total ? `
+        <div class="perfect-badge">
+          <div class="pb-title">Perfect Run — Untouchable</div>
+          <div class="pb-sub">6/6 attacks stopped. Zero compromise. Maximum security.</div>
+        </div>` : ''}
       <div class="rank-label">${rank.label}</div>
       <div class="rank-sub">${rank.sub}</div>
       <div class="report-metric">
@@ -1874,10 +1991,11 @@ function chooseOption(choiceId) {
     vaultHealth = Math.max(0, Math.min(100, vaultHealth + HEALTH[entry.outcome]));
   }
 
+  const dest = () => vaultHealth <= 0 ? 'gameover' : 'scenario-feedback';
   if (opt.unsafe && opt.autofill) {
-    showExfiltration(() => { goTo('scenario-feedback'); });
+    showExfiltration(() => { goTo(dest()); });
   } else {
-    goTo('scenario-feedback');
+    goTo(dest());
   }
 }
 
