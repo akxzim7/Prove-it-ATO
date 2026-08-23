@@ -523,6 +523,104 @@
     color: var(--text-muted); margin-bottom: 18px;
   }
 
+  /* Landing: how it works */
+  .how-row {
+    display: flex; align-items: flex-start; justify-content: center;
+    gap: 4px; margin: 20px 0 16px;
+  }
+  .how-step { flex: 1 1 0; min-width: 0; text-align: center; }
+  .how-icon {
+    font-size: 1.6rem; line-height: 1;
+    margin-bottom: 7px;
+    filter: drop-shadow(0 0 10px rgba(56,189,248,0.25));
+  }
+  .how-text {
+    font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.6px;
+    color: var(--text-muted); text-transform: uppercase; line-height: 1.4;
+  }
+  .how-arrow {
+    color: var(--cyan); opacity: 0.5; font-size: 0.9rem;
+    padding-top: 9px; flex: 0 0 auto;
+  }
+
+  /* Setup: the header carries the screen */
+  .breach-banner {
+    font-family: var(--mono); font-weight: 700;
+    font-size: clamp(2rem, 8vw, 2.85rem);
+    line-height: 1.02; letter-spacing: 3px;
+    text-transform: uppercase; text-align: center;
+    color: var(--danger);
+    margin: 6px 0 10px;
+    text-shadow: 0 0 26px rgba(239,68,68,0.4);
+    animation: breachIn 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.4) backwards;
+  }
+  @keyframes breachIn {
+    from { opacity: 0; transform: scale(0.86); letter-spacing: 10px; }
+    to   { opacity: 1; transform: scale(1);    letter-spacing: 3px; }
+  }
+  .breach-sub {
+    font-family: var(--mono); font-size: 0.66rem; letter-spacing: 2.2px;
+    text-transform: uppercase; text-align: center;
+    color: var(--text-muted); margin-bottom: 18px;
+  }
+  .target-line {
+    display: flex; gap: 10px; align-items: baseline;
+    background: var(--bg-deep); border: 1px solid var(--border);
+    border-radius: 8px; padding: 11px 13px; margin-bottom: 16px;
+  }
+  .target-key {
+    font-family: var(--mono); font-size: 0.58rem; letter-spacing: 1.1px;
+    text-transform: uppercase; color: var(--accent);
+    flex: 0 0 auto; white-space: nowrap;
+  }
+  .target-val { font-size: 0.85rem; color: #cbd5e1; line-height: 1.5; }
+  .target-sep { color: #475569; padding: 0 2px; }
+
+  /* Option buttons: action icon on the left */
+  .btn-option { display: flex; align-items: center; gap: 12px; }
+  .opt-icon {
+    flex: 0 0 auto; font-size: 1.2rem; line-height: 1;
+    width: 34px; height: 34px; border-radius: 7px;
+    background: rgba(15,23,42,0.55); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .opt-body { flex: 1 1 auto; min-width: 0; }
+  .btn-option:hover .opt-icon { border-color: var(--cyan); }
+
+  /* HUD: live rank + breach counter */
+  .hud-stats {
+    display: flex; flex-wrap: wrap; gap: 6px 16px;
+    margin-top: 9px; margin-bottom: 15px; padding-top: 9px;
+    border-top: 1px solid rgba(148,163,184,0.13);
+  }
+  .hud-stat { display: flex; align-items: baseline; gap: 6px; }
+  .hud-stat-key {
+    font-family: var(--mono); font-size: 0.55rem; letter-spacing: 1px;
+    text-transform: uppercase; color: #64748b;
+  }
+  .hud-stat-val {
+    font-family: var(--mono); font-size: 0.63rem; font-weight: 700;
+    letter-spacing: 0.6px; color: var(--cyan);
+  }
+
+  /* Reveal: pathway folded into the result box */
+  .check-head {
+    font-family: var(--mono); font-size: 0.58rem; letter-spacing: 1.2px;
+    text-transform: uppercase; color: var(--accent);
+    margin: 13px 0 9px; padding-top: 11px;
+    border-top: 1px solid rgba(148,163,184,0.14);
+  }
+  .reveal-box .pathway-step:last-child { margin-bottom: 0; }
+
+  /* Report: everyday-use roundup */
+  .everyday-list { margin: 0; padding-left: 17px; }
+  .everyday-list li {
+    color: #cbd5e1; font-size: 0.83rem; line-height: 1.55;
+    margin-bottom: 7px;
+  }
+  .everyday-list li:last-child { margin-bottom: 0; }
+  .everyday-list b { color: var(--text); }
+
   /* Defence rating */
   .rank-badge {
     width: 88px; height: 88px; margin: 4px auto 10px;
@@ -742,10 +840,10 @@ const scenarios = [
     },
     question: "What's your move?",
     options: [
-      { text: "Open the link and log in to claim it", id: "tap_link", unsafe: true, autofill: true, consequence: "Credentials and bank details captured by an unknown host." },
-      { text: "Call the number back — it matches ATO on Google", id: "call_number", unsafe: true, autofill: false, consequence: "Call routed straight back to the attacker." },
-      { text: "Check your real refund status in the ATO app", id: "ato_app", unsafe: false, autofill: false },
-      { text: "Screenshot it and ask the group chat if it's real", id: "ask_chat", unsafe: true, passive: true, autofill: false, consequence: "Opinions gathered. The account itself was never checked." }
+      { icon: "🔗", text: "Open the link and log in", id: "tap_link", unsafe: true, autofill: true, consequence: "Credentials and bank details captured by an unknown host." },
+      { icon: "📞", text: "Call the number — Google matched it", id: "call_number", unsafe: true, autofill: false, consequence: "Call routed straight back to the attacker." },
+      { icon: "📱", text: "Check refund status in ATO app", id: "ato_app", unsafe: false, autofill: false },
+      { icon: "💬", text: "Screenshot it, ask the group chat", id: "ask_chat", unsafe: true, passive: true, autofill: false, consequence: "Opinions gathered. The account itself was never checked." }
     ],
     feedback: {
       tap_link: {
@@ -798,10 +896,10 @@ const scenarios = [
     },
     question: "What now?",
     options: [
-      { text: "Type my.gov.au yourself and check the account", id: "type_mygov", unsafe: false, autofill: false },
-      { text: "Click Verify Account Now — the branding is perfect", id: "click_link", unsafe: true, autofill: true, consequence: "myGov credentials submitted to a cloned login page." },
-      { text: "Reply and ask them to confirm who they are", id: "reply_email", unsafe: true, autofill: false, consequence: "Address confirmed as live. Target flagged for repeat attempts." },
-      { text: "Forward it to a tax agent — they'll know", id: "ask_agent", unsafe: true, passive: true, autofill: false, consequence: "Advice pending. The ATO account still unchecked." }
+      { icon: "🌐", text: "Type my.gov.au in the browser", id: "type_mygov", unsafe: false, autofill: false },
+      { icon: "🔗", text: "Click Verify Account Now — perfect branding", id: "click_link", unsafe: true, autofill: true, consequence: "myGov credentials submitted to a cloned login page." },
+      { icon: "✉️", text: "Reply asking them to confirm identity", id: "reply_email", unsafe: true, autofill: false, consequence: "Address confirmed as live. Target flagged for repeat attempts." },
+      { icon: "💬", text: "Forward it to a tax agent", id: "ask_agent", unsafe: true, passive: true, autofill: false, consequence: "Advice pending. The ATO account still unchecked." }
     ],
     feedback: {
       type_mygov: {
@@ -853,10 +951,10 @@ const scenarios = [
     },
     question: "They want payment today. Your call.",
     options: [
-      { text: "Press 1 and pay it before the deadline", id: "press_1", unsafe: true, autofill: false, consequence: "Payment details handed straight to the attacker." },
-      { text: "Check the caller ID matches the ATO's real number", id: "check_caller_id", unsafe: true, autofill: false, consequence: "Caller ID spoofed. A false confirmation was accepted." },
-      { text: "Call back and ask for a case reference number", id: "call_back", unsafe: true, autofill: false, consequence: "Callback reaches the spoofed line. The attacker controls the channel." },
-      { text: "Log in to your ATO account and check the balance", id: "ato_app", unsafe: false, autofill: false }
+      { icon: "💳", text: "Press 1 and pay the debt", id: "press_1", unsafe: true, autofill: false, consequence: "Payment details handed straight to the attacker." },
+      { icon: "🆔", text: "Check caller ID matches ATO number", id: "check_caller_id", unsafe: true, autofill: false, consequence: "Caller ID spoofed. A false confirmation was accepted." },
+      { icon: "📞", text: "Call back, ask for case number", id: "call_back", unsafe: true, autofill: false, consequence: "Callback reaches the spoofed line. The attacker controls the channel." },
+      { icon: "📱", text: "Log in, check your ATO balance", id: "ato_app", unsafe: false, autofill: false }
     ],
     feedback: {
       press_1: {
@@ -908,10 +1006,10 @@ const scenarios = [
     },
     question: "$4,850 is moving. Act.",
     options: [
-      { text: "Verify it — your employer might have started the rollover", id: "verify_it", unsafe: true, autofill: false, consequence: "Transfer approved. $4,850.00 released to an unknown fund." },
-      { text: "Lock the account now. Don't verify anything.", id: "lock_account", unsafe: false, autofill: false },
-      { text: "Check the super balance tomorrow and see what changed", id: "check_tomorrow", unsafe: true, passive: true, autofill: false, consequence: "Transfer left pending overnight. It may process unattended." },
-      { text: "Log in to the super fund's site to check", id: "check_fund", unsafe: true, passive: true, autofill: false, consequence: "Wrong system checked. The ATO request is still pending." }
+      { icon: "📱", text: "Verify it — employer probably started it", id: "verify_it", unsafe: true, autofill: false, consequence: "Transfer approved. $4,850.00 released to an unknown fund." },
+      { icon: "🔒", text: "Lock the account. Don't verify.", id: "lock_account", unsafe: false, autofill: false },
+      { icon: "⏳", text: "Check the balance tomorrow instead", id: "check_tomorrow", unsafe: true, passive: true, autofill: false, consequence: "Transfer left pending overnight. It may process unattended." },
+      { icon: "🌐", text: "Check the super fund's website first", id: "check_fund", unsafe: true, passive: true, autofill: false, consequence: "Wrong system checked. The ATO request is still pending." }
     ],
     feedback: {
       verify_it: {
@@ -963,10 +1061,10 @@ const scenarios = [
     },
     question: "Someone lodged for you. Now what?",
     options: [
-      { text: "Review it — maybe a tax agent lodged early", id: "approve", unsafe: true, autofill: false, consequence: "Fraudulent return validated. Refund routed to the attacker." },
-      { text: "Wait for the notice of assessment to arrive", id: "wait_mail", unsafe: true, passive: true, autofill: false, consequence: "Return left unchallenged. Processing continues in the background." },
-      { text: "Email Fast Refund Tax Services and ask what happened", id: "email_agent", unsafe: true, autofill: false, consequence: "Direct contact made with the fraudulent 'agent'." },
-      { text: "Lock your ATO record and report identity fraud", id: "lock_account", unsafe: false, autofill: false }
+      { icon: "📱", text: "Review it — agent probably lodged early", id: "approve", unsafe: true, autofill: false, consequence: "Fraudulent return validated. Refund routed to the attacker." },
+      { icon: "⏳", text: "Wait for the assessment notice", id: "wait_mail", unsafe: true, passive: true, autofill: false, consequence: "Return left unchallenged. Processing continues in the background." },
+      { icon: "✉️", text: "Email the agent, ask what happened", id: "email_agent", unsafe: true, autofill: false, consequence: "Direct contact made with the fraudulent 'agent'." },
+      { icon: "🚨", text: "Lock your record, report fraud", id: "lock_account", unsafe: false, autofill: false }
     ],
     feedback: {
       approve: {
@@ -1018,10 +1116,10 @@ const scenarios = [
     },
     question: "She knows your business name. Your move.",
     options: [
-      { text: "Give her the TFN — she knows the business already", id: "provide_details", unsafe: true, autofill: true, consequence: "TFN and myGov password disclosed to an unverified caller." },
-      { text: "Ask for her employee ID to confirm she's real", id: "employee_id", unsafe: true, autofill: false, consequence: "An invented ID was accepted. The caller was never verified." },
-      { text: "Open the ATO app and hit Verify Call", id: "verify_call", unsafe: false, autofill: false },
-      { text: "Hang up — the ATO doesn't cold-call people", id: "hang_up", unsafe: true, passive: true, autofill: false, consequence: "Call ended unverified. A genuine ATO call would be lost too." }
+      { icon: "🗣", text: "Give the TFN — she knows already", id: "provide_details", unsafe: true, autofill: true, consequence: "TFN and myGov password disclosed to an unverified caller." },
+      { icon: "🆔", text: "Ask for her employee ID", id: "employee_id", unsafe: true, autofill: false, consequence: "An invented ID was accepted. The caller was never verified." },
+      { icon: "📱", text: "Open ATO app, hit Verify Call", id: "verify_call", unsafe: false, autofill: false },
+      { icon: "📞", text: "Hang up — ATO never cold-calls", id: "hang_up", unsafe: true, passive: true, autofill: false, consequence: "Call ended unverified. A genuine ATO call would be lost too." }
     ],
     feedback: {
       provide_details: {
@@ -1170,6 +1268,13 @@ function outcomeOf(opt) {
   return opt.passive ? 'unresolved' : 'breach';
 }
 
+function rankFor(n) {
+  if (n === 6) return { icon: '🏰', label: 'Fortress',       sub: 'Zero breaches. Maximum security.' };
+  if (n >= 4)  return { icon: '🛡', label: 'Elite Defender', sub: 'Critical systems protected.' };
+  if (n >= 2)  return { icon: '📡', label: 'Operative',      sub: 'Partial defence grid active.' };
+  return              { icon: '🔓', label: 'Rookie',         sub: 'Vault perimeter breached.' };
+}
+
 function neutralisedCount() {
   return userChoices.filter(c => c.outcome === 'safe').length;
 }
@@ -1197,10 +1302,14 @@ function renderProgress(opts = {}) {
   return `
     <div class="hud">
       <span class="hud-label">Intrusion ${currentScenario + 1} of ${scenarios.length}</span>
-      <span class="score-chip ${opts.bump ? 'bump' : ''}">🛡 ${neutralisedCount()} Neutralised</span>
+      <span class="score-chip ${opts.bump ? 'bump' : ''}">🛡 ${neutralisedCount()}/${scenarios.length} stopped</span>
     </div>
     <div class="layers-label">Security layers activated</div>
     <div class="progress-bar">${dots}</div>
+    <div class="hud-stats">
+      <span class="hud-stat"><span class="hud-stat-key">Current rank</span><span class="hud-stat-val">${rankFor(neutralisedCount()).icon} ${rankFor(neutralisedCount()).label}</span></span>
+      <span class="hud-stat"><span class="hud-stat-key">Breach attempts stopped</span><span class="hud-stat-val">${neutralisedCount()}/${scenarios.length}</span></span>
+    </div>
   `;
 }
 
@@ -1219,8 +1328,14 @@ function renderLanding(container) {
         <div class="tm-track"><div class="tm-fill"></div></div>
         <div class="tm-note">Almost <strong>7,500 ATO impersonation scams</strong> were reported in July 2025 alone.</div>
       </div>
-      <p style="font-size:0.9rem;">Each intrusion below is a real scam technique. Your job is to pick the countermeasure that actually works: <strong>verify through a genuine ATO channel</strong> instead of trusting the message. Techniques change. The habit generalises.</p>
-      <div class="spec-bar">6 INTRUSIONS &nbsp;·&nbsp; ~5 MINUTES &nbsp;·&nbsp; ZERO PERSONAL DATA REQUIRED</div>
+      <div class="how-row">
+        <div class="how-step"><div class="how-icon">📱</div><div class="how-text">Message appears</div></div>
+        <div class="how-arrow">→</div>
+        <div class="how-step"><div class="how-icon">🛡</div><div class="how-text">Pick defence</div></div>
+        <div class="how-arrow">→</div>
+        <div class="how-step"><div class="how-icon">✅</div><div class="how-text">See result</div></div>
+      </div>
+      <div class="spec-bar">6 rounds &nbsp;·&nbsp; ~5 minutes &nbsp;·&nbsp; Zero data required</div>
       <button class="btn btn-primary" onclick="startScenarios()">Initialise Defence Protocol</button>
       <div class="source-line" style="text-align:center;">Source: ATO Media Centre, April 2026</div>
     </div>
@@ -1232,25 +1347,11 @@ function renderScenarioSetup(container) {
   container.innerHTML = `
     <div class="card">
       ${renderProgress()}
-      <div class="sys-label" style="color:var(--danger);">⚠ Breach Detected</div>
-      <div class="sys-head">${s.intrusionType}</div>
-      <div class="sys-rule"></div>
-      <div class="subject-line">
-        <div class="subject-avatar">${s.character.emoji || s.character.initial}</div>
-        <div>
-          <div class="subject-name">${s.character.name}, ${s.character.age}</div>
-          <div class="sys-label" style="color:var(--text-muted);">Target Subject</div>
-        </div>
-      </div>
-      <div class="dossier">
-        <div class="dossier-row">
-          <div class="dossier-key">Status</div>
-          <div class="dossier-val">${s.setup}</div>
-        </div>
-        <div class="dossier-row">
-          <div class="dossier-key">Exposure</div>
-          <div class="dossier-val">${s.vulnerability}</div>
-        </div>
+      <div class="breach-banner">Breach<br>Detected</div>
+      <div class="breach-sub">${s.intrusionType}</div>
+      <div class="target-line">
+        <span class="target-key">🎯 Target</span>
+        <span class="target-val"><b>${s.character.name}, ${s.character.age}</b> <span class="target-sep">|</span> ${s.setup}</span>
       </div>
       <button class="btn btn-primary" onclick="goTo('scenario-message')">Intercept Transmission</button>
     </div>
@@ -1306,8 +1407,11 @@ function renderScenarioDecision(container) {
     const num = String(i + 1).padStart(2, '0');
     optionsHtml += `
       <button class="btn btn-option" style="animation-delay:${(i * 0.06).toFixed(2)}s" onclick="chooseOption('${opt.id}')">
-        <span class="opt-tag">Protocol ${num}</span>
-        <span class="opt-text">${opt.text}</span>
+        <span class="opt-icon" aria-hidden="true">${opt.icon}</span>
+        <span class="opt-body">
+          <span class="opt-tag">Protocol ${num}</span>
+          <span class="opt-text">${opt.text}</span>
+        </span>
       </button>
     `;
   });
@@ -1384,14 +1488,11 @@ function renderScenarioReveal(container) {
       <h2>${s.reveal.title}</h2>
       <div class="sys-rule"></div>
       ${screenshotHtml}
-      ${stepsHtml}
       <div class="reveal-box">
-        <h4>Result</h4>
+        <h4>ATO Confirmed</h4>
         <p>${s.reveal.truth}</p>
-      </div>
-      <div class="reveal-box" style="border-left-color:var(--success); background:rgba(34,197,94,0.06); border-color:rgba(34,197,94,0.22);">
-        <h4 style="color:var(--success);">Everyday Use</h4>
-        <p>${s.reveal.everyday}</p>
+        <div class="check-head">Check yourself</div>
+        ${stepsHtml}
       </div>
       <details class="more">
         <summary>The detail</summary>
@@ -1424,13 +1525,9 @@ function renderReport(container) {
     `;
   });
 
-  const rank = neutralised === 6
-    ? { icon: '🏰', label: 'Fortress', sub: 'Zero breaches. Maximum security.' }
-    : neutralised >= 4
-      ? { icon: '🛡', label: 'Elite Defender', sub: 'Critical systems protected.' }
-      : neutralised >= 2
-        ? { icon: '📡', label: 'Operative', sub: 'Partial defence grid active.' }
-        : { icon: '🔓', label: 'Rookie', sub: 'Vault perimeter breached.' };
+  const rank = rankFor(neutralised);
+  const everydayHtml = scenarios.map(s =>
+    `<li><b>${s.title}</b> — ${s.reveal.everyday}</li>`).join('');
 
   container.innerHTML = `
     <div class="card">
@@ -1466,6 +1563,10 @@ function renderReport(container) {
       </p>
       <div style="margin:18px 0;">
         ${summaryHtml}
+      </div>
+      <div class="reveal-box" style="border-left-color:var(--success); background:rgba(34,197,94,0.06); border-color:rgba(34,197,94,0.22);">
+        <h4 style="color:var(--success);">The Same Channels, Every Day</h4>
+        <ul class="everyday-list">${everydayHtml}</ul>
       </div>
       <div class="reveal-box" style="border-left-color:var(--accent); background:rgba(245,158,11,0.08); border-color:rgba(245,158,11,0.25);">
         <h4 style="color:var(--accent);">Standing Order</h4>
