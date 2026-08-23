@@ -1,26 +1,28 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-AU">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Prove It — ATO Scam Simulator</title>
+<title>Lockdown Protocol — ATO Scam Defence Simulator</title>
 <style>
   :root {
     --bg: #0f172a;
-    --bg-card: #1e293b;
-    --bg-card-hover: #334155;
-    --text: #f1f5f9;
-    --text-muted: #94a3b8;
+    --bg-card: #1a2438;
+    --bg-deep: #0a1122;
+    --text: #eef4fb;
+    --text-muted: #93a5c0;
     --accent: #f59e0b;
     --accent-hover: #fbbf24;
+    --cyan: #38bdf8;
     --danger: #ef4444;
     --danger-bg: #7f1d1d;
+    --warn: #f59e0b;
     --success: #22c55e;
     --success-bg: #14532d;
-    --info: #3b82f6;
-    --border: #334155;
-    --radius: 12px;
-    --shadow: 0 4px 20px rgba(0,0,0,0.4);
+    --border: #2a3a56;
+    --radius: 10px;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    --shadow: 0 4px 24px rgba(0,0,0,0.45);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -34,19 +36,61 @@
     padding: 16px;
     line-height: 1.6;
   }
+  /* Circuit grid backdrop — pure CSS, no image request. */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image:
+      linear-gradient(rgba(56,189,248,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(56,189,248,0.05) 1px, transparent 1px);
+    background-size: 46px 46px;
+    -webkit-mask-image: radial-gradient(ellipse at 50% -10%, #000 0%, transparent 75%);
+    mask-image: radial-gradient(ellipse at 50% -10%, #000 0%, transparent 75%);
+  }
+  .disclaimer, .container, .sysbar { position: relative; z-index: 1; }
+
+  .sysbar {
+    max-width: 620px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 1px;
+    color: var(--cyan);
+    text-transform: uppercase;
+    padding: 0 2px 8px;
+  }
+  .sysbar .status-dot {
+    display: inline-block;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--success);
+    margin-right: 6px;
+    vertical-align: middle;
+    animation: livePulse 2.2s ease-in-out infinite;
+  }
+  @keyframes livePulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
   .disclaimer {
     font-size: 11px;
     color: var(--text-muted);
     text-align: center;
     padding: 8px 12px;
-    background: rgba(0,0,0,0.3);
+    background: rgba(0,0,0,0.35);
+    border: 1px solid var(--border);
     border-radius: 6px;
-    margin-bottom: 16px;
-    max-width: 600px;
+    margin-bottom: 14px;
+    max-width: 620px;
     width: 100%;
   }
   .container {
-    max-width: 600px;
+    max-width: 620px;
     width: 100%;
     flex: 1;
     display: flex;
@@ -56,22 +100,60 @@
   .card {
     background: var(--bg-card);
     border-radius: var(--radius);
-    padding: 28px;
+    padding: 26px;
     box-shadow: var(--shadow);
     border: 1px solid var(--border);
     animation: fadeIn 0.35s ease;
+    position: relative;
+    overflow: hidden;
   }
+  /* Corner bracket detailing on every panel. */
+  .card::before, .card::after {
+    content: '';
+    position: absolute;
+    width: 14px; height: 14px;
+    border-color: rgba(56,189,248,0.45);
+    border-style: solid;
+    pointer-events: none;
+  }
+  .card::before { top: 8px; left: 8px; border-width: 1px 0 0 1px; }
+  .card::after { bottom: 8px; right: 8px; border-width: 0 1px 1px 0; }
+
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(12px); }
     to { opacity: 1; transform: translateY(0); }
   }
-  h1 { font-size: 1.8rem; margin-bottom: 8px; color: var(--accent); }
-  h2 { font-size: 1.25rem; margin-bottom: 12px; }
+  h1 { font-size: 1.7rem; margin-bottom: 8px; color: var(--text); letter-spacing: 0.5px; }
+  h2 { font-size: 1.2rem; margin-bottom: 12px; }
   p { margin-bottom: 16px; color: var(--text-muted); }
+
+  /* System-console typography */
+  .sys-label {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    color: var(--cyan);
+    font-weight: 600;
+  }
+  .sys-head {
+    font-family: var(--mono);
+    font-size: 1rem;
+    letter-spacing: 1.6px;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .sys-rule {
+    height: 1px;
+    background: linear-gradient(90deg, var(--border), transparent);
+    margin: 12px 0 16px;
+  }
+
   .btn {
     display: block;
     width: 100%;
-    padding: 14px 20px;
+    padding: 13px 18px;
     margin-bottom: 10px;
     border: none;
     border-radius: 8px;
@@ -80,376 +162,456 @@
     cursor: pointer;
     transition: all 0.2s;
     text-align: left;
+    font-family: inherit;
   }
   .btn-primary {
     background: var(--accent);
     color: #0f172a;
     text-align: center;
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    font-weight: 700;
+    box-shadow: 0 4px 16px rgba(245,158,11,0.22);
   }
-  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); }
   .btn-option {
-    background: var(--bg-card-hover);
+    background: #22314c;
     color: var(--text);
     border: 1px solid var(--border);
+    animation: slideUp 0.32s ease backwards;
   }
-  .btn-option:hover { background: #475569; border-color: var(--accent); }
+  .btn-option:hover { background: #2b3d5e; border-color: var(--cyan); transform: translateX(3px); }
+  .opt-tag {
+    display: block;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 1.3px;
+    color: var(--cyan);
+    margin-bottom: 3px;
+    font-weight: 600;
+  }
+  .opt-text { display: block; font-size: 0.95rem; font-weight: 500; line-height: 1.45; }
   .btn-back {
     background: transparent;
     color: var(--text-muted);
     border: 1px solid var(--border);
     text-align: center;
     margin-top: 12px;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
   }
   .btn-back:hover { color: var(--text); border-color: var(--text-muted); }
+  .btn:active { transform: scale(0.985); }
+
   .tag {
     display: inline-block;
     padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 0.75rem;
+    border-radius: 4px;
+    font-family: var(--mono);
+    font-size: 0.62rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 1.2px;
     margin-bottom: 12px;
   }
-  .tag-scam { background: var(--danger-bg); color: #fecaca; }
-  .tag-real { background: var(--success-bg); color: #bbf7d0; }
-  .tag-simulated { background: #1e3a5f; color: #60a5fa; }
-  .message-bubble {
-    background: #0f172a;
+  .tag-scam { background: var(--danger-bg); color: #fecaca; border: 1px solid rgba(239,68,68,0.5); }
+  .tag-real { background: var(--success-bg); color: #bbf7d0; border: 1px solid rgba(34,197,94,0.5); }
+  .tag-warn { background: #78350f; color: #fde68a; border: 1px solid rgba(245,158,11,0.5); }
+  .tag-simulated { background: rgba(239,68,68,0.12); color: #fca5a5; border: 1px solid rgba(239,68,68,0.4); }
+
+  /* Intercepted transmission panel */
+  .transmission {
+    background: var(--bg-deep);
     border: 1px solid var(--border);
-    border-radius: 12px;
+    border-left: 3px solid var(--danger);
+    border-radius: 0 8px 8px 0;
     padding: 16px;
-    margin-bottom: 20px;
+    margin-bottom: 18px;
     font-size: 0.95rem;
   }
-  .message-bubble .sender {
-    font-size: 0.75rem;
+  .transmission .meta {
+    font-family: var(--mono);
+    font-size: 0.62rem;
     color: var(--text-muted);
-    margin-bottom: 6px;
+    margin-bottom: 10px;
+    letter-spacing: 0.6px;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    line-height: 1.8;
+    word-break: break-word;
   }
-  .message-bubble .timestamp {
-    font-size: 0.7rem;
-    color: #64748b;
-    margin-top: 8px;
+  .transmission .meta b { color: #cbd5e1; font-weight: 600; }
+  .transmission .body { white-space: pre-line; color: var(--text); }
+
+  /* Decrypt beat before the message lands */
+  .decrypt {
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    padding: 18px;
+    margin-bottom: 18px;
+    background: var(--bg-deep);
   }
-  .progress-bar {
-    display: flex;
-    gap: 6px;
-    margin-bottom: 20px;
-  }
-  .progress-dot {
-    flex: 1;
-    height: 4px;
-    background: var(--border);
-    border-radius: 2px;
-    transition: background 0.3s;
-  }
-  .progress-dot.active { background: var(--accent); }
-  .progress-dot.complete { background: var(--success); }
-  .character {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 16px;
-  }
-  .character-avatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent), #d97706);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 1.2rem;
-    color: #0f172a;
-    flex-shrink: 0;
-  }
-  .character-info h3 { font-size: 1rem; margin: 0; color: var(--text); }
-  .character-info span { font-size: 0.85rem; color: var(--text-muted); }
-  .reveal-box {
-    background: rgba(59, 130, 246, 0.08);
-    border-left: 3px solid var(--info);
-    padding: 14px 16px;
-    border-radius: 0 8px 8px 0;
-    margin: 14px 0;
-  }
-  .reveal-box h4 { color: #60a5fa; margin-bottom: 6px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
-  .reveal-box p { margin: 0; color: #cbd5e1; font-size: 0.9rem; }
-  .pathway-step {
-    display: flex;
-    gap: 10px;
-    align-items: flex-start;
+  .decrypt-label {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    letter-spacing: 1.4px;
+    color: var(--cyan);
+    text-transform: uppercase;
     margin-bottom: 10px;
   }
-  .pathway-num {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background: var(--accent);
-    color: #0f172a;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.75rem;
-    font-weight: 700;
-    flex-shrink: 0;
+  .decrypt-label .dots::after {
+    content: '';
+    animation: dotCycle 1.1s steps(4, end) infinite;
   }
-  .pathway-text { font-size: 0.9rem; color: #cbd5e1; }
-  .report-metric {
-    text-align: center;
-    padding: 24px;
-    background: rgba(245, 158, 11, 0.08);
-    border-radius: var(--radius);
-    margin-bottom: 20px;
+  @keyframes dotCycle { 0% { content: ''; } 25% { content: '.'; } 50% { content: '..'; } 75% { content: '...'; } }
+  .scan-track { height: 4px; background: #1b2740; border-radius: 2px; overflow: hidden; }
+  .scan-fill {
+    height: 100%; width: 40%;
+    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+    animation: scanSweep 1.1s linear infinite;
   }
-  .report-metric .number { font-size: 3.2rem; font-weight: 800; color: var(--accent); }
-  .report-metric .label { font-size: 0.9rem; color: var(--text-muted); }
-  .summary-item {
-    padding: 12px;
-    background: rgba(255,255,255,0.03);
-    border-radius: 8px;
-    margin-bottom: 8px;
-  }
-  .summary-item .title { font-weight: 600; font-size: 0.9rem; }
-  .summary-item .choice { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
-  .screenshot-frame {
-    background: #0f172a;
-    border: 2px solid var(--border);
-    border-radius: var(--radius);
-    padding: 12px;
-    margin: 16px 0;
-    text-align: center;
-  }
-  .screenshot-frame img {
-    max-width: 100%;
-    border-radius: 8px;
-    display: block;
-    margin: 0 auto;
-  }
-  .screenshot-caption {
-    font-size: 0.7rem;
-    color: #64748b;
-    margin-top: 8px;
-    text-align: center;
-  }
-  .autofill-screen {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(15, 23, 42, 0.98);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 100;
-    padding: 20px;
-  }
-  .autofill-box {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 28px;
-    max-width: 400px;
-    width: 100%;
-  }
-  .fake-field { margin-bottom: 14px; }
-  .fake-field-label {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 4px;
-  }
-  .fake-field-value {
-    height: 40px;
-    background: #0f172a;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    padding: 0 12px;
-    font-family: monospace;
-    font-size: 0.9rem;
-    color: var(--text);
-    overflow: hidden;
-  }
-  .fake-field-value .typed {
-    display: inline-block;
-    white-space: nowrap;
-    overflow: hidden;
-    animation: typing 1.5s steps(20, end) forwards;
-    width: 0;
-  }
-  @keyframes typing { to { width: 100%; } }
-  .fake-field-value .cursor {
-    display: inline-block;
-    width: 2px;
-    height: 18px;
-    background: var(--accent);
-    animation: blink 0.8s infinite;
-    margin-left: 2px;
-  }
-  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-  .autofill-warning {
-    margin-top: 16px;
-    padding: 12px;
-    background: var(--danger-bg);
-    border-radius: 8px;
-    color: #fecaca;
-    font-size: 0.85rem;
-    text-align: center;
-    opacity: 0;
-    animation: fadeIn 0.5s ease 3s forwards;
-  }
-  .hidden { display: none !important; }
-
-  /* ---------- Motion & feedback layer ---------- */
-  @keyframes slideUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+  @keyframes scanSweep { from { transform: translateX(-120%); } to { transform: translateX(320%); } }
+  .msg-in { animation: popIn 0.38s cubic-bezier(0.2,0.8,0.3,1.2); }
   @keyframes popIn {
-    0% { opacity: 0; transform: scale(0.92) translateY(10px); }
+    0% { opacity: 0; transform: scale(0.94) translateY(10px); }
     60% { opacity: 1; transform: scale(1.02); }
     100% { opacity: 1; transform: none; }
   }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+
+  /* HUD */
+  .hud {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; margin-bottom: 8px;
+  }
+  .hud-label {
+    font-family: var(--mono);
+    font-size: 0.64rem; text-transform: uppercase; letter-spacing: 1.3px;
+    color: var(--text-muted); font-weight: 600;
+  }
+  .score-chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.35);
+    color: #bbf7d0; font-family: var(--mono); font-size: 0.62rem; font-weight: 700;
+    letter-spacing: 0.8px;
+    padding: 4px 9px; border-radius: 4px; white-space: nowrap;
+  }
+  .score-chip.bump { animation: pulseChip 0.45s ease; }
+  @keyframes pulseChip { 0% { transform: scale(1); } 40% { transform: scale(1.18); } 100% { transform: scale(1); } }
+
+  .layers-label {
+    font-family: var(--mono);
+    font-size: 0.58rem;
+    letter-spacing: 1.2px;
+    color: #8095b3;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+  .progress-bar { display: flex; gap: 5px; margin-bottom: 18px; }
+  .progress-dot {
+    flex: 1; height: 4px; background: #1b2740; border-radius: 2px;
+    position: relative; overflow: hidden;
+  }
+  .progress-dot.complete { background: var(--success); }
+  .progress-dot.active::after {
+    content: ''; position: absolute; inset: 0;
+    background: var(--accent); transform-origin: left;
+    animation: fillBar 0.5s ease forwards;
+  }
+  @keyframes fillBar { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+  /* Target dossier */
+  .dossier {
+    background: var(--bg-deep);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 18px;
+  }
+  .dossier-row { display: flex; gap: 10px; margin-bottom: 8px; align-items: baseline; }
+  .dossier-row:last-child { margin-bottom: 0; }
+  .dossier-key {
+    font-family: var(--mono); font-size: 0.6rem; letter-spacing: 1.1px;
+    color: var(--cyan); text-transform: uppercase; flex: 0 0 88px; font-weight: 600;
+  }
+  .dossier-val { font-size: 0.88rem; color: #cbd5e1; flex: 1; }
+  .subject-line { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .subject-avatar {
+    width: 46px; height: 46px; border-radius: 8px;
+    background: linear-gradient(135deg, #22314c, #16203a);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.45rem; flex-shrink: 0;
+  }
+  .subject-name { font-size: 1.05rem; font-weight: 700; color: var(--text); }
+
+  /* Breach / neutralised states */
+  .card-breach { border-color: rgba(239,68,68,0.55); animation: fadeIn 0.35s ease, shake 0.5s ease 0.05s, breachPulse 1.5s ease-in-out 0.4s 2; }
+  .card-unresolved { border-color: rgba(245,158,11,0.5); animation: fadeIn 0.35s ease, nudge 0.4s ease 0.05s; }
+  .card-secure { border-color: rgba(34,197,94,0.5); animation: fadeIn 0.35s ease, securePulse 1.1s ease 0.15s; }
   @keyframes shake {
     10%, 90% { transform: translateX(-2px); }
     20%, 80% { transform: translateX(4px); }
     30%, 50%, 70% { transform: translateX(-7px); }
     40%, 60% { transform: translateX(7px); }
   }
-  @keyframes flashSuccess { from { box-shadow: 0 0 0 0 rgba(34,197,94,0.55); } to { box-shadow: 0 0 0 20px rgba(34,197,94,0); } }
-  @keyframes flashDanger { from { box-shadow: 0 0 0 0 rgba(239,68,68,0.55); } to { box-shadow: 0 0 0 20px rgba(239,68,68,0); } }
-  @keyframes pulseChip { 0% { transform: scale(1); } 40% { transform: scale(1.18); } 100% { transform: scale(1); } }
-  @keyframes dotBounce { 0%, 60%, 100% { transform: translateY(0); opacity: 0.45; } 30% { transform: translateY(-5px); opacity: 1; } }
+  @keyframes nudge { 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
+  @keyframes breachPulse {
+    0%, 100% { box-shadow: var(--shadow), 0 0 0 0 rgba(239,68,68,0); }
+    50% { box-shadow: var(--shadow), 0 0 26px 2px rgba(239,68,68,0.3); }
+  }
+  @keyframes securePulse {
+    0% { box-shadow: var(--shadow), 0 0 0 0 rgba(34,197,94,0.5); }
+    100% { box-shadow: var(--shadow), 0 0 0 22px rgba(34,197,94,0); }
+  }
+
+  .verdict { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+  .verdict-icon {
+    width: 46px; height: 46px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem; flex-shrink: 0;
+  }
+  .verdict-icon.safe {
+    background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.55);
+    animation: lockSpin 0.6s cubic-bezier(0.2,0.8,0.3,1.4);
+  }
+  .verdict-icon.risky {
+    background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.55);
+    animation: badgeIn 0.45s cubic-bezier(0.2,0.8,0.3,1.4);
+  }
+  .verdict-icon.unresolved {
+    background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.55);
+    animation: badgeIn 0.45s cubic-bezier(0.2,0.8,0.3,1.4);
+  }
+  @keyframes lockSpin {
+    0% { transform: rotate(-150deg) scale(0.5); opacity: 0; }
+    55% { transform: rotate(12deg) scale(1.15); opacity: 1; }
+    100% { transform: rotate(0) scale(1); opacity: 1; }
+  }
   @keyframes badgeIn {
     0% { transform: scale(0.5) rotate(-12deg); opacity: 0; }
     70% { transform: scale(1.08) rotate(3deg); opacity: 1; }
     100% { transform: scale(1) rotate(0); opacity: 1; }
   }
-  @keyframes floaty { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
-  @keyframes fillBar { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-  @keyframes confettiFall { to { transform: translate3d(var(--dx), 110vh, 0) rotate(var(--rot)); opacity: 0; } }
-
-  .card.card-shake { animation: fadeIn 0.35s ease, shake 0.5s ease 0.05s; }
-
-  /* Button press feedback */
-  .btn:active { transform: scale(0.985); }
-  .btn-primary { box-shadow: 0 4px 14px rgba(245,158,11,0.22); }
-  .btn-primary:hover { transform: translateY(-1px); }
-  .btn-option { animation: slideUp 0.32s ease backwards; }
-  .btn-option:hover { transform: translateX(3px); }
-
-  /* HUD: situation counter + live score chip */
-  .hud {
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 12px; margin-bottom: 12px;
+  .verdict-title { font-family: var(--mono); font-size: 0.95rem; letter-spacing: 1.4px; font-weight: 700; text-transform: uppercase; }
+  .verdict-title.safe { color: var(--success); }
+  .verdict-title.risky { color: var(--danger); }
+  .verdict-title.unresolved { color: var(--warn); }
+  .consequence {
+    font-family: var(--mono);
+    font-size: 0.74rem;
+    line-height: 1.65;
+    padding: 10px 12px;
+    border-radius: 6px;
+    margin-bottom: 14px;
   }
-  .hud-label {
-    font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.6px;
-    color: var(--text-muted); font-weight: 600;
-  }
-  .score-chip {
-    display: inline-flex; align-items: center; gap: 5px;
-    background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.35);
-    color: #bbf7d0; font-size: 0.72rem; font-weight: 700;
-    padding: 4px 10px; border-radius: 999px; white-space: nowrap;
-  }
-  .score-chip.bump { animation: pulseChip 0.45s ease; }
+  .consequence.risky { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #fca5a5; }
+  .consequence.unresolved { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); color: #fcd34d; }
+  .consequence.safe { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); color: #86efac; }
 
-  .progress-dot { position: relative; overflow: hidden; }
-  .progress-dot.active { background: var(--border); }
-  .progress-dot.active::after {
-    content: ''; position: absolute; inset: 0;
-    background: var(--accent); transform-origin: left;
-    animation: fillBar 0.5s ease forwards;
+  /* Forensic analysis */
+  .reveal-box {
+    background: rgba(56,189,248,0.07);
+    border: 1px solid rgba(56,189,248,0.22);
+    border-left: 3px solid var(--cyan);
+    padding: 14px 16px;
+    border-radius: 0 8px 8px 0;
+    margin: 14px 0;
   }
-
-  /* Incoming-message anticipation beat */
-  .typing-bubble {
-    display: inline-flex; gap: 5px; align-items: center;
-    background: #0f172a; border: 1px solid var(--border);
-    border-radius: 14px; padding: 14px 18px; margin-bottom: 20px;
+  .reveal-box h4 {
+    color: var(--cyan); margin-bottom: 6px;
+    font-family: var(--mono); font-size: 0.66rem;
+    text-transform: uppercase; letter-spacing: 1.3px;
   }
-  .typing-bubble span {
-    width: 7px; height: 7px; border-radius: 50%;
-    background: var(--text-muted); animation: dotBounce 1.1s infinite;
-  }
-  .typing-bubble span:nth-child(2) { animation-delay: 0.15s; }
-  .typing-bubble span:nth-child(3) { animation-delay: 0.3s; }
-  .msg-in { animation: popIn 0.38s cubic-bezier(0.2,0.8,0.3,1.2); }
-
-  /* Verdict badge on feedback screen */
-  .verdict { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
-  .verdict-icon {
-    width: 44px; height: 44px; border-radius: 50%;
+  .reveal-box p { margin: 0; color: #cbd5e1; font-size: 0.9rem; }
+  .pathway-step { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px; }
+  .pathway-num {
+    width: 24px; height: 24px; border-radius: 5px;
+    background: var(--accent); color: #0f172a;
     display: flex; align-items: center; justify-content: center;
-    font-size: 1.35rem; flex-shrink: 0;
+    font-family: var(--mono); font-size: 0.7rem; font-weight: 700; flex-shrink: 0;
   }
-  .verdict-icon.safe {
-    background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.5);
-    animation: badgeIn 0.45s cubic-bezier(0.2,0.8,0.3,1.4), flashSuccess 0.9s ease 0.25s;
-  }
-  .verdict-icon.risky {
-    background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.5);
-    animation: badgeIn 0.45s cubic-bezier(0.2,0.8,0.3,1.4), flashDanger 0.9s ease 0.25s;
-  }
-
-  /* Character avatar with personality */
-  .character-avatar.emoji {
-    background: linear-gradient(135deg, #334155, #1e293b);
+  .pathway-text { font-size: 0.9rem; color: #cbd5e1; }
+  .screenshot-frame {
+    background: var(--bg-deep);
     border: 1px solid var(--border);
-    font-size: 1.5rem;
+    border-radius: 8px;
+    padding: 12px;
+    margin: 16px 0;
+    text-align: center;
+  }
+  .screenshot-frame img { max-width: 100%; border-radius: 6px; display: block; margin: 0 auto; }
+  .screenshot-caption {
+    font-family: var(--mono); font-size: 0.6rem; color: #64748b;
+    margin-top: 8px; letter-spacing: 0.5px;
+  }
+  .source-line {
+    font-family: var(--mono); font-size: 0.63rem; color: var(--text-muted);
+    margin-top: 14px; line-height: 1.8; word-break: break-word;
   }
 
-  /* Landing hero */
-  .hero-badge {
-    width: 72px; height: 72px; margin: 0 auto 14px;
-    border-radius: 22px;
-    background: linear-gradient(135deg, rgba(245,158,11,0.25), rgba(59,130,246,0.18));
-    border: 1px solid rgba(245,158,11,0.35);
+  /* Threat meter (landing) */
+  .threat-meter {
+    background: var(--bg-deep);
+    border: 1px solid rgba(239,68,68,0.3);
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin: 18px 0;
+    text-align: left;
+  }
+  .tm-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+  .tm-val {
+    font-family: var(--mono); font-size: 0.7rem; font-weight: 700;
+    letter-spacing: 1.3px; color: var(--danger);
+    animation: livePulse 2s ease-in-out infinite;
+  }
+  .tm-track { height: 7px; background: #1b2740; border-radius: 3px; overflow: hidden; }
+  .tm-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--danger));
+    transform-origin: left;
+    animation: fillMeter 1.4s cubic-bezier(0.2,0.8,0.3,1) forwards;
+  }
+  @keyframes fillMeter { from { transform: scaleX(0); } to { transform: scaleX(0.87); } }
+  .tm-note { font-size: 0.8rem; color: #cbd5e1; margin-top: 10px; }
+  .hero-shield {
+    width: 68px; height: 68px; margin: 0 auto 14px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, rgba(245,158,11,0.22), rgba(56,189,248,0.16));
+    border: 1px solid rgba(245,158,11,0.4);
     display: flex; align-items: center; justify-content: center;
-    font-size: 2.1rem; animation: floaty 3.4s ease-in-out infinite;
+    font-size: 2rem; animation: floaty 3.4s ease-in-out infinite;
+  }
+  @keyframes floaty { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+  .spec-bar {
+    font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.8px;
+    color: var(--text-muted); margin-bottom: 18px;
   }
 
-  /* Report payoff */
+  /* Defence rating */
   .rank-badge {
-    width: 92px; height: 92px; margin: 0 auto 10px;
-    border-radius: 50%; display: flex; align-items: center; justify-content: center;
-    font-size: 2.6rem;
-    background: linear-gradient(135deg, rgba(245,158,11,0.22), rgba(59,130,246,0.15));
+    width: 88px; height: 88px; margin: 4px auto 10px;
+    border-radius: 16px; display: flex; align-items: center; justify-content: center;
+    font-size: 2.4rem;
+    background: linear-gradient(135deg, rgba(245,158,11,0.22), rgba(56,189,248,0.15));
     border: 1px solid rgba(245,158,11,0.4);
     animation: badgeIn 0.6s cubic-bezier(0.2,0.8,0.3,1.4);
   }
   .rank-label {
-    text-align: center; font-weight: 700; color: var(--accent);
-    letter-spacing: 0.5px; margin-bottom: 4px;
+    text-align: center; font-family: var(--mono); font-weight: 700;
+    font-size: 0.95rem; letter-spacing: 1.5px; color: var(--accent);
+    text-transform: uppercase; margin-bottom: 2px;
   }
-  .summary-item { animation: slideUp 0.3s ease backwards; }
+  .rank-sub { text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 18px; }
+  .report-metric {
+    text-align: center; padding: 22px;
+    background: rgba(245,158,11,0.07);
+    border: 1px solid rgba(245,158,11,0.22);
+    border-radius: var(--radius); margin-bottom: 16px;
+  }
+  .report-metric .number {
+    font-family: var(--mono); font-size: 3rem; font-weight: 800; color: var(--accent);
+  }
+  .report-metric .label {
+    font-family: var(--mono); font-size: 0.66rem; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 1.3px; margin-top: 4px;
+  }
+  .tally {
+    display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap;
+  }
+  .tally-item {
+    flex: 1; min-width: 90px; text-align: center;
+    border: 1px solid var(--border); border-radius: 8px; padding: 10px 6px;
+    background: var(--bg-deep);
+  }
+  .tally-num { font-family: var(--mono); font-size: 1.4rem; font-weight: 800; }
+  .tally-key {
+    font-family: var(--mono); font-size: 0.55rem; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--text-muted); margin-top: 2px;
+  }
+  .summary-item {
+    padding: 11px 12px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    animation: slideUp 0.3s ease backwards;
+  }
+  .summary-item .title { font-weight: 600; font-size: 0.88rem; }
+  .summary-item .choice { font-size: 0.78rem; color: var(--text-muted); margin-top: 3px; }
 
-  /* Sound toggle (button, not an input) */
-  .sound-toggle {
-    position: fixed; bottom: 14px; right: 14px; z-index: 150;
-    width: 40px; height: 40px; border-radius: 50%;
-    background: rgba(30,41,59,0.92); border: 1px solid var(--border);
-    color: var(--text-muted); font-size: 1rem; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.2s;
+  /* Data exfiltration overlay */
+  .exfil-screen {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(10, 17, 34, 0.97);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    z-index: 100; padding: 20px;
   }
-  .sound-toggle:hover { color: var(--text); border-color: var(--accent); }
-
-  /* Confetti layer */
-  #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 200; overflow: hidden; }
-  .confetti-piece {
-    position: absolute; top: -16px; width: 8px; height: 14px;
-    border-radius: 2px; animation: confettiFall linear forwards;
+  .exfil-box {
+    background: var(--bg-card);
+    border: 1px solid rgba(239,68,68,0.5);
+    border-radius: var(--radius);
+    padding: 24px;
+    max-width: 400px;
+    width: 100%;
+    animation: breachPulse 1.5s ease-in-out infinite;
   }
+  .exfil-head {
+    font-family: var(--mono); font-size: 0.75rem; font-weight: 700;
+    letter-spacing: 1.4px; color: var(--danger); text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .exfil-sub {
+    font-family: var(--mono); font-size: 0.6rem; color: var(--text-muted);
+    letter-spacing: 0.8px; margin-bottom: 18px;
+  }
+  .fake-field { margin-bottom: 12px; }
+  .fake-field-label {
+    font-family: var(--mono); font-size: 0.6rem; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 1.1px; margin-bottom: 4px;
+  }
+  .fake-field-value {
+    height: 38px; background: var(--bg-deep);
+    border: 1px solid var(--border); border-radius: 5px;
+    display: flex; align-items: center; padding: 0 12px;
+    font-family: var(--mono); font-size: 0.85rem; color: var(--text);
+    overflow: hidden;
+  }
+  .fake-field-value .typed {
+    display: inline-block; white-space: nowrap; overflow: hidden;
+    animation: typing 1.5s steps(20, end) forwards; width: 0;
+  }
+  @keyframes typing { to { width: 100%; } }
+  .fake-field-value .cursor {
+    display: inline-block; width: 2px; height: 17px;
+    background: var(--danger); animation: blink 0.8s infinite; margin-left: 2px;
+  }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+  .exfil-warning {
+    margin-top: 16px; padding: 12px;
+    background: var(--danger-bg); border-radius: 6px;
+    color: #fecaca; font-family: var(--mono); font-size: 0.7rem;
+    letter-spacing: 0.8px; text-align: center;
+    opacity: 0; animation: fadeIn 0.5s ease 3s forwards;
+  }
+  .hidden { display: none !important; }
 
   @media (max-width: 480px) {
-    h1 { font-size: 1.5rem; }
-    .card { padding: 20px; }
-    .hud-label { font-size: 0.65rem; }
-    .score-chip { font-size: 0.65rem; padding: 3px 8px; }
+    body { padding: 12px; }
+    h1 { font-size: 1.4rem; }
+    .card { padding: 18px; }
+    .sysbar { font-size: 0.55rem; letter-spacing: 0.6px; }
+    .hud-label { font-size: 0.58rem; }
+    .score-chip { font-size: 0.55rem; padding: 3px 7px; }
+    .dossier-key { flex: 0 0 100%; margin-bottom: 1px; }
+    .dossier-row { flex-direction: column; gap: 0; }
+    .report-metric .number { font-size: 2.4rem; }
+    .rank-label { font-size: 0.82rem; letter-spacing: 1px; }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -458,10 +620,16 @@
       animation-iteration-count: 1 !important;
       transition-duration: 0.001ms !important;
     }
+    .tm-fill { transform: scaleX(0.87); }
   }
 </style>
 </head>
 <body>
+
+<div class="sysbar">
+  <span><span class="status-dot"></span>Vault Defence System — Online</span>
+  <span id="sys-clock">SIMULATION</span>
+</div>
 
 <div class="disclaimer">
   An independent student project. Not affiliated with or endorsed by the Australian Taxation Office.
@@ -469,37 +637,37 @@
 
 <div class="container" id="app"></div>
 
-<div id="autofill-overlay" class="autofill-screen hidden">
-  <div class="autofill-box">
+<div id="exfil-overlay" class="exfil-screen hidden">
+  <div class="exfil-box">
+    <div class="exfil-head">⚠ Data Exfiltration Detected</div>
+    <div class="exfil-sub">Destination: unknown host · Encryption: none</div>
     <div class="fake-field">
       <div class="fake-field-label">Full Name</div>
       <div class="fake-field-value"><span class="typed" style="animation-delay:0.3s;">Sam T.</span><span class="cursor"></span></div>
     </div>
     <div class="fake-field">
-      <div class="fake-field-label">TFN</div>
+      <div class="fake-field-label">Tax File Number</div>
       <div class="fake-field-value"><span class="typed" style="animation-delay:1.2s;">••• ••• •••</span><span class="cursor"></span></div>
     </div>
     <div class="fake-field">
       <div class="fake-field-label">Bank BSB / Account</div>
       <div class="fake-field-value"><span class="typed" style="animation-delay:2.0s;">062-000 / ••••••••</span><span class="cursor"></span></div>
     </div>
-    <div class="autofill-warning">
-      ⚠️ This information is being sent to an unknown server.
+    <div class="exfil-warning">
+      UPLOADING TO UNKNOWN SERVER
     </div>
   </div>
 </div>
-
-<div id="confetti" aria-hidden="true"></div>
-
-<button id="sound-toggle" class="sound-toggle" onclick="toggleSound()" aria-label="Mute sound">🔊</button>
 
 <script>
 const scenarios = [
   {
     id: 1,
     title: "Fake Tax Refund",
+    intrusionType: "SMS PHISHING",
     character: { name: "Sam", age: 17, initial: "S", emoji: "🧑‍🍳" },
     setup: "You lodged your first tax return three weeks ago after starting a part-time job at a café.",
+    vulnerability: "First tax return — no baseline for how long processing normally takes.",
     message: {
       channel: "SMS",
       sender: "+61 4•• ••• 291",
@@ -508,11 +676,11 @@ const scenarios = [
     },
     question: "How would you check if this refund is real?",
     options: [
-      { text: "Tap the link and enter your details to claim the refund", id: "tap_link", unsafe: true, autofill: true },
-      { text: "Call the number in the message to confirm", id: "call_number", unsafe: true, autofill: false },
-      { text: "Search Google and click the first result", id: "google", unsafe: true, autofill: false },
+      { text: "Tap the link and enter your details to claim the refund", id: "tap_link", unsafe: true, autofill: true, consequence: "Credentials and bank details captured by an unknown host." },
+      { text: "Call the number in the message to confirm", id: "call_number", unsafe: true, autofill: false, consequence: "Call routed back to the attacker. Personal details exposed." },
+      { text: "Search Google and click the first result", id: "google", unsafe: true, autofill: false, consequence: "Redirected to a spoofed ATO login page served through a paid ad." },
       { text: "Open the ATO app or ATO Online services independently", id: "ato_app", unsafe: false, autofill: false },
-      { text: "Ignore the message and hope it goes away", id: "ignore", unsafe: true, autofill: false }
+      { text: "Ignore the message and hope it goes away", id: "ignore", unsafe: true, passive: true, autofill: false, consequence: "Nothing verified. A genuine ATO message would go unread too." }
     ],
     feedback: {
       tap_link: "Risky. The ATO will never send unsolicited messages with links asking you to log in or provide personal information. This link leads to a fake website designed to steal your details.",
@@ -538,8 +706,10 @@ const scenarios = [
   {
     id: 2,
     title: "Fake Account Security Alert",
+    intrusionType: "EMAIL SPOOFING",
     character: { name: "Maya", age: 20, initial: "M", emoji: "👩‍🎓" },
     setup: "Maya is a university student who works part-time and has a myGov account linked to the ATO.",
+    vulnerability: "myGov credentials linked to ATO — a single login unlocks multiple services.",
     message: {
       channel: "Email",
       sender: "security@ato-gov-alert.com",
@@ -548,10 +718,10 @@ const scenarios = [
     },
     question: "What should Maya do?",
     options: [
-      { text: "Click the 'Verify Account Now' button in the email", id: "click_link", unsafe: true, autofill: true },
-      { text: "Reply to the email asking for more information", id: "reply_email", unsafe: true, autofill: false },
+      { text: "Click the 'Verify Account Now' button in the email", id: "click_link", unsafe: true, autofill: true, consequence: "myGov credentials submitted to a cloned login page." },
+      { text: "Reply to the email asking for more information", id: "reply_email", unsafe: true, autofill: false, consequence: "Address confirmed as active. Target flagged for repeat attempts." },
       { text: "Independently log in to ATO Online services through myGov to check", id: "ato_app", unsafe: false, autofill: false },
-      { text: "Forward the email to a friend to ask if it looks real", id: "ask_friend", unsafe: true, autofill: false }
+      { text: "Forward the email to a friend to ask if it looks real", id: "ask_friend", unsafe: true, passive: true, autofill: false, consequence: "An opinion was gathered. The account itself was never checked." }
     ],
     feedback: {
       click_link: "This email is designed to look official but the sender address is wrong. The ATO will never send unsolicited emails containing hyperlinks or QR codes. Clicking could lead to a fake login page that steals your myGov credentials.",
@@ -575,8 +745,10 @@ const scenarios = [
   {
     id: 3,
     title: "Fake ATO Debt Demand",
+    intrusionType: "VOICEMAIL SPOOF",
     character: { name: "Jordan", age: 27, initial: "J", emoji: "🧑‍💼" },
     setup: "Jordan has been working full-time for three years and recently changed jobs.",
+    vulnerability: "Recent job change — a plausible cover story for an unexpected tax adjustment.",
     message: {
       channel: "Voicemail",
       sender: "ATO Legal Department",
@@ -585,10 +757,10 @@ const scenarios = [
     },
     question: "How should Jordan respond?",
     options: [
-      { text: "Press 1 and provide payment details over the phone", id: "press_1", unsafe: true, autofill: false },
-      { text: "Call the number back that left the voicemail", id: "call_back", unsafe: true, autofill: false },
+      { text: "Press 1 and provide payment details over the phone", id: "press_1", unsafe: true, autofill: false, consequence: "Payment details handed straight to the attacker." },
+      { text: "Call the number back that left the voicemail", id: "call_back", unsafe: true, autofill: false, consequence: "Callback reaches the spoofed line. The attacker controls the channel." },
       { text: "Check ATO Online services or the ATO app for any genuine debt", id: "ato_app", unsafe: false, autofill: false },
-      { text: "Pay the amount via bank transfer to the account details provided", id: "bank_transfer", unsafe: true, autofill: false }
+      { text: "Pay the amount via bank transfer to the account details provided", id: "bank_transfer", unsafe: true, autofill: false, consequence: "Funds transferred to an account with no link to the ATO." }
     ],
     feedback: {
       press_1: "The ATO will never threaten arrest, demand immediate payment, or cancel your TFN. This is a classic scam tactic using fear and urgency to pressure you into paying.",
@@ -612,8 +784,10 @@ const scenarios = [
   {
     id: 4,
     title: "Unauthorised Super Transfer",
+    intrusionType: "UNAUTHORISED SUPER TRANSFER",
     character: { name: "Liam", age: 21, initial: "L", emoji: "🧑‍🔧" },
     setup: "Liam has two super accounts and recently used the ATO app to explore consolidating them.",
+    vulnerability: "Mid-consolidation — a transfer between funds would look routine to him.",
     message: {
       channel: "Push notification",
       sender: "ATO app — Security message",
@@ -622,10 +796,10 @@ const scenarios = [
     },
     question: "Liam did not request this transfer. What should he do?",
     options: [
-      { text: "Tap to verify — maybe someone else initiated it legitimately", id: "verify_it", unsafe: true, autofill: false },
-      { text: "Ignore the message and check later", id: "ignore", unsafe: true, autofill: false },
+      { text: "Tap to verify — maybe someone else initiated it legitimately", id: "verify_it", unsafe: true, autofill: false, consequence: "Transfer approved. $4,850.00 released to an unknown fund." },
+      { text: "Ignore the message and check later", id: "ignore", unsafe: true, passive: true, autofill: false, consequence: "Transfer left pending. It may process while unattended." },
       { text: "Do not verify. Lock the ATO account immediately using the app", id: "lock_account", unsafe: false, autofill: false },
-      { text: "Call the number in the message to cancel the transfer", id: "call_number", unsafe: true, autofill: false }
+      { text: "Call the number in the message to cancel the transfer", id: "call_number", unsafe: true, autofill: false, consequence: "Contact made on a number supplied by the attacker." }
     ],
     feedback: {
       verify_it: "Never verify a transaction you did not initiate. Verifying tells the system the transfer is approved, and your super could be moved to a scammer's account.",
@@ -650,20 +824,22 @@ const scenarios = [
   {
     id: 5,
     title: "Unauthorised Tax Lodgment",
+    intrusionType: "UNAUTHORISED LODGMENT",
     character: { name: "Alex", age: 24, initial: "A", emoji: "👨‍💻" },
     setup: "Alex usually lodges their own tax return in August. It is currently early July.",
+    vulnerability: "Return not yet lodged — the window is wide open for a fraudulent one.",
     message: {
       channel: "Push notification",
       sender: "ATO app — Security message",
       timestamp: "Now",
-      body: "ATO app: An income tax return has been lodged for the 2025-26 financial year.\n\nLodgment details:\nDate: 15 July 2026\nAgent: Fast Refund Tax Services\n\nTap to review this activity."
+      body: "ATO app: An income tax return has been lodged for the 2025-26 financial year.\n\nLodgment details:\nDate: 3 July 2026\nAgent: Fast Refund Tax Services\n\nTap to review this activity."
     },
     question: "Alex did not lodge a tax return yet. What should they do?",
     options: [
-      { text: "Tap to review and approve the lodgment", id: "approve", unsafe: true, autofill: false },
-      { text: "Wait and see if a notice of assessment arrives in the mail", id: "wait", unsafe: true, autofill: false },
+      { text: "Tap to review and approve the lodgment", id: "approve", unsafe: true, autofill: false, consequence: "Fraudulent return validated. Refund routed to the attacker." },
+      { text: "Wait and see if a notice of assessment arrives in the mail", id: "wait", unsafe: true, passive: true, autofill: false, consequence: "Return left unchallenged. Processing continues in the background." },
       { text: "Open the ATO app, review the security message, and lock the account if suspicious", id: "lock_account", unsafe: false, autofill: false },
-      { text: "Email the 'agent' listed in the message to ask for details", id: "email_agent", unsafe: true, autofill: false }
+      { text: "Email the 'agent' listed in the message to ask for details", id: "email_agent", unsafe: true, autofill: false, consequence: "Direct contact made with the fraudulent 'agent'." }
     ],
     feedback: {
       approve: "Approving a lodgment you did not make could validate a fraudulent tax return. Scammers may lodge returns to steal refunds.",
@@ -688,8 +864,10 @@ const scenarios = [
   {
     id: 6,
     title: "Verify an ATO Phone Call",
+    intrusionType: "PHONE SOCIAL ENGINEERING",
     character: { name: "Chris", age: 32, initial: "C", emoji: "🧑‍🌾" },
     setup: "Chris runs a small landscaping business and is expecting contact from the ATO about a BAS query.",
+    vulnerability: "Genuine ATO contact already expected — primed to trust an incoming call.",
     message: {
       channel: "Phone call",
       sender: "Incoming call",
@@ -698,10 +876,10 @@ const scenarios = [
     },
     question: "The caller sounds professional and knows Chris's business name. How should Chris verify this call?",
     options: [
-      { text: "Provide the details — the ATO needs them to help", id: "provide_details", unsafe: true, autofill: true },
-      { text: "Ask the caller to hold while Chris calls the ATO on a different line", id: "hold_call", unsafe: true, autofill: false },
+      { text: "Provide the details — the ATO needs them to help", id: "provide_details", unsafe: true, autofill: true, consequence: "TFN and myGov password disclosed to an unverified caller." },
+      { text: "Ask the caller to hold while Chris calls the ATO on a different line", id: "hold_call", unsafe: true, autofill: false, consequence: "Line kept open by the caller. Channel never independently verified." },
       { text: "Use the ATO app's 'Verify call' feature to confirm the call is genuine", id: "verify_call", unsafe: false, autofill: false },
-      { text: "Hang up immediately — the ATO never calls anyone", id: "hang_up", unsafe: true, autofill: false }
+      { text: "Hang up immediately — the ATO never calls anyone", id: "hang_up", unsafe: true, passive: true, autofill: false, consequence: "Call ended without verification. A genuine ATO call would be lost too." }
     ],
     feedback: {
       provide_details: "The ATO will never ask for your myGov password or TFN over the phone. This is a classic impersonation tactic. Never provide credentials to an unsolicited caller.",
@@ -736,77 +914,13 @@ function reducedMotion() {
   return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
-/* Sound cues are synthesised with the Web Audio API, so there are no
-   audio files to download. Set Sound.on = false below to mute by default. */
-const Sound = {
-  on: true,
-  ctx: null,
-  init() {
-    if (!this.ctx) {
-      const AC = window.AudioContext || window.webkitAudioContext;
-      if (AC) this.ctx = new AC();
-    }
-    if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
-  },
-  tone(freq, dur, type = 'sine', vol = 0.12, delay = 0) {
-    if (!this.on) return;
-    this.init();
-    if (!this.ctx) return;
-    const t0 = this.ctx.currentTime + delay;
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
-    osc.type = type;
-    osc.frequency.setValueAtTime(freq, t0);
-    gain.gain.setValueAtTime(0.0001, t0);
-    gain.gain.linearRampToValueAtTime(vol, t0 + 0.015);
-    gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
-    osc.connect(gain);
-    gain.connect(this.ctx.destination);
-    osc.start(t0);
-    osc.stop(t0 + dur + 0.02);
-  },
-  tap() { this.tone(420, 0.07, 'triangle', 0.06); },
-  ding() { this.tone(880, 0.16, 'sine', 0.11); this.tone(1320, 0.18, 'sine', 0.05, 0.05); },
-  correct() { [523.25, 659.25, 783.99].forEach((f, i) => this.tone(f, 0.22, 'sine', 0.12, i * 0.09)); },
-  wrong() { this.tone(200, 0.28, 'sawtooth', 0.08); this.tone(150, 0.34, 'sawtooth', 0.06, 0.06); },
-  finish() { [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => this.tone(f, 0.34, 'triangle', 0.12, i * 0.12)); }
-};
-
-function toggleSound() {
-  Sound.on = !Sound.on;
-  const btn = document.getElementById('sound-toggle');
-  btn.textContent = Sound.on ? '🔊' : '🔇';
-  btn.setAttribute('aria-label', Sound.on ? 'Mute sound' : 'Unmute sound');
-  if (Sound.on) Sound.tap();
+function outcomeOf(opt) {
+  if (!opt.unsafe) return 'safe';
+  return opt.passive ? 'unresolved' : 'breach';
 }
 
-function confetti(count = 30) {
-  if (reducedMotion()) return;
-  const layer = document.getElementById('confetti');
-  const colors = ['#f59e0b', '#22c55e', '#3b82f6', '#fbbf24', '#a78bfa', '#f472b6'];
-  for (let i = 0; i < count; i++) {
-    const piece = document.createElement('div');
-    piece.className = 'confetti-piece';
-    piece.style.left = Math.random() * 100 + 'vw';
-    piece.style.background = colors[i % colors.length];
-    piece.style.setProperty('--dx', (Math.random() * 160 - 80) + 'px');
-    piece.style.setProperty('--rot', (Math.random() * 720 - 360) + 'deg');
-    piece.style.animationDuration = (1.6 + Math.random() * 1.2) + 's';
-    piece.style.animationDelay = (Math.random() * 0.25) + 's';
-    layer.appendChild(piece);
-    setTimeout(() => piece.remove(), 3400);
-  }
-}
-
-/* Subtle tap on navigation buttons. Option buttons are excluded because
-   they trigger their own verdict sound a moment later. */
-document.addEventListener('click', (e) => {
-  const btn = e.target.closest('.btn');
-  if (btn && !btn.classList.contains('btn-option')) Sound.tap();
-});
-
-function safeSoFar() {
-  return userChoices.filter(c => c.safe).length;
+function neutralisedCount() {
+  return userChoices.filter(c => c.outcome === 'safe').length;
 }
 
 function render() {
@@ -831,9 +945,10 @@ function renderProgress(opts = {}) {
   }
   return `
     <div class="hud">
-      <span class="hud-label">Situation ${currentScenario + 1} of ${scenarios.length}</span>
-      <span class="score-chip ${opts.bump ? 'bump' : ''}">✅ ${safeSoFar()} verified</span>
+      <span class="hud-label">Intrusion ${currentScenario + 1} of ${scenarios.length}</span>
+      <span class="score-chip ${opts.bump ? 'bump' : ''}">🛡 ${neutralisedCount()} Neutralised</span>
     </div>
+    <div class="layers-label">Security layers activated</div>
     <div class="progress-bar">${dots}</div>
   `;
 }
@@ -841,18 +956,22 @@ function renderProgress(opts = {}) {
 function renderLanding(container) {
   container.innerHTML = `
     <div class="card" style="text-align:center;">
-      <div class="hero-badge">🕵️</div>
-      <h1>Prove It</h1>
-      <p style="font-size:1.1rem; color:var(--text);">When a message, call, or account event involves your tax or super, how do you check?</p>
-      <p>This simulator trains one practical habit: <strong>verify through genuine ATO channels</strong> rather than trusting the message itself. Scam techniques change. The verification habit generalises.</p>
-      <div style="background:rgba(245,158,11,0.1); border-radius:8px; padding:16px; margin:20px 0;">
-        <p style="margin:0; font-size:0.9rem;">📱 6 realistic situations &nbsp;•&nbsp; ⏱️ ~5 minutes &nbsp;•&nbsp; 🎯 No personal info required</p>
+      <div class="hero-shield">🛡</div>
+      <div class="sys-label">Lockdown Protocol</div>
+      <h1>Vault Defence System</h1>
+      <p style="font-size:1.02rem; color:var(--text);">Your tax and super sit behind one vault. Scammers are actively trying to open it.</p>
+      <div class="threat-meter">
+        <div class="tm-head">
+          <span class="sys-label">Threat Level</span>
+          <span class="tm-val">Elevated</span>
+        </div>
+        <div class="tm-track"><div class="tm-fill"></div></div>
+        <div class="tm-note">Almost <strong>7,500 ATO impersonation scams</strong> were reported in July 2025 alone.</div>
       </div>
-      <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:20px;">
-        Almost <strong>7,500 ATO impersonation scams</strong> were reported in July 2025 alone.<br>
-        Source: ATO Media Centre, April 2026
-      </p>
-      <button class="btn btn-primary" onclick="startScenarios()">Start Simulator</button>
+      <p style="font-size:0.9rem;">Each intrusion below is a real scam technique. Your job is to pick the countermeasure that actually works: <strong>verify through a genuine ATO channel</strong> instead of trusting the message. Techniques change. The habit generalises.</p>
+      <div class="spec-bar">6 INTRUSIONS &nbsp;·&nbsp; ~5 MINUTES &nbsp;·&nbsp; ZERO PERSONAL DATA REQUIRED</div>
+      <button class="btn btn-primary" onclick="startScenarios()">Initialise Defence Protocol</button>
+      <div class="source-line" style="text-align:center;">Source: ATO Media Centre, April 2026</div>
     </div>
   `;
 }
@@ -862,14 +981,27 @@ function renderScenarioSetup(container) {
   container.innerHTML = `
     <div class="card">
       ${renderProgress()}
-      <div class="character">
-        <div class="character-avatar ${s.character.emoji ? 'emoji' : ''}">${s.character.emoji || s.character.initial}</div>
-        <div class="character-info">
-          <h3>${s.character.name}, ${s.character.age}</h3>
-          <span>${s.setup}</span>
+      <div class="sys-label" style="color:var(--danger);">⚠ Breach Detected</div>
+      <div class="sys-head">${s.intrusionType}</div>
+      <div class="sys-rule"></div>
+      <div class="subject-line">
+        <div class="subject-avatar">${s.character.emoji || s.character.initial}</div>
+        <div>
+          <div class="subject-name">${s.character.name}, ${s.character.age}</div>
+          <div class="sys-label" style="color:var(--text-muted);">Target Subject</div>
         </div>
       </div>
-      <button class="btn btn-primary" onclick="goTo('scenario-message')">Continue</button>
+      <div class="dossier">
+        <div class="dossier-row">
+          <div class="dossier-key">Status</div>
+          <div class="dossier-val">${s.setup}</div>
+        </div>
+        <div class="dossier-row">
+          <div class="dossier-key">Exposure</div>
+          <div class="dossier-val">${s.vulnerability}</div>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="goTo('scenario-message')">Intercept Transmission</button>
     </div>
   `;
 }
@@ -877,19 +1009,28 @@ function renderScenarioSetup(container) {
 function renderScenarioMessage(container) {
   const s = scenarios[currentScenario];
   const messageHtml = `
-    <div class="message-bubble msg-in">
-      <div class="sender">${s.message.sender} · ${s.message.timestamp}</div>
-      <div style="white-space:pre-line; color:var(--text);">${s.message.body}</div>
+    <div class="transmission msg-in">
+      <div class="meta">
+        Source: <b>${s.message.sender}</b><br>
+        Timestamp: <b>${s.message.timestamp}</b> &nbsp;·&nbsp; Channel: <b>${s.message.channel}</b><br>
+        Encryption: <b style="color:#fca5a5;">NONE</b>
+      </div>
+      <div class="body">${s.message.body}</div>
     </div>
-    <button class="btn btn-primary" onclick="goTo('scenario-decision')">How would you check?</button>
+    <button class="btn btn-primary" onclick="goTo('scenario-decision')">Analyse Countermeasures</button>
   `;
 
   container.innerHTML = `
     <div class="card">
       ${renderProgress()}
-      <span class="tag tag-simulated">Simulated ${s.message.channel}</span>
+      <span class="tag tag-simulated">⚠ Simulated Breach Attempt</span>
+      <div class="sys-head" style="font-size:0.92rem;">Intercepted Transmission</div>
+      <div class="sys-rule"></div>
       <div id="msg-slot">
-        <div class="typing-bubble" aria-label="Message incoming"><span></span><span></span><span></span></div>
+        <div class="decrypt">
+          <div class="decrypt-label">Decrypting transmission<span class="dots"></span></div>
+          <div class="scan-track"><div class="scan-fill"></div></div>
+        </div>
       </div>
     </div>
   `;
@@ -897,27 +1038,33 @@ function renderScenarioMessage(container) {
   const slot = container.querySelector('#msg-slot');
   clearTimeout(msgTimer);
 
-  // Brief pause so the message "arrives" rather than just appearing.
   const reveal = () => {
     if (currentScreen !== 'scenario-message') return;
-    Sound.ding();
     slot.innerHTML = messageHtml;
   };
 
   if (reducedMotion()) reveal();
-  else msgTimer = setTimeout(reveal, 1150);
+  else msgTimer = setTimeout(reveal, 950);
 }
 
 function renderScenarioDecision(container) {
   const s = scenarios[currentScenario];
   let optionsHtml = '';
   s.options.forEach((opt, i) => {
-    optionsHtml += `<button class="btn btn-option" style="animation-delay:${(i * 0.06).toFixed(2)}s" onclick="chooseOption('${opt.id}', ${opt.unsafe}, ${opt.autofill})">${opt.text}</button>`;
+    const num = String(i + 1).padStart(2, '0');
+    optionsHtml += `
+      <button class="btn btn-option" style="animation-delay:${(i * 0.06).toFixed(2)}s" onclick="chooseOption('${opt.id}')">
+        <span class="opt-tag">Protocol ${num}</span>
+        <span class="opt-text">${opt.text}</span>
+      </button>
+    `;
   });
   container.innerHTML = `
     <div class="card">
       ${renderProgress()}
-      <h2>${s.question}</h2>
+      <div class="sys-label">Select Countermeasure</div>
+      <h2 style="margin-top:6px;">${s.question}</h2>
+      <div class="sys-rule"></div>
       ${optionsHtml}
     </div>
   `;
@@ -926,28 +1073,42 @@ function renderScenarioDecision(container) {
 function renderScenarioFeedback(container) {
   const s = scenarios[currentScenario];
   const choice = s.options.find(o => o.id === lastChoice);
-  const isUnsafe = choice.unsafe;
+  const outcome = outcomeOf(choice);
   const feedbackText = s.feedback[lastChoice];
 
+  const view = {
+    safe: {
+      cardClass: 'card-secure', iconClass: 'safe', icon: '🔒',
+      title: 'Threat Neutralised',
+      consequence: 'Vault secured. Independent verification confirmed. No data exfiltrated.'
+    },
+    breach: {
+      cardClass: 'card-breach', iconClass: 'risky', icon: '⛔',
+      title: 'Breach In Progress',
+      consequence: choice.consequence
+    },
+    unresolved: {
+      cardClass: 'card-unresolved', iconClass: 'unresolved', icon: '⚠',
+      title: 'Threat Unresolved',
+      consequence: choice.consequence
+    }
+  }[outcome];
+
+  const consequenceClass = outcome === 'breach' ? 'risky' : outcome === 'unresolved' ? 'unresolved' : 'safe';
+
   container.innerHTML = `
-    <div class="card ${isUnsafe ? 'card-shake' : ''}">
-      ${renderProgress({ bump: !isUnsafe })}
+    <div class="card ${view.cardClass}">
+      ${renderProgress({ bump: outcome === 'safe' })}
       <div class="verdict">
-        <div class="verdict-icon ${isUnsafe ? 'risky' : 'safe'}">${isUnsafe ? '⚠️' : '✅'}</div>
-        <span class="tag ${isUnsafe ? 'tag-scam' : 'tag-real'}" style="margin-bottom:0;">${isUnsafe ? 'Risky choice' : 'Good choice'}</span>
+        <div class="verdict-icon ${view.iconClass}">${view.icon}</div>
+        <div class="verdict-title ${view.iconClass}">${view.title}</div>
       </div>
+      <div class="consequence ${consequenceClass}">&gt; ${view.consequence}</div>
       <p style="color:var(--text);">${feedbackText}</p>
-      <button class="btn btn-primary" onclick="goTo('scenario-reveal')">See the official ATO pathway</button>
-      ${isUnsafe ? `<button class="btn btn-back" onclick="goTo('scenario-decision')">Choose differently</button>` : ''}
+      <button class="btn btn-primary" onclick="goTo('scenario-reveal')">View Forensic Analysis</button>
+      ${outcome !== 'safe' ? `<button class="btn btn-back" onclick="goTo('scenario-decision')">Retry Countermeasure</button>` : ''}
     </div>
   `;
-
-  if (isUnsafe) {
-    Sound.wrong();
-  } else {
-    Sound.correct();
-    confetti(16);
-  }
 }
 
 function renderScenarioReveal(container) {
@@ -964,101 +1125,120 @@ function renderScenarioReveal(container) {
 
   let screenshotHtml = '';
   if (s.reveal.screenshot) {
-    screenshotHtml = `<div class="screenshot-frame"><img src="${s.reveal.screenshot}" alt="Official ATO app screenshot" onerror="this.style.display='none'"><div class="screenshot-caption">Official ATO app screenshot. Source: ATO Media Centre.</div></div>`;
+    screenshotHtml = `<div class="screenshot-frame"><img src="${s.reveal.screenshot}" alt="Official ATO app screenshot" onerror="this.style.display='none'"><div class="screenshot-caption">Official ATO app screenshot · Source: ATO Media Centre</div></div>`;
   }
 
   container.innerHTML = `
     <div class="card">
       ${renderProgress()}
+      <div class="sys-label">ATO Defence Grid — Incident Report</div>
+      <div class="sys-head" style="font-size:0.92rem;">Forensic Analysis</div>
+      <div class="sys-rule"></div>
       <h2>${s.reveal.title}</h2>
       ${screenshotHtml}
+      <p style="font-size:0.85rem; margin-bottom:12px;">What the official ATO channels confirmed:</p>
       ${stepsHtml}
       <div class="reveal-box">
-        <h4>The truth</h4>
+        <h4>Forensic Finding</h4>
         <p>${s.reveal.truth}</p>
       </div>
-      <div class="reveal-box" style="border-left-color:var(--success); background:rgba(34,197,94,0.06);">
-        <h4 style="color:var(--success);">Everyday use</h4>
+      <div class="reveal-box" style="border-left-color:var(--success); background:rgba(34,197,94,0.06); border-color:rgba(34,197,94,0.22);">
+        <h4 style="color:var(--success);">Same Channel, Everyday Use</h4>
         <p>${s.reveal.everyday}</p>
       </div>
-      <p style="font-size:0.75rem; color:var(--text-muted); margin-top:12px;">
+      <div class="source-line">
         ${s.reveal.realismNote}<br>
         Source: ${s.reveal.source}
-      </p>
+      </div>
       <button class="btn btn-primary" onclick="nextScenario()" style="margin-top:16px;">
-        ${currentScenario < scenarios.length - 1 ? 'Next situation' : 'View your report'}
+        ${currentScenario < scenarios.length - 1 ? 'Next Intrusion' : 'View Defence Rating'}
       </button>
     </div>
   `;
 }
 
 function renderReport(container) {
-  const safeCount = userChoices.filter(c => c.safe).length;
   const total = scenarios.length;
+  const neutralised = userChoices.filter(c => c.outcome === 'safe').length;
+  const compromised = userChoices.filter(c => c.outcome === 'breach').length;
+  const unresolved = userChoices.filter(c => c.outcome === 'unresolved').length;
 
   let summaryHtml = '';
   scenarios.forEach((s, i) => {
     const choice = userChoices.find(c => c.scenarioId === s.id);
     const chosenOpt = s.options.find(o => o.id === choice?.choiceId);
-    const icon = choice?.safe ? '✅' : '⚠️';
+    const icon = choice?.outcome === 'safe' ? '🔒' : choice?.outcome === 'unresolved' ? '⚠' : '⛔';
     summaryHtml += `
       <div class="summary-item" style="animation-delay:${(i * 0.07).toFixed(2)}s">
         <div class="title">${icon} ${s.title}</div>
-        <div class="choice">You chose: ${chosenOpt?.text || 'No choice'}</div>
+        <div class="choice">Protocol selected: ${chosenOpt?.text || 'None'}</div>
       </div>
     `;
   });
 
-  const rank = safeCount === total
-    ? { icon: '🏆', label: 'Verification Pro' }
-    : safeCount >= 4
-      ? { icon: '🛡️', label: 'Scam Aware' }
-      : { icon: '📘', label: 'Keep Practising' };
+  const rank = neutralised === 6
+    ? { icon: '🏰', label: 'Fortress', sub: 'Zero breaches. Maximum security.' }
+    : neutralised >= 4
+      ? { icon: '🛡', label: 'Elite Defender', sub: 'Critical systems protected.' }
+      : neutralised >= 2
+        ? { icon: '📡', label: 'Operative', sub: 'Partial defence grid active.' }
+        : { icon: '🔓', label: 'Rookie', sub: 'Vault perimeter breached.' };
 
   container.innerHTML = `
     <div class="card">
-      <h1 style="text-align:center;">Your Report</h1>
+      <div class="sys-label" style="text-align:center;">Simulation Complete</div>
+      <h1 style="text-align:center; font-family:var(--mono); font-size:1.3rem; letter-spacing:1.6px; text-transform:uppercase;">Defence Rating</h1>
       <div class="rank-badge">${rank.icon}</div>
       <div class="rank-label">${rank.label}</div>
+      <div class="rank-sub">${rank.sub}</div>
       <div class="report-metric">
         <div class="number" id="score-number">0/${total}</div>
-        <div class="label">situations where you used an official ATO verification method</div>
+        <div class="label">Intrusions Neutralised</div>
+      </div>
+      <div class="tally">
+        <div class="tally-item">
+          <div class="tally-num" style="color:var(--success);">${neutralised}</div>
+          <div class="tally-key">Neutralised</div>
+        </div>
+        <div class="tally-item">
+          <div class="tally-num" style="color:var(--warn);">${unresolved}</div>
+          <div class="tally-key">Unresolved</div>
+        </div>
+        <div class="tally-item">
+          <div class="tally-num" style="color:var(--danger);">${compromised}</div>
+          <div class="tally-key">Compromised</div>
+        </div>
       </div>
       <p style="text-align:center; color:var(--text);">
-        ${safeCount === total 
-          ? "Excellent. You consistently chose to verify through official ATO channels." 
-          : safeCount >= 4 
-            ? "Good work. You used official verification in most situations. Review the ones you missed."
-            : "Keep practising. The safest habit is to always verify through an official ATO channel."}
+        ${neutralised === total
+          ? "Every intrusion stopped. You consistently verified through official ATO channels."
+          : neutralised >= 4
+            ? "Strong defence. You verified through official channels in most intrusions. Review the ones that got through."
+            : "The perimeter held in places, but not everywhere. The safest habit is to verify through an official ATO channel every time."}
       </p>
-      <div style="margin:20px 0;">
+      <div style="margin:18px 0;">
         ${summaryHtml}
       </div>
-      <div class="reveal-box" style="border-left-color:var(--accent); background:rgba(245,158,11,0.08);">
-        <h4 style="color:var(--accent);">Remember</h4>
-        <p>When something involving your tax, super, or ATO account seems suspicious, don't trust the message and don't blindly ignore it. <strong>Verify it through an official ATO channel.</strong></p>
+      <div class="reveal-box" style="border-left-color:var(--accent); background:rgba(245,158,11,0.08); border-color:rgba(245,158,11,0.25);">
+        <h4 style="color:var(--accent);">Standing Order</h4>
+        <p>The best defence is verification. When something involving your tax, super, or ATO account is suspicious, don't trust the message and don't ignore it. <strong>Verify it through an official ATO channel.</strong></p>
       </div>
-      <button class="btn btn-primary" onclick="restart()" style="margin-top:16px;">Start Again</button>
+      <button class="btn btn-primary" onclick="restart()" style="margin-top:16px;">Reinitialise Defence</button>
     </div>
   `;
 
-  // Count the score up rather than just printing it.
   const scoreEl = container.querySelector('#score-number');
-  if (reducedMotion()) {
-    scoreEl.textContent = `${safeCount}/${total}`;
+  if (reducedMotion() || neutralised === 0) {
+    scoreEl.textContent = `${neutralised}/${total}`;
   } else {
     let n = 0;
     const tick = () => {
       n++;
       scoreEl.textContent = `${n}/${total}`;
-      Sound.tone(440 + n * 90, 0.09, 'sine', 0.07);
-      if (n < safeCount) setTimeout(tick, 240);
+      if (n < neutralised) setTimeout(tick, 220);
     };
-    if (safeCount > 0) setTimeout(tick, 350);
+    setTimeout(tick, 320);
   }
-
-  Sound.finish();
-  if (safeCount >= 4) setTimeout(() => confetti(50), 500);
 }
 
 function startScenarios() {
@@ -1072,30 +1252,29 @@ function goTo(screen) {
   render();
 }
 
-function chooseOption(choiceId, isUnsafe, hasAutofill) {
+function chooseOption(choiceId) {
   lastChoice = choiceId;
   const s = scenarios[currentScenario];
   const opt = s.options.find(o => o.id === choiceId);
 
-  // Replace any previous answer for this scenario so that "Choose differently"
-  // does not leave a stale entry behind (which made the score and the summary
-  // disagree with each other).
-  const entry = { scenarioId: s.id, choiceId, safe: !opt.unsafe };
+  // Replace any previous answer for this scenario so that "Retry countermeasure"
+  // does not leave a stale entry behind.
+  const entry = { scenarioId: s.id, choiceId, outcome: outcomeOf(opt) };
   const existing = userChoices.findIndex(c => c.scenarioId === s.id);
   if (existing >= 0) userChoices[existing] = entry;
   else userChoices.push(entry);
 
-  if (opt.unsafe && hasAutofill) {
-    showAutofill(() => { goTo('scenario-feedback'); });
+  if (opt.unsafe && opt.autofill) {
+    showExfiltration(() => { goTo('scenario-feedback'); });
   } else {
     goTo('scenario-feedback');
   }
 }
 
-function showAutofill(onComplete) {
-  const overlay = document.getElementById('autofill-overlay');
+function showExfiltration(onComplete) {
+  const overlay = document.getElementById('exfil-overlay');
   overlay.classList.remove('hidden');
-  const box = overlay.querySelector('.autofill-box');
+  const box = overlay.querySelector('.exfil-box');
   box.innerHTML = box.innerHTML;
   setTimeout(() => {
     overlay.classList.add('hidden');
