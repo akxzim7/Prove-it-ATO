@@ -1563,6 +1563,145 @@ document.addEventListener('click', (e) => {
 });
 
 render();
+
+/* ══════════════════════════════════════════════════════════════════════════
+   AMBIENT AUDIO LAYER — self-contained. Delete this whole block to remove it.
+   Adds nothing to the HTML or CSS and patches nothing permanently: it builds
+   its own button, wraps startScenarios() to know when to begin, and fails
+   silently if Web Audio is unavailable or blocked.
+   ══════════════════════════════════════════════════════════════════════════ */
+(function ambientLayer() {
+  'use strict';
+
+  var LEVEL = 0.06;   // master ceiling — spec allows up to 0.15
+  var rig = null, playing = false, btn = null;
+
+  function context() {
+    // Share the sound-effects context if it exists, otherwise stand alone.
+    if (typeof ac === 'function') return ac();
+    var Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return null;
+    var c = new Ctx();
+    if (c.state === 'suspended') c.resume();
+    return c;
+  }
+
+  function build() {
+    var ctx = context();
+    if (!ctx || !ctx.createBiquadFilter || !ctx.createBuffer) return null;
+
+    var master = ctx.createGain();
+    master.gain.value = 0;
+    master.connect(ctx.destination);
+
+    // Bed sits between the sources and the master so the LFO can breathe on it
+    // without fighting the fade-in.
+    var bed = ctx.createGain();
+    bed.gain.value = 0.85;
+    bed.connect(master);
+
+    // Two low oscillators a fraction apart beat slowly against each other —
+    // that slow throb is what reads as "machine room" rather than "organ note".
+    [[55, 'triangle', 0.30], [55.4, 'triangle', 0.30], [110, 'sine', 0.10]].forEach(function (spec) {
+      var o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = spec[1];
+      o.frequency.value = spec[0];
+      g.gain.value = spec[2];
+      o.connect(g).connect(bed);
+      o.start();
+    });
+
+    // Low-passed noise gives the drone some air so it doesn't sound synthetic.
+    var len = Math.floor(ctx.sampleRate * 2);
+    var buf = ctx.createBuffer(1, len, ctx.sampleRate);
+    var data = buf.getChannelData(0);
+    for (var i = 0; i < len; i++) data[i] = (Math.random() * 2 - 1);
+    var noise = ctx.createBufferSource();
+    noise.buffer = buf;
+    noise.loop = true;
+    var lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = 320;
+    lp.Q.value = 0.6;
+    var ng = ctx.createGain();
+    ng.gain.value = 0.32;
+    noise.connect(lp).connect(ng).connect(bed);
+    noise.start();
+
+    // ~22 second cycle. Slow enough to feel like drift, not a pulse.
+    var lfo = ctx.createOscillator(), depth = ctx.createGain();
+    lfo.frequency.value = 0.045;
+    depth.gain.value = 0.15;
+    lfo.connect(depth).connect(bed.gain);
+    lfo.start();
+
+    return { ctx: ctx, master: master };
+  }
+
+  function fade(to, seconds) {
+    if (!rig) return;
+    var g = rig.master.gain, now = rig.ctx.currentTime;
+    g.cancelScheduledValues(now);
+    g.setValueAtTime(g.value, now);
+    g.setTargetAtTime(to, now, seconds);
+  }
+
+  function paint() {
+    if (!btn) return;
+    btn.style.color = playing ? 'var(--cyan)' : 'var(--text-muted)';
+    btn.style.borderColor = playing ? 'rgba(56,189,248,0.45)' : 'var(--border)';
+    var label = playing ? 'Mute ambient audio' : 'Unmute ambient audio';
+    btn.setAttribute('aria-label', label);
+    btn.setAttribute('aria-pressed', playing ? 'true' : 'false');
+    btn.title = label;
+  }
+
+  function makeButton() {
+    if (btn) return;
+    btn = document.createElement('button');
+    btn.className = 'sound-toggle';
+    btn.textContent = 'AMB';
+    btn.style.right = '60px';
+    btn.style.fontFamily = 'var(--mono)';
+    btn.style.fontSize = '0.5rem';
+    btn.style.letterSpacing = '0.5px';
+    btn.style.fontWeight = '700';
+    btn.addEventListener('click', function () {
+      playing = !playing;
+      fade(playing ? LEVEL : 0, playing ? 0.8 : 0.35);
+      paint();
+    });
+    document.body.appendChild(btn);
+    paint();
+  }
+
+  function start() {
+    if (rig) return;
+    try {
+      rig = build();
+      if (!rig) return;         // no Web Audio — stay silent, show no button
+      playing = true;
+      fade(LEVEL, 1.6);          // slow swell so it never announces itself
+      makeButton();
+    } catch (e) {
+      rig = null;                // any failure: simulator carries on untouched
+    }
+  }
+
+  // Don't drone into an unattended tab.
+  document.addEventListener('visibilitychange', function () {
+    if (!rig || !playing) return;
+    fade(document.hidden ? 0 : LEVEL, 0.4);
+  });
+
+  // Begin only when the user starts the simulation — never on page load.
+  var originalStart = window.startScenarios;
+  window.startScenarios = function () {
+    try { start(); } catch (e) { /* audio is optional, never block the app */ }
+    return originalStart.apply(this, arguments);
+  };
+})();
+/* ═══════════════════ END AMBIENT AUDIO LAYER ═══════════════════ */
 </script>
 
 </body>
