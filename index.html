@@ -621,6 +621,92 @@
   .everyday-list li:last-child { margin-bottom: 0; }
   .everyday-list b { color: var(--text); }
 
+  /* Vault integrity bar */
+  .vault-health { margin-bottom: 11px; }
+  .vh-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 5px; }
+  .vh-key {
+    font-family: var(--mono); font-size: 0.55rem; letter-spacing: 1.3px;
+    text-transform: uppercase; color: #8095b3;
+  }
+  .vh-val { font-family: var(--mono); font-size: 0.72rem; font-weight: 700; }
+  .vh-val.good { color: var(--success); }
+  .vh-val.warn { color: var(--warn); }
+  .vh-val.bad  { color: var(--danger); }
+  .vh-track {
+    height: 7px; border-radius: 4px; overflow: hidden;
+    background: rgba(15,23,42,0.85); border: 1px solid var(--border);
+  }
+  .vh-fill {
+    height: 100%; border-radius: 3px;
+    transition: width 0.7s cubic-bezier(0.3,0.9,0.3,1), background 0.5s;
+  }
+  .vh-fill.good { background: linear-gradient(90deg, #16a34a, #22c55e); box-shadow: 0 0 11px rgba(34,197,94,0.5); }
+  .vh-fill.warn { background: linear-gradient(90deg, #d97706, #f59e0b); box-shadow: 0 0 11px rgba(245,158,11,0.5); }
+  .vh-fill.bad  { background: linear-gradient(90deg, #b91c1c, #ef4444); box-shadow: 0 0 13px rgba(239,68,68,0.65); animation: vhPanic 1.1s ease-in-out infinite; }
+  @keyframes vhPanic { 0%,100% { opacity: 1; } 50% { opacity: 0.62; } }
+
+  /* Phase escalation — border shifts as they get closer */
+  .card.phase-1 { border-color: rgba(245,158,11,0.42); }
+  .card.phase-2 { border-color: rgba(249,115,22,0.55); box-shadow: 0 0 26px rgba(249,115,22,0.10); }
+  .card.phase-3 { border-color: rgba(239,68,68,0.62); box-shadow: 0 0 30px rgba(239,68,68,0.15); }
+  .phase-tag {
+    font-family: var(--mono); font-size: 0.58rem; letter-spacing: 1.2px;
+    text-transform: uppercase; text-align: center;
+    padding: 5px 9px; border-radius: 4px; margin-bottom: 12px;
+  }
+  .phase-1 .phase-tag { color: #fcd34d; background: rgba(245,158,11,0.11); border: 1px solid rgba(245,158,11,0.3); }
+  .phase-2 .phase-tag { color: #fdba74; background: rgba(249,115,22,0.12); border: 1px solid rgba(249,115,22,0.35); }
+  .phase-3 .phase-tag { color: #fca5a5; background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.38); }
+
+  /* Combo */
+  .combo-badge {
+    font-family: var(--mono); font-size: 0.58rem; font-weight: 700; letter-spacing: 0.7px;
+    color: #fde68a; background: rgba(245,158,11,0.16);
+    border: 1px solid rgba(245,158,11,0.45);
+    padding: 2px 8px; border-radius: 4px; white-space: nowrap;
+    animation: comboPop 0.45s cubic-bezier(0.2,0.9,0.3,1.5);
+  }
+  @keyframes comboPop { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+  /* Attacker line */
+  .target-avatar {
+    font-size: 1.15rem; line-height: 1; flex: 0 0 auto;
+  }
+  .codename {
+    font-family: var(--mono); letter-spacing: 1.4px; color: var(--danger);
+  }
+
+  /* Vault visual */
+  .vault-ring {
+    width: 92px; height: 92px; margin: 4px auto 14px;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 2.1rem;
+    background: radial-gradient(circle at 50% 38%, #1e2b45 0%, #131c2e 70%);
+    border: 3px solid var(--border);
+    position: relative;
+  }
+  .vault-ring::after {
+    content: ''; position: absolute; inset: 7px;
+    border-radius: 50%; border: 1px dashed rgba(148,163,184,0.24);
+  }
+  .vault-ring.landing { border-color: rgba(245,158,11,0.55); box-shadow: 0 0 30px rgba(245,158,11,0.28), inset 0 0 20px rgba(245,158,11,0.10); }
+  .vault-ring.sealed  { border-color: rgba(34,197,94,0.75);  box-shadow: 0 0 36px rgba(34,197,94,0.42),  inset 0 0 22px rgba(34,197,94,0.16); }
+  .vault-ring.held    { border-color: rgba(245,158,11,0.65); box-shadow: 0 0 30px rgba(245,158,11,0.30), inset 0 0 20px rgba(245,158,11,0.12); }
+  .vault-ring.cracked { border-color: rgba(239,68,68,0.78);  box-shadow: 0 0 36px rgba(239,68,68,0.45),  inset 0 0 22px rgba(239,68,68,0.18); border-style: dashed; }
+
+  /* Game over */
+  .gameover-head {
+    font-family: var(--mono); font-weight: 700;
+    font-size: clamp(1.9rem, 7.5vw, 2.6rem);
+    letter-spacing: 3px; text-transform: uppercase;
+    color: var(--danger); text-shadow: 0 0 26px rgba(239,68,68,0.45);
+    margin-bottom: 8px; line-height: 1.05;
+  }
+  .gameover-loss {
+    font-family: var(--mono); font-size: 0.8rem; color: #fca5a5;
+    letter-spacing: 0.5px; margin-bottom: 14px; line-height: 1.6;
+  }
+
   /* Defence rating */
   .rank-badge {
     width: 88px; height: 88px; margin: 4px auto 10px;
@@ -799,11 +885,11 @@
 
 <div id="exfil-overlay" class="exfil-screen hidden">
   <div class="exfil-box">
-    <div class="exfil-head">⚠ Data Exfiltration Detected</div>
-    <div class="exfil-sub">Destination: unknown host · Encryption: none</div>
+    <div class="exfil-head">⚠ Your info is being stolen</div>
+    <div class="exfil-sub">Going straight to someone you don't know</div>
     <div class="fake-field">
       <div class="fake-field-label">Full Name</div>
-      <div class="fake-field-value"><span class="typed" style="animation-delay:0.3s;">Sam T.</span><span class="cursor"></span></div>
+      <div class="fake-field-value"><span class="typed" style="animation-delay:0.3s;">Your name</span><span class="cursor"></span></div>
     </div>
     <div class="fake-field">
       <div class="fake-field-label">Tax File Number</div>
@@ -814,7 +900,7 @@
       <div class="fake-field-value"><span class="typed" style="animation-delay:2.0s;">062-000 / ••••••••</span><span class="cursor"></span></div>
     </div>
     <div class="exfil-warning">
-      UPLOADING TO UNKNOWN SERVER
+      SENDING TO AN UNKNOWN SERVER
     </div>
   </div>
 </div>
@@ -828,9 +914,10 @@ const scenarios = [
   {
     id: 1,
     title: "Fake Tax Refund",
-    intrusionType: "SMS PHISHING",
-    character: { name: "Sam", age: 17, initial: "S", emoji: "🧑‍🍳" },
-    setup: "Lodged their first tax return three weeks ago.",
+    intrusionType: "They sent you a fake text",
+    attacker: { name: "PHANTOM", emoji: "🕶" },
+    stake: 642,
+    setup: "Goes after first-time lodgers. You filed your first return three weeks ago.",
     vulnerability: "No baseline for how long a refund should take.",
     message: {
       channel: "SMS",
@@ -847,22 +934,22 @@ const scenarios = [
     ],
     feedback: {
       tap_link: {
-        headline: "Credentials Stolen",
+        headline: "They got your details",
         body: "The ATO never sends unsolicited messages with links asking you to log in.",
         detail: "The link leads to a cloned login page built to capture your myGov credentials and bank details. Real ATO messages never contain login links or QR codes — if a message has one, that alone is enough to distrust it."
       },
       call_number: {
-        headline: "Line Compromised",
+        headline: "You called them back",
         body: "A scam message can list any number it likes, including one that looks right.",
         detail: "Search results can be paid for, so \"it matches Google\" proves nothing. The ATO does not display a number when it calls. If you need to phone the ATO, take the number from ato.gov.au — scam reports go to 1800 008 540."
       },
       ato_app: {
-        headline: "Vault Secured",
+        headline: "Stopped them",
         body: "You went to the source instead of trusting the message.",
         detail: "Opening the ATO app or typing my.gov.au yourself is the only thing that shows your real refund status. Nothing inside an unexpected message — no link, no number, no logo — can confirm itself."
       },
       ask_chat: {
-        headline: "Nothing Verified",
+        headline: "You still don't know",
         body: "You collected opinions, not an answer.",
         detail: "Your group chat can't see your ATO account. Crowdsourcing feels like checking, and it might get you lucky, but the only thing that settles it is your own refund status in the ATO app."
       }
@@ -874,7 +961,7 @@ const scenarios = [
         "Select \"Your tax return for 2025-26\"",
         "Read the status: issued, processing, or tax owed"
       ],
-      truth: "Sam's return was still processing. No refund had been issued.",
+      truth: "Your return was still processing. No refund had been issued.",
       everyday: "Same screen you'd open to track a real refund.",
       detail: "Online returns generally process within two weeks, and up to 30 days if a manual review is needed. Three weeks with no refund is completely normal — which is exactly the uncertainty this scam is built to exploit.",
       source: "ato.gov.au/individuals-and-families/your-tax-return/check-the-progress-of-your-tax-return",
@@ -884,9 +971,10 @@ const scenarios = [
   {
     id: 2,
     title: "Fake Account Security Alert",
-    intrusionType: "EMAIL SPOOFING",
-    character: { name: "Maya", age: 20, initial: "M", emoji: "👩‍🎓" },
-    setup: "Uni student, part-time job, myGov linked to the ATO.",
+    intrusionType: "They sent you a fake email",
+    attacker: { name: "GHOST", emoji: "👻" },
+    stake: 0,
+    setup: "Goes after students with myGov linked to the ATO. That&rsquo;s you.",
     vulnerability: "One myGov login unlocks multiple government services.",
     message: {
       channel: "Email",
@@ -903,24 +991,24 @@ const scenarios = [
     ],
     feedback: {
       type_mygov: {
-        headline: "Threat Neutralised",
+        headline: "Nice. You went direct.",
         body: "You never touched the email — you opened the account yourself.",
         detail: "Typing my.gov.au into the address bar means no link, no lookalike domain, and no cloned page can sit between you and the real service. Genuine ATO messages wait for you in your myGov Inbox."
       },
       click_link: {
-        headline: "Credentials Captured",
+        headline: "They got your login",
         body: "Perfect branding is cheap — the sender address is the giveaway.",
         detail: "\"ato-gov-alert.com\" is not an ATO domain. Logos, footers and formatting can be copied in minutes, so how a message looks tells you nothing. The ATO never sends unsolicited emails containing hyperlinks or QR codes."
       },
       reply_email: {
-        headline: "Target Confirmed",
+        headline: "Now they know you're real",
         body: "Replying proves your address is live and invites more attempts.",
         detail: "A scammer who gets a reply now knows a real person reads that inbox, which makes you worth targeting again. The ATO will never ask for personal identifying information over email."
       },
       ask_agent: {
-        headline: "Clock Still Running",
+        headline: "Good instinct, still waiting",
         body: "A tax agent is a real authority, but the account still hasn't been checked.",
-        detail: "Asking a professional is a genuinely good instinct and not a wrong one. It's just slower than the answer: Maya can settle this herself in under a minute by logging in to myGov. Ask the agent as well, not instead."
+        detail: "Asking a professional is a genuinely good instinct and not a wrong one. It's just slower than the answer: you can settle this yourself in under a minute by logging in to myGov. Ask the agent as well, not instead."
       }
     },
     reveal: {
@@ -930,7 +1018,7 @@ const scenarios = [
         "Log in and open ATO from linked services",
         "Check the myGov Inbox for genuine ATO messages"
       ],
-      truth: "Maya's ATO account showed no restrictions at all.",
+      truth: "Your ATO account showed no restrictions at all.",
       everyday: "Same login you'd use to view your TFN or set up a payment plan.",
       detail: "Real ATO communications arrive in your myGov Inbox or as official letters — never as an unsolicited email with a login link. If a message and your Inbox disagree, the Inbox is right.",
       source: "ato.gov.au/online-services/scams-cyber-safety-and-identity-protection/verify-or-report-an-ato-scam"
@@ -939,9 +1027,10 @@ const scenarios = [
   {
     id: 3,
     title: "Fake ATO Debt Demand",
-    intrusionType: "VOICEMAIL SPOOF",
-    character: { name: "Jordan", age: 27, initial: "J", emoji: "🧑‍💼" },
-    setup: "Full-time for three years, changed jobs recently.",
+    intrusionType: "They left you a threatening voicemail",
+    attacker: { name: "SPECTER", emoji: "☠" },
+    stake: 1204.65,
+    setup: "Goes after people who just changed jobs. You changed jobs last month.",
     vulnerability: "A job change makes a surprise tax bill sound plausible.",
     message: {
       channel: "Voicemail",
@@ -958,22 +1047,22 @@ const scenarios = [
     ],
     feedback: {
       press_1: {
-        headline: "Funds Gone",
+        headline: "Your money's gone",
         body: "The ATO will never threaten arrest or demand payment within 24 hours.",
         detail: "Arrest threats, TFN cancellation and same-day deadlines are pressure tactics, not tax administration. A real debt sits quietly in your ATO account with an amount and a due date, and nobody phones you to shout about it."
       },
       check_caller_id: {
-        headline: "Spoofed And Trusted",
+        headline: "That ID was fake",
         body: "Caller ID can be faked — a matching number proves nothing.",
         detail: "This is the trap: it feels like verification, so people stop checking right when they should start. Scammers routinely display a real ATO number. Anything shown to you by the caller is under the caller's control, which is why verification has to start from your end."
       },
       call_back: {
-        headline: "Still Their Line",
+        headline: "Still their phone line",
         body: "Asking for a reference number sounds careful, but you're still talking to the scammer.",
         detail: "A callback to the number that rang you reaches whoever set up that line, and they will happily invent a reference number. Due diligence only counts when you choose the channel."
       },
       ato_app: {
-        headline: "Perimeter Held",
+        headline: "Nothing there. You're fine.",
         body: "A real debt would be sitting in the account, with an amount and a date.",
         detail: "Your ATO account is the single source of truth for what you owe. If the voicemail and your account disagree, the account wins — no phone call can override it."
       }
@@ -985,7 +1074,7 @@ const scenarios = [
         "Read your balance on the home screen",
         "Open Tax → Accounts for a full breakdown"
       ],
-      truth: "Jordan's ATO account showed no debt. The voicemail was a scam.",
+      truth: "Your ATO account showed no debt. The voicemail was fake.",
       everyday: "Same place you'd manage a payment plan or find your assessment.",
       detail: "A genuine debt appears here with the exact amount and due date, and the ATO will work with you on a payment plan. It does not arrive as a threatening voicemail with a 24-hour deadline.",
       source: "ato.gov.au/individuals-and-families/paying-the-ato/how-much-you-owe"
@@ -994,9 +1083,10 @@ const scenarios = [
   {
     id: 4,
     title: "Unauthorised Super Transfer",
-    intrusionType: "UNAUTHORISED SUPER TRANSFER",
-    character: { name: "Liam", age: 21, initial: "L", emoji: "🧑‍🔧" },
-    setup: "Two super accounts, part-way through consolidating them.",
+    intrusionType: "They are moving your super",
+    attacker: { name: "VIPER", emoji: "🐍" },
+    stake: 4850,
+    setup: "Goes after people part-way through merging their super. You started last week.",
     vulnerability: "A transfer between funds would look routine right now.",
     message: {
       channel: "Push notification",
@@ -1013,22 +1103,22 @@ const scenarios = [
     ],
     feedback: {
       verify_it: {
-        headline: "Super Released",
+        headline: "You just approved it",
         body: "Never verify a transaction you didn't start — verifying is approving.",
         detail: "Employers pay super into your fund; they don't initiate rollovers out of it. That plausible-sounding explanation is doing the scam's work for it. The ATO's guidance is explicit: if you didn't request the transfer, do not verify it."
       },
       lock_account: {
-        headline: "Transfer Blocked",
+        headline: "Locked them out",
         body: "Locking stops the transfer and blocks further access straight away.",
         detail: "This is the ATO's own instruction for an ATO app super transfer message you didn't request. While the record is locked no refunds issue and unauthorised access is blocked. You can unlock it later from the same registered device."
       },
       check_tomorrow: {
-        headline: "Clock Running",
+        headline: "Too late tomorrow",
         body: "By the time the balance changes, the money has already moved.",
         detail: "Waiting to see the damage is not the same as preventing it. A pending transfer can process overnight, and recovering super after it has left the fund is far harder than stopping it now."
       },
       check_fund: {
-        headline: "Wrong System",
+        headline: "Wrong place to look",
         body: "The request came through the ATO, so that's where it has to be stopped.",
         detail: "Checking your fund's website is a reasonable instinct, but the fund can't cancel an ATO-side request, and the minutes you spend there are minutes the transfer is still live. Lock the ATO record first, then investigate."
       }
@@ -1040,7 +1130,7 @@ const scenarios = [
         "Follow the prompts to lock your ATO record",
         "Phone 1800 467 033 to report suspected fraud"
       ],
-      truth: "Liam's super was safe. Locking the account stopped the transfer.",
+      truth: "Your super was safe. Locking the account stopped the transfer.",
       everyday: "Same app you'd use to find lost super or consolidate funds.",
       detail: "Account locking is a powerful fraud prevention tool. While locked, most personalised features and ATO Online services are inaccessible, and you can unlock from the same registered device once it's safe.",
       source: "ato.gov.au/online-services/online-services-for-individuals-and-sole-traders/ato-app/manage-your-tax-and-super-with-the-ato-app"
@@ -1049,9 +1139,10 @@ const scenarios = [
   {
     id: 5,
     title: "Unauthorised Tax Lodgment",
-    intrusionType: "UNAUTHORISED LODGMENT",
-    character: { name: "Alex", age: 24, initial: "A", emoji: "👨‍💻" },
-    setup: "Usually lodges in August. It's early July.",
+    intrusionType: "They filed a tax return as you",
+    attacker: { name: "WRAITH", emoji: "🎭" },
+    stake: 0,
+    setup: "Files before you do. You usually lodge in August. It&rsquo;s early July.",
     vulnerability: "Return not lodged yet — the window is wide open.",
     message: {
       channel: "Push notification",
@@ -1068,22 +1159,22 @@ const scenarios = [
     ],
     feedback: {
       approve: {
-        headline: "Return Validated",
+        headline: "You signed off on it",
         body: "Approving a lodgment you didn't make can sign off a fraudulent return.",
         detail: "You'd know if you had engaged a tax agent — agents don't appear on your record unnoticed. Scammers lodge early precisely to beat you to your own refund, so an unexpected agent name is the warning, not the reassurance."
       },
       wait_mail: {
-        headline: "Refund In Transit",
+        headline: "The refund's already gone",
         body: "By the time the assessment arrives, the refund has been paid out.",
         detail: "Notices of assessment are issued after processing, not before. Waiting for one gives the fraudulent return the time it needs, and the refund is likely routed to the scammer's account."
       },
       email_agent: {
-        headline: "Contact Established",
+        headline: "You messaged the scammer",
         body: "The 'agent' is part of the scam — you just introduced yourself.",
         detail: "Never contact a third party named in a suspicious message. Emailing them confirms the account is live and hands them a direct channel to work on you. Go to official ATO channels instead."
       },
       lock_account: {
-        headline: "Record Locked",
+        headline: "Shut it down",
         body: "Locking blocks further activity and starts the fraud report.",
         detail: "Once locked, no refunds will issue and no further unauthorised changes can be made. Phoning 1800 008 540 lets the ATO place additional controls on your information while it's investigated."
       }
@@ -1095,7 +1186,7 @@ const scenarios = [
         "Follow the prompts to lock the ATO record",
         "Phone 1800 008 540 to report identity fraud"
       ],
-      truth: "Alex's identity was targeted. Locking the record stopped it going further.",
+      truth: "Your identity was targeted. Locking the record stopped it going further.",
       everyday: "Same alerts that tell you when your real agent lodges for you.",
       detail: "Real-time security messages fire when key changes occur — income tax lodgments, bank account updates and device registrations. The feature exists to help you catch identity crime as it happens.",
       source: "ato.gov.au/api/public/content/84940b3a8c384161b4fc0fe45461790a"
@@ -1104,9 +1195,10 @@ const scenarios = [
   {
     id: 6,
     title: "Verify an ATO Phone Call",
-    intrusionType: "PHONE SOCIAL ENGINEERING",
-    character: { name: "Chris", age: 32, initial: "C", emoji: "🧑‍🌾" },
-    setup: "Runs a landscaping business, expecting an ATO call about his BAS.",
+    intrusionType: "They are calling you right now",
+    attacker: { name: "SHADOW", emoji: "🔦" },
+    stake: 0,
+    setup: "Calls business owners expecting the ATO. You&rsquo;re expecting a call about your BAS.",
     vulnerability: "Already expecting ATO contact — primed to trust the call.",
     message: {
       channel: "Phone call",
@@ -1123,24 +1215,24 @@ const scenarios = [
     ],
     feedback: {
       provide_details: {
-        headline: "Credentials Disclosed",
+        headline: "They got your TFN",
         body: "The ATO will never ask for your myGov password or TFN over the phone.",
         detail: "Knowing your business name proves nothing — company names, ABNs and directors are public record on ABN Lookup. Scammers open with a detail you assume is private to buy your trust for the ask that follows."
       },
       employee_id: {
-        headline: "Fake ID Accepted",
+        headline: "She made that up",
         body: "A scammer will simply make one up, and you have no way to check it.",
         detail: "This is the most convincing wrong answer here, because it feels like exactly what a careful person would do. But any detail the caller supplies is a detail the caller controls. Verification has to come from a channel they can't touch."
       },
       verify_call: {
-        headline: "Caller Verified",
+        headline: "Confirmed. It's really them.",
         body: "The ATO app confirms in about 30 seconds whether the call is genuine.",
         detail: "Verify call is a real feature launched in April 2026 under the ATO Counter Fraud Program. It's the one check the caller can't influence — the confirmation comes from the ATO's side, not theirs."
       },
       hang_up: {
-        headline: "Nothing Confirmed",
+        headline: "You'll miss the real ones",
         body: "The ATO does phone people — hanging up on every call isn't the lesson.",
-        detail: "Chris was genuinely expecting a call about his BAS, and refusing all contact would have cost him a real one. The habit isn't \"never trust an ATO call\", it's \"verify the caller through a channel they don't control\"."
+        detail: "You were genuinely expecting a call about your BAS, and refusing every call would have cost you a real one. The habit isn't \"never trust an ATO call\", it's \"verify the caller through a channel they don't control\"."
       }
     },
     reveal: {
@@ -1151,7 +1243,7 @@ const scenarios = [
         "A notification confirms a genuine ATO call within 30 seconds",
         "No confirmation? Hang up."
       ],
-      truth: "Chris verified the call was genuine and carried on safely.",
+      truth: "The call was genuine. You verified it and carried on safely.",
       everyday: "Same app you'd use to lodge a BAS or track obligations.",
       detail: "Verify call is designed to shut down scam calls in real time by putting the check in the taxpayer's hands. If verification can't be confirmed, treat the interaction as suspicious and end the call.",
       source: "ato.gov.au/media-centre/ato-launches-new-app-feature-to-stop-scam-calls",
@@ -1163,8 +1255,41 @@ const scenarios = [
 let currentScreen = 'landing';
 let currentScenario = 0;
 let userChoices = [];
+let vaultHealth = 100;
+
+// Health moves once per attack, on your FIRST answer, so "try again" is neither
+// a way to farm health back nor a second punishment.
+const HEALTH = { safe: 5, unresolved: -9, breach: -18 };
+
+function phaseOf(i) { return i < 2 ? 1 : i < 4 ? 2 : 3; }
+const PHASES = {
+  1: { label: "Phase 1 — They're watching you" },
+  2: { label: "Phase 2 — They're going for your money" },
+  3: { label: "Phase 3 — They're inside. Lock it down." }
+};
+function phaseClass() { return 'phase-' + phaseOf(currentScenario); }
+
+// Consecutive safe answers, counted from the first attack forward.
+function comboStreak() {
+  let streak = 0;
+  for (const s of scenarios) {
+    const c = userChoices.find(x => x.scenarioId === s.id);
+    if (!c) break;
+    streak = c.outcome === 'safe' ? streak + 1 : 0;
+  }
+  return streak;
+}
+
+// Only counts money the scenarios actually name.
+function stolenTotal() {
+  return userChoices.filter(c => c.outcome === 'breach').reduce((t, c) => {
+    const s = scenarios.find(x => x.id === c.scenarioId);
+    return t + (s && s.stake ? s.stake : 0);
+  }, 0);
+}
 let lastChoice = null;
 let msgTimer = null;
+let exfilTimer = null;
 
 function reducedMotion() {
   return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1269,10 +1394,10 @@ function outcomeOf(opt) {
 }
 
 function rankFor(n) {
-  if (n === 6) return { icon: '🏰', label: 'Fortress',       sub: 'Zero breaches. Maximum security.' };
-  if (n >= 4)  return { icon: '🛡', label: 'Elite Defender', sub: 'Critical systems protected.' };
-  if (n >= 2)  return { icon: '📡', label: 'Operative',      sub: 'Partial defence grid active.' };
-  return              { icon: '🔓', label: 'Rookie',         sub: 'Vault perimeter breached.' };
+  if (n === 6) return { icon: '🏆', label: 'Untouchable',   sub: 'Nothing got through. Not one.' };
+  if (n >= 4)  return { icon: '🛡', label: 'Lockdown Pro',  sub: 'You stopped most of them.' };
+  if (n >= 2)  return { icon: '📡', label: 'Getting There', sub: 'Some got through. Look at those ones.' };
+  return              { icon: '🔓', label: 'They Got You',  sub: 'They got in more than they should have.' };
 }
 
 function neutralisedCount() {
@@ -1288,10 +1413,13 @@ function render() {
   else if (currentScreen === 'scenario-decision') renderScenarioDecision(app);
   else if (currentScreen === 'scenario-feedback') renderScenarioFeedback(app);
   else if (currentScreen === 'scenario-reveal') renderScenarioReveal(app);
+  else if (currentScreen === 'gameover') renderGameOver(app);
   else if (currentScreen === 'report') renderReport(app);
 }
 
 function renderProgress(opts = {}) {
+  const hp = vaultHealth > 60 ? 'good' : vaultHealth > 30 ? 'warn' : 'bad';
+  const streak = comboStreak();
   let dots = '';
   for (let i = 0; i < scenarios.length; i++) {
     let cls = '';
@@ -1300,15 +1428,23 @@ function renderProgress(opts = {}) {
     dots += `<div class="progress-dot ${cls}"></div>`;
   }
   return `
+    <div class="vault-health">
+      <div class="vh-top">
+        <span class="vh-key">Vault integrity</span>
+        <span class="vh-val ${hp}">${vaultHealth}%</span>
+      </div>
+      <div class="vh-track"><div class="vh-fill ${hp}" style="width:${vaultHealth}%"></div></div>
+    </div>
     <div class="hud">
-      <span class="hud-label">Intrusion ${currentScenario + 1} of ${scenarios.length}</span>
+      <span class="hud-label">Attack ${currentScenario + 1} of ${scenarios.length}</span>
       <span class="score-chip ${opts.bump ? 'bump' : ''}">🛡 ${neutralisedCount()}/${scenarios.length} stopped</span>
     </div>
-    <div class="layers-label">Security layers activated</div>
+    <div class="layers-label">Your progress</div>
     <div class="progress-bar">${dots}</div>
     <div class="hud-stats">
-      <span class="hud-stat"><span class="hud-stat-key">Current rank</span><span class="hud-stat-val">${rankFor(neutralisedCount()).icon} ${rankFor(neutralisedCount()).label}</span></span>
-      <span class="hud-stat"><span class="hud-stat-key">Breach attempts stopped</span><span class="hud-stat-val">${neutralisedCount()}/${scenarios.length}</span></span>
+      <span class="hud-stat"><span class="hud-stat-key">Rank</span><span class="hud-stat-val">${rankFor(neutralisedCount()).icon} ${rankFor(neutralisedCount()).label}</span></span>
+      <span class="hud-stat"><span class="hud-stat-key">Attacks stopped</span><span class="hud-stat-val">${neutralisedCount()}/${scenarios.length}</span></span>
+      ${streak >= 3 ? `<span class="combo-badge">🔥 ${streak} in a row!</span>` : ''}
     </div>
   `;
 }
@@ -1316,10 +1452,10 @@ function renderProgress(opts = {}) {
 function renderLanding(container) {
   container.innerHTML = `
     <div class="card" style="text-align:center;">
-      <div class="hero-shield">🛡</div>
+      <div class="vault-ring landing"><span>🔒</span></div>
       <div class="sys-label">Lockdown Protocol</div>
-      <h1>Vault Defence System</h1>
-      <p style="font-size:1.02rem; color:var(--text);">Your tax and super sit behind one vault. Scammers are actively trying to open it.</p>
+      <h1>This is YOUR vault</h1>
+      <p style="font-size:1.02rem; color:var(--text);">Your tax. Your super. Someone is trying to break in.<br><b>Can you keep them out?</b></p>
       <div class="threat-meter">
         <div class="tm-head">
           <span class="sys-label">Threat Level</span>
@@ -1336,7 +1472,7 @@ function renderLanding(container) {
         <div class="how-step"><div class="how-icon">✅</div><div class="how-text">See result</div></div>
       </div>
       <div class="spec-bar">6 rounds &nbsp;·&nbsp; ~5 minutes &nbsp;·&nbsp; Zero data required</div>
-      <button class="btn btn-primary" onclick="startScenarios()">Initialise Defence Protocol</button>
+      <button class="btn btn-primary" onclick="startScenarios()">Start</button>
       <div class="source-line" style="text-align:center;">Source: ATO Media Centre, April 2026</div>
     </div>
   `;
@@ -1345,15 +1481,16 @@ function renderLanding(container) {
 function renderScenarioSetup(container) {
   const s = scenarios[currentScenario];
   container.innerHTML = `
-    <div class="card">
+    <div class="card ${phaseClass()}">
       ${renderProgress()}
-      <div class="breach-banner">Breach<br>Detected</div>
+      <div class="phase-tag">${PHASES[phaseOf(currentScenario)].label}</div>
+      <div class="breach-banner">They're trying<br>to get in</div>
       <div class="breach-sub">${s.intrusionType}</div>
       <div class="target-line">
-        <span class="target-key">🎯 Target</span>
-        <span class="target-val"><b>${s.character.name}, ${s.character.age}</b> <span class="target-sep">|</span> ${s.setup}</span>
+        <span class="target-avatar">${s.attacker.emoji}</span>
+        <span class="target-val"><b class="codename">${s.attacker.name}</b> <span class="target-sep">|</span> ${s.setup}</span>
       </div>
-      <button class="btn btn-primary" onclick="goTo('scenario-message')">Intercept Transmission</button>
+      <button class="btn btn-primary" onclick="goTo('scenario-message')">See the message</button>
     </div>
   `;
 }
@@ -1363,24 +1500,23 @@ function renderScenarioMessage(container) {
   const messageHtml = `
     <div class="transmission msg-in">
       <div class="meta">
-        Source: <b>${s.message.sender}</b><br>
-        Timestamp: <b>${s.message.timestamp}</b> &nbsp;·&nbsp; Channel: <b>${s.message.channel}</b><br>
-        Encryption: <b style="color:#fca5a5;">NONE</b>
+        From: <b>${s.message.sender}</b><br>
+        When: <b>${s.message.timestamp}</b> &nbsp;·&nbsp; How: <b>${s.message.channel}</b>
       </div>
       <div class="body">${s.message.body}</div>
     </div>
-    <button class="btn btn-primary" onclick="goTo('scenario-decision')">Analyse Countermeasures</button>
+    <button class="btn btn-primary" onclick="goTo('scenario-decision')">What do I do?</button>
   `;
 
   container.innerHTML = `
-    <div class="card">
+    <div class="card ${phaseClass()}">
       ${renderProgress()}
-      <span class="tag tag-simulated">⚠ Simulated Breach Attempt</span>
-      <div class="sys-head" style="font-size:0.92rem;">Intercepted Transmission</div>
+      <span class="tag tag-simulated">⚠ Not real — this is a simulation</span>
+      <div class="sys-head" style="font-size:0.92rem;">${s.attacker.emoji} ${s.attacker.name} just contacted you</div>
       <div class="sys-rule"></div>
       <div id="msg-slot">
         <div class="decrypt">
-          <div class="decrypt-label">Decrypting transmission<span class="dots"></span></div>
+          <div class="decrypt-label">Opening the message<span class="dots"></span></div>
           <div class="scan-track"><div class="scan-fill"></div></div>
         </div>
       </div>
@@ -1408,17 +1544,14 @@ function renderScenarioDecision(container) {
     optionsHtml += `
       <button class="btn btn-option" style="animation-delay:${(i * 0.06).toFixed(2)}s" onclick="chooseOption('${opt.id}')">
         <span class="opt-icon" aria-hidden="true">${opt.icon}</span>
-        <span class="opt-body">
-          <span class="opt-tag">Protocol ${num}</span>
-          <span class="opt-text">${opt.text}</span>
-        </span>
+        <span class="opt-body"><span class="opt-text">${opt.text}</span></span>
       </button>
     `;
   });
   container.innerHTML = `
-    <div class="card">
+    <div class="card ${phaseClass()}">
       ${renderProgress()}
-      <div class="sys-label">Select Countermeasure</div>
+      <div class="sys-label">What do you do?</div>
       <h2 style="margin-top:6px;">${s.question}</h2>
       <div class="sys-rule"></div>
       ${optionsHtml}
@@ -1429,20 +1562,22 @@ function renderScenarioDecision(container) {
 function renderScenarioFeedback(container) {
   const s = scenarios[currentScenario];
   const choice = s.options.find(o => o.id === lastChoice);
+  if (!choice) { goTo('scenario-decision'); return; }   // stale deferred render
   const outcome = outcomeOf(choice);
   const fb = s.feedback[lastChoice];
 
   const view = {
-    safe:       { cardClass: 'card-secure',     iconClass: 'safe',       icon: '🔒', consequence: 'No data exfiltrated. Verified through an official ATO channel.' },
+    safe:       { cardClass: 'card-secure',     iconClass: 'safe',       icon: '🔒', consequence: 'Nothing got out. You checked with the ATO yourself.' },
     breach:     { cardClass: 'card-breach',     iconClass: 'risky',      icon: '⛔', consequence: choice.consequence },
     unresolved: { cardClass: 'card-unresolved', iconClass: 'unresolved', icon: '⚠', consequence: choice.consequence }
   }[outcome];
 
   const consequenceClass = outcome === 'breach' ? 'risky' : outcome === 'unresolved' ? 'unresolved' : 'safe';
   const detailLabel = outcome === 'safe' ? 'Why this works' : 'What went wrong';
+  const dead = vaultHealth <= 0;
 
   container.innerHTML = `
-    <div class="card ${view.cardClass}">
+    <div class="card ${phaseClass()} ${view.cardClass}">
       ${renderProgress({ bump: outcome === 'safe' })}
       <div class="verdict">
         <div class="verdict-icon ${view.iconClass}">${view.icon}</div>
@@ -1454,8 +1589,10 @@ function renderScenarioFeedback(container) {
         <summary>${detailLabel}</summary>
         <p>${fb.detail}</p>
       </details>
-      <button class="btn btn-primary" onclick="goTo('scenario-reveal')">View Forensic Analysis</button>
-      ${outcome !== 'safe' ? `<button class="btn btn-back" onclick="goTo('scenario-decision')">Retry Countermeasure</button>` : ''}
+      ${dead
+        ? `<button class="btn btn-primary" onclick="goTo('gameover')">See the damage</button>`
+        : `<button class="btn btn-primary" onclick="goTo('scenario-reveal')">Here's what really happened</button>
+           ${outcome !== 'safe' ? `<button class="btn btn-back" onclick="goTo('scenario-decision')">Try again</button>` : ''}`}
     </div>
   `;
 
@@ -1482,16 +1619,16 @@ function renderScenarioReveal(container) {
   }
 
   container.innerHTML = `
-    <div class="card">
+    <div class="card ${phaseClass()}">
       ${renderProgress()}
-      <div class="sys-label">Forensic Analysis</div>
+      <div class="sys-label">Here's what really happened</div>
       <h2>${s.reveal.title}</h2>
       <div class="sys-rule"></div>
       ${screenshotHtml}
       <div class="reveal-box">
-        <h4>ATO Confirmed</h4>
+        <h4>The real story</h4>
         <p>${s.reveal.truth}</p>
-        <div class="check-head">Check yourself</div>
+        <div class="check-head">How to check it yourself</div>
         ${stepsHtml}
       </div>
       <details class="more">
@@ -1500,10 +1637,32 @@ function renderScenarioReveal(container) {
       </details>
       <div class="source-line">Source: ${s.reveal.source}</div>
       <button class="btn btn-primary" onclick="nextScenario()" style="margin-top:16px;">
-        ${currentScenario < scenarios.length - 1 ? 'Next Intrusion' : 'View Defence Rating'}
+        ${currentScenario < scenarios.length - 1 ? 'Next attack' : 'See how you did'}
       </button>
     </div>
   `;
+}
+
+function renderGameOver(container) {
+  const amt = stolenTotal();
+  const loss = amt > 0
+    ? `$${Math.round(amt).toLocaleString()} gone, plus your TFN and your myGov login.`
+    : `Your TFN and your myGov login are gone.`;
+  container.innerHTML = `
+    <div class="card card-breach phase-3" style="text-align:center;">
+      <div class="vault-ring cracked"><span>🔓</span></div>
+      <div class="gameover-head">They got in</div>
+      <div class="gameover-loss">${loss}</div>
+      <p style="color:var(--text);">Your vault is compromised. Every one of those attacks had the same way out: stop, and check it yourself in the ATO app or at my.gov.au.</p>
+      <div class="reveal-box" style="border-left-color:var(--accent); background:rgba(245,158,11,0.08); border-color:rgba(245,158,11,0.25); text-align:left;">
+        <h4 style="color:var(--accent);">The one rule</h4>
+        <p>Never trust the message. Open the ATO app or type my.gov.au yourself. A real message will still be there. A fake one can't follow you.</p>
+      </div>
+      <button class="btn btn-primary" onclick="restart()" style="margin-top:16px;">Try again</button>
+    </div>
+  `;
+  Sound.breach();
+  breachFlash();
 }
 
 function renderReport(container) {
@@ -1520,7 +1679,7 @@ function renderReport(container) {
     summaryHtml += `
       <div class="summary-item" style="animation-delay:${(i * 0.07).toFixed(2)}s">
         <div class="title">${icon} ${s.title}</div>
-        <div class="choice">Protocol selected: ${chosenOpt?.text || 'None'}</div>
+        <div class="choice">You picked: ${chosenOpt?.text || 'None'}</div>
       </div>
     `;
   });
@@ -1531,48 +1690,48 @@ function renderReport(container) {
 
   container.innerHTML = `
     <div class="card">
-      <div class="sys-label" style="text-align:center;">Simulation Complete</div>
-      <h1 style="text-align:center; font-family:var(--mono); font-size:1.3rem; letter-spacing:1.6px; text-transform:uppercase;">Defence Rating</h1>
-      <div class="rank-badge">${rank.icon}</div>
+      <div class="sys-label" style="text-align:center;">Done</div>
+      <h1 style="text-align:center; font-family:var(--mono); font-size:1.3rem; letter-spacing:1.6px; text-transform:uppercase;">How you did</h1>
+      <div class="vault-ring ${neutralised === total ? 'sealed' : compromised >= 3 ? 'cracked' : 'held'}"><span>${rank.icon}</span></div>
       <div class="rank-label">${rank.label}</div>
       <div class="rank-sub">${rank.sub}</div>
       <div class="report-metric">
         <div class="number" id="score-number">0/${total}</div>
-        <div class="label">Intrusions Neutralised</div>
+        <div class="label">Attacks stopped</div>
       </div>
       <div class="tally">
         <div class="tally-item">
           <div class="tally-num" style="color:var(--success);">${neutralised}</div>
-          <div class="tally-key">Neutralised</div>
+          <div class="tally-key">Stopped</div>
         </div>
         <div class="tally-item">
           <div class="tally-num" style="color:var(--warn);">${unresolved}</div>
-          <div class="tally-key">Unresolved</div>
+          <div class="tally-key">Too slow</div>
         </div>
         <div class="tally-item">
           <div class="tally-num" style="color:var(--danger);">${compromised}</div>
-          <div class="tally-key">Compromised</div>
+          <div class="tally-key">They got in</div>
         </div>
       </div>
       <p style="text-align:center; color:var(--text);">
         ${neutralised === total
-          ? "Every intrusion stopped. You consistently verified through official ATO channels."
+          ? "You stopped all six. Every time, you checked with the ATO yourself instead of trusting the message."
           : neutralised >= 4
-            ? "Strong defence. You verified through official channels in most intrusions. Review the ones that got through."
-            : "The perimeter held in places, but not everywhere. The safest habit is to verify through an official ATO channel every time."}
+            ? "You stopped most of them. Have a look at the ones that got through — it's the same trick every time."
+            : "A few got through. The move that always works: check it yourself in the ATO app or at my.gov.au."}
       </p>
       <div style="margin:18px 0;">
         ${summaryHtml}
       </div>
       <div class="reveal-box" style="border-left-color:var(--success); background:rgba(34,197,94,0.06); border-color:rgba(34,197,94,0.22);">
-        <h4 style="color:var(--success);">The Same Channels, Every Day</h4>
+        <h4 style="color:var(--success);">You'd use these anyway</h4>
         <ul class="everyday-list">${everydayHtml}</ul>
       </div>
       <div class="reveal-box" style="border-left-color:var(--accent); background:rgba(245,158,11,0.08); border-color:rgba(245,158,11,0.25);">
-        <h4 style="color:var(--accent);">Standing Order</h4>
-        <p>The best defence is verification. When something involving your tax, super, or ATO account is suspicious, don't trust the message and don't ignore it. <strong>Verify it through an official ATO channel.</strong></p>
+        <h4 style="color:var(--accent);">The one rule</h4>
+        <p>If a message about your tax or super looks off, don't trust it and don't ignore it. <strong>Open the ATO app, or type my.gov.au yourself, and check.</strong> That's the whole thing.</p>
       </div>
-      <button class="btn btn-primary" onclick="restart()" style="margin-top:16px;">Reinitialise Defence</button>
+      <button class="btn btn-primary" onclick="restart()" style="margin-top:16px;">Play again</button>
     </div>
   `;
 
@@ -1601,6 +1760,7 @@ function renderReport(container) {
 function startScenarios() {
   currentScenario = 0;
   userChoices = [];
+  vaultHealth = 100;
   goTo('scenario-setup');
 }
 
@@ -1614,12 +1774,16 @@ function chooseOption(choiceId) {
   const s = scenarios[currentScenario];
   const opt = s.options.find(o => o.id === choiceId);
 
-  // Replace any previous answer for this scenario so that "Retry countermeasure"
+  // Replace any previous answer for this scenario so that "Try again"
   // does not leave a stale entry behind.
   const entry = { scenarioId: s.id, choiceId, outcome: outcomeOf(opt) };
   const existing = userChoices.findIndex(c => c.scenarioId === s.id);
-  if (existing >= 0) userChoices[existing] = entry;
-  else userChoices.push(entry);
+  if (existing >= 0) {
+    userChoices[existing] = entry;      // retry: no second hit, no refund
+  } else {
+    userChoices.push(entry);
+    vaultHealth = Math.max(0, Math.min(100, vaultHealth + HEALTH[entry.outcome]));
+  }
 
   if (opt.unsafe && opt.autofill) {
     showExfiltration(() => { goTo('scenario-feedback'); });
@@ -1633,7 +1797,8 @@ function showExfiltration(onComplete) {
   overlay.classList.remove('hidden');
   const box = overlay.querySelector('.exfil-box');
   box.innerHTML = box.innerHTML;
-  setTimeout(() => {
+  clearTimeout(exfilTimer);
+  exfilTimer = setTimeout(() => {
     overlay.classList.add('hidden');
     onComplete();
   }, 4200);
@@ -1650,10 +1815,13 @@ function nextScenario() {
 
 function restart() {
   clearTimeout(msgTimer);
+  clearTimeout(exfilTimer);
+  document.getElementById('exfil-overlay').classList.add('hidden');
   currentScreen = 'landing';
   currentScenario = 0;
   userChoices = [];
   lastChoice = null;
+  vaultHealth = 100;
   render();
 }
 
