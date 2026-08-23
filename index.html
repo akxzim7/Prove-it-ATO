@@ -100,7 +100,7 @@
   .card {
     background: var(--bg-card);
     border-radius: var(--radius);
-    padding: 26px;
+    padding: 26px 24px 28px;
     box-shadow: var(--shadow);
     border: 1px solid var(--border);
     animation: fadeIn 0.35s ease;
@@ -153,8 +153,9 @@
   .btn {
     display: block;
     width: 100%;
-    padding: 13px 18px;
-    margin-bottom: 10px;
+    padding: 16px 18px;
+    min-height: 52px;
+    margin-bottom: 12px;
     border: none;
     border-radius: 8px;
     font-size: 1rem;
@@ -169,8 +170,10 @@
     color: #0f172a;
     text-align: center;
     font-family: var(--mono);
-    font-size: 0.82rem;
-    letter-spacing: 1.4px;
+    font-size: 0.92rem;
+    min-height: 60px;
+    margin-top: 20px;
+    letter-spacing: 1.6px;
     text-transform: uppercase;
     font-weight: 700;
     box-shadow: 0 4px 16px rgba(245,158,11,0.22);
@@ -577,10 +580,12 @@
   .target-sep { color: #475569; padding: 0 2px; }
 
   /* Option buttons: action icon on the left */
-  .btn-option { display: flex; align-items: center; gap: 12px; }
+  .btn-option { display: flex; align-items: center; gap: 14px; padding: 15px 16px; min-height: 62px; }
+  .btn-option:active { transform: translateX(3px) scale(0.985); }
+  .btn:active { transform: scale(0.985); }
   .opt-icon {
-    flex: 0 0 auto; font-size: 1.2rem; line-height: 1;
-    width: 34px; height: 34px; border-radius: 7px;
+    flex: 0 0 auto; font-size: 1.3rem; line-height: 1;
+    width: 40px; height: 40px; border-radius: 8px;
     background: rgba(15,23,42,0.55); border: 1px solid var(--border);
     display: flex; align-items: center; justify-content: center;
   }
@@ -706,6 +711,71 @@
     font-family: var(--mono); font-size: 0.8rem; color: #fca5a5;
     letter-spacing: 0.5px; margin-bottom: 14px; line-height: 1.6;
   }
+
+  /* Message, structured like mail but unmistakably this game's UI */
+  .mail {
+    background: var(--bg-deep);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--danger);
+    border-radius: 0 10px 10px 0;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+  .mail-subject {
+    font-size: 1rem; font-weight: 600; color: var(--text);
+    line-height: 1.4; padding: 15px 17px 12px;
+    border-bottom: 1px solid rgba(148,163,184,0.12);
+  }
+  .mail-head {
+    display: flex; align-items: center; gap: 11px;
+    padding: 12px 17px;
+    border-bottom: 1px solid rgba(148,163,184,0.1);
+  }
+  .mail-avatar {
+    flex: 0 0 auto; width: 36px; height: 36px; border-radius: 50%;
+    background: rgba(239,68,68,0.14); border: 1px solid rgba(239,68,68,0.35);
+    display: flex; align-items: center; justify-content: center; font-size: 1.05rem;
+  }
+  .mail-who { flex: 1 1 auto; min-width: 0; }
+  .mail-from {
+    font-family: var(--mono); font-size: 0.72rem; color: #cbd5e1;
+    font-weight: 600; word-break: break-word; line-height: 1.4;
+  }
+  .mail-to { font-family: var(--mono); font-size: 0.62rem; color: #64748b; margin-top: 2px; }
+  .mail-to b { color: var(--accent); font-weight: 700; }
+  .mail-when {
+    flex: 0 0 auto; font-family: var(--mono); font-size: 0.6rem;
+    color: #64748b; text-align: right; line-height: 1.4;
+  }
+  .mail-body {
+    white-space: pre-line; color: var(--text);
+    font-size: 0.95rem; line-height: 1.65;
+    padding: 16px 17px;
+  }
+  .mail-foot {
+    font-family: var(--mono); font-size: 0.58rem; letter-spacing: 1.2px;
+    text-transform: uppercase; color: #64748b;
+    padding: 9px 17px; background: rgba(15,23,42,0.5);
+    border-top: 1px solid rgba(148,163,184,0.1);
+  }
+
+  /* Re-read before deciding */
+  .btn-review {
+    display: inline-flex; align-items: center; gap: 6px;
+    width: auto; margin: 4px 0 2px;
+    padding: 9px 14px; min-height: 40px;
+    background: transparent; color: var(--cyan);
+    border: 1px dashed rgba(56,189,248,0.42); border-radius: 7px;
+    font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.9px;
+    text-transform: uppercase; font-weight: 600; cursor: pointer;
+    transition: all 0.18s;
+  }
+  .btn-review:hover { background: rgba(56,189,248,0.1); border-style: solid; }
+  .btn-review:active { transform: scale(0.97); }
+
+  /* Breathing room */
+  .sys-rule { margin: 18px 0; }
+  .card h2 { line-height: 1.35; margin-bottom: 14px; }
 
   /* Defence rating */
   .rank-badge {
@@ -921,6 +991,7 @@ const scenarios = [
     vulnerability: "No baseline for how long a refund should take.",
     message: {
       channel: "SMS",
+      subject: "Text message",
       sender: "+61 4•• ••• 291",
       timestamp: "Today, 4:12pm",
       body: "ATO: You are due a tax refund of $642.00 for the 2025-26 financial year. Your refund has been approved but requires verification. Click the link below to confirm your bank details within 24 hours to avoid forfeiture.\n\n[Link: ato-refund-verify.com]"
@@ -978,9 +1049,10 @@ const scenarios = [
     vulnerability: "One myGov login unlocks multiple government services.",
     message: {
       channel: "Email",
+      subject: "URGENT: Suspicious activity detected on your ATO account",
       sender: "security@ato-gov-alert.com",
       timestamp: "Today, 9:47am",
-      body: "Subject: URGENT: Suspicious activity detected on your ATO account\n\nDear Taxpayer,\n\nWe have detected unusual login activity on your ATO account. For your security, your account has been temporarily restricted.\n\nYou must verify your identity within 24 hours to prevent permanent suspension.\n\n[Verify Account Now]\n\nAustralian Taxation Office"
+      body: "Dear Taxpayer,\n\nWe have detected unusual login activity on your ATO account. For your security, your account has been temporarily restricted.\n\nYou must verify your identity within 24 hours to prevent permanent suspension.\n\n[Verify Account Now]\n\nAustralian Taxation Office"
     },
     question: "What now?",
     options: [
@@ -1034,6 +1106,7 @@ const scenarios = [
     vulnerability: "A job change makes a surprise tax bill sound plausible.",
     message: {
       channel: "Voicemail",
+      subject: "Voicemail transcript",
       sender: "ATO Legal Department",
       timestamp: "Missed call, 11:23am",
       body: "This is the Australian Taxation Office Legal Department. A tax debt of $1,204.65 has been flagged against your account for the 2024-25 financial year. Failure to pay within 24 hours will result in legal action, including a warrant for your arrest and cancellation of your Tax File Number.\n\nTo make an immediate payment, press 1 to speak with our payments team."
@@ -1090,6 +1163,7 @@ const scenarios = [
     vulnerability: "A transfer between funds would look routine right now.",
     message: {
       channel: "Push notification",
+      subject: "ATO app — security message",
       sender: "ATO app — Security message",
       timestamp: "Now",
       body: "ATO app: A request to transfer super has been initiated on your account.\n\nTransfer details:\nFrom: Australian Super\nTo: Unknown Fund\nAmount: $4,850.00\n\nTap to verify this transaction."
@@ -1146,6 +1220,7 @@ const scenarios = [
     vulnerability: "Return not lodged yet — the window is wide open.",
     message: {
       channel: "Push notification",
+      subject: "ATO app — security message",
       sender: "ATO app — Security message",
       timestamp: "Now",
       body: "ATO app: An income tax return has been lodged for the 2025-26 financial year.\n\nLodgment details:\nDate: 3 July 2026\nAgent: Fast Refund Tax Services\n\nTap to review this activity."
@@ -1202,6 +1277,7 @@ const scenarios = [
     vulnerability: "Already expecting ATO contact — primed to trust the call.",
     message: {
       channel: "Phone call",
+      subject: "Live call — transcript",
       sender: "Incoming call",
       timestamp: "Now",
       body: "Caller: 'Hello, this is Sarah from the Australian Taxation Office. I'm calling regarding your business activity statement. We need to verify some details before we can process your latest submission. Can you confirm your TFN and myGov password for security purposes?'"
@@ -1290,6 +1366,7 @@ function stolenTotal() {
 let lastChoice = null;
 let msgTimer = null;
 let exfilTimer = null;
+let reviewing = false;   // re-reading the message from the decision screen
 
 function reducedMotion() {
   return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1490,7 +1567,7 @@ function renderScenarioSetup(container) {
         <span class="target-avatar">${s.attacker.emoji}</span>
         <span class="target-val"><b class="codename">${s.attacker.name}</b> <span class="target-sep">|</span> ${s.setup}</span>
       </div>
-      <button class="btn btn-primary" onclick="goTo('scenario-message')">See the message</button>
+      <button class="btn btn-primary" onclick="seeMessage()">See the message</button>
     </div>
   `;
 }
@@ -1498,21 +1575,29 @@ function renderScenarioSetup(container) {
 function renderScenarioMessage(container) {
   const s = scenarios[currentScenario];
   const messageHtml = `
-    <div class="transmission msg-in">
-      <div class="meta">
-        From: <b>${s.message.sender}</b><br>
-        When: <b>${s.message.timestamp}</b> &nbsp;·&nbsp; How: <b>${s.message.channel}</b>
+    <div class="mail msg-in">
+      <div class="mail-subject">${s.message.subject}</div>
+      <div class="mail-head">
+        <div class="mail-avatar">${s.attacker.emoji}</div>
+        <div class="mail-who">
+          <div class="mail-from">${s.message.sender}</div>
+          <div class="mail-to">to <b>you</b></div>
+        </div>
+        <div class="mail-when">${s.message.timestamp}</div>
       </div>
-      <div class="body">${s.message.body}</div>
+      <div class="mail-body">${s.message.body}</div>
+      <div class="mail-foot">${s.message.channel}</div>
     </div>
-    <button class="btn btn-primary" onclick="goTo('scenario-decision')">What do I do?</button>
+    ${reviewing
+      ? `<button class="btn btn-primary" onclick="backToOptions()">↩ Back to my options</button>`
+      : `<button class="btn btn-primary" onclick="goTo('scenario-decision')">What do I do?</button>`}
   `;
 
   container.innerHTML = `
     <div class="card ${phaseClass()}">
       ${renderProgress()}
       <span class="tag tag-simulated">⚠ Not real — this is a simulation</span>
-      <div class="sys-head" style="font-size:0.92rem;">${s.attacker.emoji} ${s.attacker.name} just contacted you</div>
+      <div class="sys-head" style="font-size:0.92rem;">${reviewing ? 'Reading it again' : s.attacker.emoji + ' ' + s.attacker.name + ' just contacted you'}</div>
       <div class="sys-rule"></div>
       <div id="msg-slot">
         <div class="decrypt">
@@ -1529,10 +1614,10 @@ function renderScenarioMessage(container) {
   const reveal = () => {
     if (currentScreen !== 'scenario-message') return;
     slot.innerHTML = messageHtml;
-    Sound.intercept();
+    if (!reviewing) Sound.intercept();
   };
 
-  if (reducedMotion()) reveal();
+  if (reducedMotion() || reviewing) reveal();   // no re-run of the opening beat
   else msgTimer = setTimeout(reveal, 950);
 }
 
@@ -1540,7 +1625,6 @@ function renderScenarioDecision(container) {
   const s = scenarios[currentScenario];
   let optionsHtml = '';
   s.options.forEach((opt, i) => {
-    const num = String(i + 1).padStart(2, '0');
     optionsHtml += `
       <button class="btn btn-option" style="animation-delay:${(i * 0.06).toFixed(2)}s" onclick="chooseOption('${opt.id}')">
         <span class="opt-icon" aria-hidden="true">${opt.icon}</span>
@@ -1553,6 +1637,7 @@ function renderScenarioDecision(container) {
       ${renderProgress()}
       <div class="sys-label">What do you do?</div>
       <h2 style="margin-top:6px;">${s.question}</h2>
+      <button class="btn-review" onclick="reviewMessage()">↩ Review message</button>
       <div class="sys-rule"></div>
       ${optionsHtml}
     </div>
@@ -1757,6 +1842,10 @@ function renderReport(container) {
   }
 }
 
+function seeMessage()    { reviewing = false; goTo('scenario-message'); }
+function reviewMessage() { reviewing = true;  goTo('scenario-message'); }
+function backToOptions() { reviewing = false; goTo('scenario-decision'); }
+
 function startScenarios() {
   currentScenario = 0;
   userChoices = [];
@@ -1805,6 +1894,7 @@ function showExfiltration(onComplete) {
 }
 
 function nextScenario() {
+  reviewing = false;
   currentScenario++;
   if (currentScenario >= scenarios.length) {
     goTo('report');
@@ -1816,6 +1906,7 @@ function nextScenario() {
 function restart() {
   clearTimeout(msgTimer);
   clearTimeout(exfilTimer);
+  reviewing = false;
   document.getElementById('exfil-overlay').classList.add('hidden');
   currentScreen = 'landing';
   currentScenario = 0;
