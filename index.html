@@ -601,6 +601,36 @@
   }
   .hidden { display: none !important; }
 
+  /* Full-screen red wash when a breach lands */
+  #breach-flash {
+    position: fixed; inset: 0; pointer-events: none; z-index: 90; opacity: 0;
+    background: radial-gradient(ellipse at center, transparent 35%, rgba(239,68,68,0.5) 100%);
+  }
+  #breach-flash.fire { animation: breachFlash 0.75s ease-out; }
+  @keyframes breachFlash {
+    0% { opacity: 0; }
+    18% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  /* Particle burst layer */
+  #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 200; overflow: hidden; }
+  .confetti-piece {
+    position: absolute; top: -16px; width: 7px; height: 13px;
+    border-radius: 1px; animation: confettiFall linear forwards;
+  }
+  @keyframes confettiFall { to { transform: translate3d(var(--dx), 110vh, 0) rotate(var(--rot)); opacity: 0; } }
+
+  .sound-toggle {
+    position: fixed; bottom: 14px; right: 14px; z-index: 150;
+    width: 38px; height: 38px; border-radius: 8px;
+    background: rgba(26,36,56,0.94); border: 1px solid var(--border);
+    color: var(--text-muted); font-size: 0.95rem; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .sound-toggle:hover { color: var(--text); border-color: var(--cyan); }
+
   @media (max-width: 480px) {
     body { padding: 12px; }
     h1 { font-size: 1.4rem; }
@@ -658,6 +688,10 @@
     </div>
   </div>
 </div>
+
+<div id="confetti" aria-hidden="true"></div>
+<div id="breach-flash" aria-hidden="true"></div>
+<button id="sound-toggle" class="sound-toggle" onclick="toggleSound()" aria-label="Mute sound" title="Mute sound">🔊</button>
 
 <script>
 const scenarios = [
@@ -914,6 +948,99 @@ function reducedMotion() {
   return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
+/* ---------- Audio: synthesised via Web Audio, no files, no page weight ---------- */
+let soundOn = true;
+let audioCtx = null;
+
+function ac() {
+  if (!audioCtx) {
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return null;
+    audioCtx = new Ctx();
+  }
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+// One oscillator with an attack/decay envelope.
+function tone(freq, start, dur, vol, type) {
+  const ctx = ac();
+  if (!ctx) return;
+  const t = ctx.currentTime + start;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = type || 'sine';
+  osc.frequency.setValueAtTime(freq, t);
+  gain.gain.setValueAtTime(0, t);
+  gain.gain.linearRampToValueAtTime(vol, t + 0.012);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  osc.connect(gain).connect(ctx.destination);
+  osc.start(t);
+  osc.stop(t + dur + 0.02);
+}
+
+function sweep(from, to, start, dur, vol, type) {
+  const ctx = ac();
+  if (!ctx) return;
+  const t = ctx.currentTime + start;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = type || 'sawtooth';
+  osc.frequency.setValueAtTime(from, t);
+  osc.frequency.linearRampToValueAtTime(to, t + dur);
+  gain.gain.setValueAtTime(0, t);
+  gain.gain.linearRampToValueAtTime(vol, t + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  osc.connect(gain).connect(ctx.destination);
+  osc.start(t);
+  osc.stop(t + dur + 0.02);
+}
+
+const Sound = {
+  tap()        { if (soundOn) tone(520, 0, 0.07, 0.05, 'triangle'); },
+  intercept()  { if (!soundOn) return; tone(660, 0, 0.09, 0.06, 'square'); tone(880, 0.1, 0.11, 0.05, 'square'); },
+  secure()     { if (!soundOn) return; tone(150, 0, 0.14, 0.13, 'square'); tone(523, 0.14, 0.13, 0.08); tone(659, 0.26, 0.13, 0.08); tone(784, 0.38, 0.24, 0.09); },
+  breach()     { if (!soundOn) return; sweep(420, 180, 0, 0.3, 0.09); sweep(420, 180, 0.34, 0.3, 0.08); },
+  unresolved() { if (!soundOn) return; tone(392, 0, 0.13, 0.07, 'triangle'); tone(392, 0.18, 0.16, 0.06, 'triangle'); },
+  count()      { if (soundOn) tone(700, 0, 0.06, 0.045, 'triangle'); },
+  finish()     { if (!soundOn) return; [523, 659, 784, 1047].forEach((f, i) => tone(f, i * 0.11, 0.3, 0.09)); }
+};
+
+function toggleSound() {
+  soundOn = !soundOn;
+  const b = document.getElementById('sound-toggle');
+  b.textContent = soundOn ? '🔊' : '🔇';
+  b.setAttribute('aria-label', soundOn ? 'Mute sound' : 'Unmute sound');
+  b.setAttribute('title', soundOn ? 'Mute sound' : 'Unmute sound');
+  if (soundOn) Sound.tap();
+}
+
+function confetti(count) {
+  if (reducedMotion()) return;
+  const layer = document.getElementById('confetti');
+  const colours = ['#22c55e', '#38bdf8', '#f59e0b', '#a3e635', '#e2e8f0'];
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti-piece';
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.background = colours[Math.floor(Math.random() * colours.length)];
+    p.style.setProperty('--dx', (Math.random() * 160 - 80) + 'px');
+    p.style.setProperty('--rot', (Math.random() * 900 - 450) + 'deg');
+    p.style.animationDuration = (1.6 + Math.random() * 1.4) + 's';
+    p.style.animationDelay = (Math.random() * 0.35) + 's';
+    layer.appendChild(p);
+    setTimeout(() => p.remove(), 3600);
+  }
+}
+
+function breachFlash() {
+  if (reducedMotion()) return;
+  const el = document.getElementById('breach-flash');
+  el.classList.remove('fire');
+  void el.offsetWidth; // force reflow so the animation restarts
+  el.classList.add('fire');
+}
+
 function outcomeOf(opt) {
   if (!opt.unsafe) return 'safe';
   return opt.passive ? 'unresolved' : 'breach';
@@ -1041,6 +1168,7 @@ function renderScenarioMessage(container) {
   const reveal = () => {
     if (currentScreen !== 'scenario-message') return;
     slot.innerHTML = messageHtml;
+    Sound.intercept();
   };
 
   if (reducedMotion()) reveal();
@@ -1109,6 +1237,10 @@ function renderScenarioFeedback(container) {
       ${outcome !== 'safe' ? `<button class="btn btn-back" onclick="goTo('scenario-decision')">Retry Countermeasure</button>` : ''}
     </div>
   `;
+
+  if (outcome === 'safe') { Sound.secure(); confetti(18); }
+  else if (outcome === 'breach') { Sound.breach(); breachFlash(); }
+  else Sound.unresolved();
 }
 
 function renderScenarioReveal(container) {
@@ -1228,14 +1360,22 @@ function renderReport(container) {
   `;
 
   const scoreEl = container.querySelector('#score-number');
+  const celebrate = () => {
+    Sound.finish();
+    if (neutralised >= 4) confetti(50);
+  };
+
   if (reducedMotion() || neutralised === 0) {
     scoreEl.textContent = `${neutralised}/${total}`;
+    setTimeout(celebrate, 200);
   } else {
     let n = 0;
     const tick = () => {
       n++;
       scoreEl.textContent = `${n}/${total}`;
+      Sound.count();
       if (n < neutralised) setTimeout(tick, 220);
+      else setTimeout(celebrate, 300);
     };
     setTimeout(tick, 320);
   }
@@ -1299,6 +1439,12 @@ function restart() {
   lastChoice = null;
   render();
 }
+
+// Option buttons get their own outcome sound on the feedback screen, so exclude them here.
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.btn');
+  if (btn && !btn.classList.contains('btn-option')) Sound.tap();
+});
 
 render();
 </script>
