@@ -449,8 +449,40 @@
     margin-top: 8px; letter-spacing: 0.5px;
   }
   .source-line {
-    font-family: var(--mono); font-size: 0.63rem; color: var(--text-muted);
-    margin-top: 14px; line-height: 1.8; word-break: break-word;
+    font-family: var(--mono); font-size: 0.6rem; color: #5b6b85;
+    margin-top: 16px; line-height: 1.7; word-break: break-word;
+  }
+
+  /* Lede: the one sentence that carries the screen */
+  .lede {
+    font-size: 1rem; line-height: 1.55; color: var(--text);
+    margin: 14px 0 4px;
+  }
+
+  /* Progressive disclosure */
+  .more { margin: 10px 0 14px; }
+  .more > summary {
+    list-style: none; cursor: pointer;
+    font-family: var(--mono); font-size: 0.66rem;
+    text-transform: uppercase; letter-spacing: 1.2px;
+    color: var(--cyan); padding: 7px 0;
+    display: flex; align-items: center; gap: 7px;
+  }
+  .more > summary::-webkit-details-marker { display: none; }
+  .more > summary::before {
+    content: '+'; font-size: 0.85rem; line-height: 1;
+    width: 15px; height: 15px; border-radius: 3px;
+    border: 1px solid rgba(56,189,248,0.4);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .more[open] > summary::before { content: '−'; }
+  .more > summary:hover { color: #7dd3fc; }
+  .more > p {
+    margin: 4px 0 0; font-size: 0.84rem; line-height: 1.65;
+    color: var(--text-muted);
+    border-left: 2px solid rgba(56,189,248,0.25);
+    padding-left: 12px;
   }
 
   /* Threat meter (landing) */
@@ -700,39 +732,53 @@ const scenarios = [
     title: "Fake Tax Refund",
     intrusionType: "SMS PHISHING",
     character: { name: "Sam", age: 17, initial: "S", emoji: "🧑‍🍳" },
-    setup: "You lodged your first tax return three weeks ago after starting a part-time job at a café.",
-    vulnerability: "First tax return — no baseline for how long processing normally takes.",
+    setup: "Lodged their first tax return three weeks ago.",
+    vulnerability: "No baseline for how long a refund should take.",
     message: {
       channel: "SMS",
       sender: "+61 4•• ••• 291",
       timestamp: "Today, 4:12pm",
       body: "ATO: You are due a tax refund of $642.00 for the 2025-26 financial year. Your refund has been approved but requires verification. Click the link below to confirm your bank details within 24 hours to avoid forfeiture.\n\n[Link: ato-refund-verify.com]"
     },
-    question: "How would you check if this refund is real?",
+    question: "What's your move?",
     options: [
-      { text: "Tap the link and enter your details to claim the refund", id: "tap_link", unsafe: true, autofill: true, consequence: "Credentials and bank details captured by an unknown host." },
-      { text: "Call the number in the message to confirm", id: "call_number", unsafe: true, autofill: false, consequence: "Call routed back to the attacker. Personal details exposed." },
-      { text: "Search Google and click the first result", id: "google", unsafe: true, autofill: false, consequence: "Redirected to a spoofed ATO login page served through a paid ad." },
-      { text: "Open the ATO app or ATO Online services independently", id: "ato_app", unsafe: false, autofill: false },
-      { text: "Ignore the message and hope it goes away", id: "ignore", unsafe: true, passive: true, autofill: false, consequence: "Nothing verified. A genuine ATO message would go unread too." }
+      { text: "Open the link and log in to claim it", id: "tap_link", unsafe: true, autofill: true, consequence: "Credentials and bank details captured by an unknown host." },
+      { text: "Call the number back — it matches ATO on Google", id: "call_number", unsafe: true, autofill: false, consequence: "Call routed straight back to the attacker." },
+      { text: "Check your real refund status in the ATO app", id: "ato_app", unsafe: false, autofill: false },
+      { text: "Screenshot it and ask the group chat if it's real", id: "ask_chat", unsafe: true, passive: true, autofill: false, consequence: "Opinions gathered. The account itself was never checked." }
     ],
     feedback: {
-      tap_link: "Risky. The ATO will never send unsolicited messages with links asking you to log in or provide personal information. This link leads to a fake website designed to steal your details.",
-      call_number: "Risky. Scammers include fake phone numbers that connect to other scammers. The ATO will never project a number when calling. Use the official number from ato.gov.au: 1800 008 540.",
-      google: "Risky. Scammers pay for ads at the top of search results. These can lead to fake ATO websites. Always type ato.gov.au or my.gov.au directly into your browser.",
-      ignore: "Not ideal. Ignoring a genuine ATO message could mean missing important information. The habit should be to verify, not ignore.",
-      ato_app: "Correct. The safest way is to independently access the ATO app or ATO Online services through myGov. Never use links or numbers from an unexpected message."
+      tap_link: {
+        headline: "Credentials Stolen",
+        body: "The ATO never sends unsolicited messages with links asking you to log in.",
+        detail: "The link leads to a cloned login page built to capture your myGov credentials and bank details. Real ATO messages never contain login links or QR codes — if a message has one, that alone is enough to distrust it."
+      },
+      call_number: {
+        headline: "Line Compromised",
+        body: "A scam message can list any number it likes, including one that looks right.",
+        detail: "Search results can be paid for, so \"it matches Google\" proves nothing. The ATO does not display a number when it calls. If you need to phone the ATO, take the number from ato.gov.au — scam reports go to 1800 008 540."
+      },
+      ato_app: {
+        headline: "Vault Secured",
+        body: "You went to the source instead of trusting the message.",
+        detail: "Opening the ATO app or typing my.gov.au yourself is the only thing that shows your real refund status. Nothing inside an unexpected message — no link, no number, no logo — can confirm itself."
+      },
+      ask_chat: {
+        headline: "Nothing Verified",
+        body: "You collected opinions, not an answer.",
+        detail: "Your group chat can't see your ATO account. Crowdsourcing feels like checking, and it might get you lucky, but the only thing that settles it is your own refund status in the ATO app."
+      }
     },
     reveal: {
-      title: "What you would see in the ATO app",
+      title: "Inside The ATO App",
       steps: [
-        "Open the ATO app and log in",
-        "Select 'Your tax return for 2025-26'",
-        "The status shows whether a refund has been issued, is processing, or if tax is owed"
+        "Log in to the ATO app",
+        "Select \"Your tax return for 2025-26\"",
+        "Read the status: issued, processing, or tax owed"
       ],
       truth: "Sam's return was still processing. No refund had been issued.",
-      realismNote: "Online returns generally process within two weeks, up to 30 days if manual review is needed.",
-      everyday: "This is the same screen Sam would open to track a genuine refund.",
+      everyday: "Same screen you'd open to track a real refund.",
+      detail: "Online returns generally process within two weeks, and up to 30 days if a manual review is needed. Three weeks with no refund is completely normal — which is exactly the uncertainty this scam is built to exploit.",
       source: "ato.gov.au/individuals-and-families/your-tax-return/check-the-progress-of-your-tax-return",
       screenshot: "ato-dashboard.jpg"
     }
@@ -742,37 +788,53 @@ const scenarios = [
     title: "Fake Account Security Alert",
     intrusionType: "EMAIL SPOOFING",
     character: { name: "Maya", age: 20, initial: "M", emoji: "👩‍🎓" },
-    setup: "Maya is a university student who works part-time and has a myGov account linked to the ATO.",
-    vulnerability: "myGov credentials linked to ATO — a single login unlocks multiple services.",
+    setup: "Uni student, part-time job, myGov linked to the ATO.",
+    vulnerability: "One myGov login unlocks multiple government services.",
     message: {
       channel: "Email",
       sender: "security@ato-gov-alert.com",
       timestamp: "Today, 9:47am",
       body: "Subject: URGENT: Suspicious activity detected on your ATO account\n\nDear Taxpayer,\n\nWe have detected unusual login activity on your ATO account. For your security, your account has been temporarily restricted.\n\nYou must verify your identity within 24 hours to prevent permanent suspension.\n\n[Verify Account Now]\n\nAustralian Taxation Office"
     },
-    question: "What should Maya do?",
+    question: "What now?",
     options: [
-      { text: "Click the 'Verify Account Now' button in the email", id: "click_link", unsafe: true, autofill: true, consequence: "myGov credentials submitted to a cloned login page." },
-      { text: "Reply to the email asking for more information", id: "reply_email", unsafe: true, autofill: false, consequence: "Address confirmed as active. Target flagged for repeat attempts." },
-      { text: "Independently log in to ATO Online services through myGov to check", id: "ato_app", unsafe: false, autofill: false },
-      { text: "Forward the email to a friend to ask if it looks real", id: "ask_friend", unsafe: true, passive: true, autofill: false, consequence: "An opinion was gathered. The account itself was never checked." }
+      { text: "Type my.gov.au yourself and check the account", id: "type_mygov", unsafe: false, autofill: false },
+      { text: "Click Verify Account Now — the branding is perfect", id: "click_link", unsafe: true, autofill: true, consequence: "myGov credentials submitted to a cloned login page." },
+      { text: "Reply and ask them to confirm who they are", id: "reply_email", unsafe: true, autofill: false, consequence: "Address confirmed as live. Target flagged for repeat attempts." },
+      { text: "Forward it to a tax agent — they'll know", id: "ask_agent", unsafe: true, passive: true, autofill: false, consequence: "Advice pending. The ATO account still unchecked." }
     ],
     feedback: {
-      click_link: "This email is designed to look official but the sender address is wrong. The ATO will never send unsolicited emails containing hyperlinks or QR codes. Clicking could lead to a fake login page that steals your myGov credentials.",
-      reply_email: "Replying confirms to scammers that your email address is active. It also risks sharing personal information. The ATO will never ask for personal identifying information via email.",
-      ask_friend: "While getting a second opinion can help, it doesn't verify the message. The only way to be sure is to check your account through official channels.",
-      ato_app: "Correct. Maya should not interact with the email at all. She should independently access ATO Online services by typing my.gov.au into her browser, logging in, and checking her ATO account for any genuine alerts."
+      type_mygov: {
+        headline: "Threat Neutralised",
+        body: "You never touched the email — you opened the account yourself.",
+        detail: "Typing my.gov.au into the address bar means no link, no lookalike domain, and no cloned page can sit between you and the real service. Genuine ATO messages wait for you in your myGov Inbox."
+      },
+      click_link: {
+        headline: "Credentials Captured",
+        body: "Perfect branding is cheap — the sender address is the giveaway.",
+        detail: "\"ato-gov-alert.com\" is not an ATO domain. Logos, footers and formatting can be copied in minutes, so how a message looks tells you nothing. The ATO never sends unsolicited emails containing hyperlinks or QR codes."
+      },
+      reply_email: {
+        headline: "Target Confirmed",
+        body: "Replying proves your address is live and invites more attempts.",
+        detail: "A scammer who gets a reply now knows a real person reads that inbox, which makes you worth targeting again. The ATO will never ask for personal identifying information over email."
+      },
+      ask_agent: {
+        headline: "Clock Still Running",
+        body: "A tax agent is a real authority, but the account still hasn't been checked.",
+        detail: "Asking a professional is a genuinely good instinct and not a wrong one. It's just slower than the answer: Maya can settle this herself in under a minute by logging in to myGov. Ask the agent as well, not instead."
+      }
     },
     reveal: {
-      title: "How Maya checks her real account",
+      title: "Checking The Real Account",
       steps: [
-        "Open a browser and type my.gov.au directly (never click email links)",
-        "Log in to myGov and select ATO from linked services",
-        "Check the home page and myGov Inbox for genuine ATO communications"
+        "Type my.gov.au in the address bar",
+        "Log in and open ATO from linked services",
+        "Check the myGov Inbox for genuine ATO messages"
       ],
-      truth: "Maya's ATO account showed no restrictions. The email was a phishing attempt.",
-      realismNote: "The ATO will never send unsolicited messages with links asking you to log in. Real ATO communications arrive in your myGov Inbox or through official letters.",
-      everyday: "Checking ATO Online services through myGov is how Australians view their tax file number, communication history, payment plans, and account details — the same pathway protects against phishing scams.",
+      truth: "Maya's ATO account showed no restrictions at all.",
+      everyday: "Same login you'd use to view your TFN or set up a payment plan.",
+      detail: "Real ATO communications arrive in your myGov Inbox or as official letters — never as an unsolicited email with a login link. If a message and your Inbox disagree, the Inbox is right.",
       source: "ato.gov.au/online-services/scams-cyber-safety-and-identity-protection/verify-or-report-an-ato-scam"
     }
   },
@@ -781,37 +843,53 @@ const scenarios = [
     title: "Fake ATO Debt Demand",
     intrusionType: "VOICEMAIL SPOOF",
     character: { name: "Jordan", age: 27, initial: "J", emoji: "🧑‍💼" },
-    setup: "Jordan has been working full-time for three years and recently changed jobs.",
-    vulnerability: "Recent job change — a plausible cover story for an unexpected tax adjustment.",
+    setup: "Full-time for three years, changed jobs recently.",
+    vulnerability: "A job change makes a surprise tax bill sound plausible.",
     message: {
       channel: "Voicemail",
       sender: "ATO Legal Department",
       timestamp: "Missed call, 11:23am",
       body: "This is the Australian Taxation Office Legal Department. A tax debt of $1,204.65 has been flagged against your account for the 2024-25 financial year. Failure to pay within 24 hours will result in legal action, including a warrant for your arrest and cancellation of your Tax File Number.\n\nTo make an immediate payment, press 1 to speak with our payments team."
     },
-    question: "How should Jordan respond?",
+    question: "They want payment today. Your call.",
     options: [
-      { text: "Press 1 and provide payment details over the phone", id: "press_1", unsafe: true, autofill: false, consequence: "Payment details handed straight to the attacker." },
-      { text: "Call the number back that left the voicemail", id: "call_back", unsafe: true, autofill: false, consequence: "Callback reaches the spoofed line. The attacker controls the channel." },
-      { text: "Check ATO Online services or the ATO app for any genuine debt", id: "ato_app", unsafe: false, autofill: false },
-      { text: "Pay the amount via bank transfer to the account details provided", id: "bank_transfer", unsafe: true, autofill: false, consequence: "Funds transferred to an account with no link to the ATO." }
+      { text: "Press 1 and pay it before the deadline", id: "press_1", unsafe: true, autofill: false, consequence: "Payment details handed straight to the attacker." },
+      { text: "Check the caller ID matches the ATO's real number", id: "check_caller_id", unsafe: true, autofill: false, consequence: "Caller ID spoofed. A false confirmation was accepted." },
+      { text: "Call back and ask for a case reference number", id: "call_back", unsafe: true, autofill: false, consequence: "Callback reaches the spoofed line. The attacker controls the channel." },
+      { text: "Log in to your ATO account and check the balance", id: "ato_app", unsafe: false, autofill: false }
     ],
     feedback: {
-      press_1: "The ATO will never threaten arrest, demand immediate payment, or cancel your TFN. This is a classic scam tactic using fear and urgency to pressure you into paying.",
-      call_back: "Voicemail scams often use spoofed numbers. Calling back connects you to the scammer. The ATO will never send unsolicited robocalls or demand payment via phone.",
-      bank_transfer: "The ATO will never ask for payment via gift cards, cryptocurrency, cash delivery, or personal/offshore accounts. Legitimate tax debts are visible in your official ATO account.",
-      ato_app: "Correct. Jordan should not engage with the voicemail. He should independently check his ATO account through the ATO app or ATO Online services to see if any genuine debt exists."
+      press_1: {
+        headline: "Funds Gone",
+        body: "The ATO will never threaten arrest or demand payment within 24 hours.",
+        detail: "Arrest threats, TFN cancellation and same-day deadlines are pressure tactics, not tax administration. A real debt sits quietly in your ATO account with an amount and a due date, and nobody phones you to shout about it."
+      },
+      check_caller_id: {
+        headline: "Spoofed And Trusted",
+        body: "Caller ID can be faked — a matching number proves nothing.",
+        detail: "This is the trap: it feels like verification, so people stop checking right when they should start. Scammers routinely display a real ATO number. Anything shown to you by the caller is under the caller's control, which is why verification has to start from your end."
+      },
+      call_back: {
+        headline: "Still Their Line",
+        body: "Asking for a reference number sounds careful, but you're still talking to the scammer.",
+        detail: "A callback to the number that rang you reaches whoever set up that line, and they will happily invent a reference number. Due diligence only counts when you choose the channel."
+      },
+      ato_app: {
+        headline: "Perimeter Held",
+        body: "A real debt would be sitting in the account, with an amount and a date.",
+        detail: "Your ATO account is the single source of truth for what you owe. If the voicemail and your account disagree, the account wins — no phone call can override it."
+      }
     },
     reveal: {
-      title: "How Jordan checks for a genuine debt",
+      title: "Where A Real Debt Lives",
       steps: [
-        "Log in to the ATO app or ATO Online services through myGov",
-        "View your total balance on the home screen, or go to Tax → Accounts for a breakdown",
-        "Check Tax → Lodgments → Income tax → History for notices of assessment"
+        "Log in to the ATO app or ATO Online services",
+        "Read your balance on the home screen",
+        "Open Tax → Accounts for a full breakdown"
       ],
       truth: "Jordan's ATO account showed no debt. The voicemail was a scam.",
-      realismNote: "If a genuine debt exists, it will appear here with the exact amount and due date. The ATO does not demand payment through threatening voicemails.",
-      everyday: "The same ATO Online services Jordan used to check for a scam debt are how Australians manage payment plans, view their notice of assessment, and track their tax accounts year-round.",
+      everyday: "Same place you'd manage a payment plan or find your assessment.",
+      detail: "A genuine debt appears here with the exact amount and due date, and the ATO will work with you on a payment plan. It does not arrive as a threatening voicemail with a 24-hour deadline.",
       source: "ato.gov.au/individuals-and-families/paying-the-ato/how-much-you-owe"
     }
   },
@@ -820,38 +898,53 @@ const scenarios = [
     title: "Unauthorised Super Transfer",
     intrusionType: "UNAUTHORISED SUPER TRANSFER",
     character: { name: "Liam", age: 21, initial: "L", emoji: "🧑‍🔧" },
-    setup: "Liam has two super accounts and recently used the ATO app to explore consolidating them.",
-    vulnerability: "Mid-consolidation — a transfer between funds would look routine to him.",
+    setup: "Two super accounts, part-way through consolidating them.",
+    vulnerability: "A transfer between funds would look routine right now.",
     message: {
       channel: "Push notification",
       sender: "ATO app — Security message",
       timestamp: "Now",
       body: "ATO app: A request to transfer super has been initiated on your account.\n\nTransfer details:\nFrom: Australian Super\nTo: Unknown Fund\nAmount: $4,850.00\n\nTap to verify this transaction."
     },
-    question: "Liam did not request this transfer. What should he do?",
+    question: "$4,850 is moving. Act.",
     options: [
-      { text: "Tap to verify — maybe someone else initiated it legitimately", id: "verify_it", unsafe: true, autofill: false, consequence: "Transfer approved. $4,850.00 released to an unknown fund." },
-      { text: "Ignore the message and check later", id: "ignore", unsafe: true, passive: true, autofill: false, consequence: "Transfer left pending. It may process while unattended." },
-      { text: "Do not verify. Lock the ATO account immediately using the app", id: "lock_account", unsafe: false, autofill: false },
-      { text: "Call the number in the message to cancel the transfer", id: "call_number", unsafe: true, autofill: false, consequence: "Contact made on a number supplied by the attacker." }
+      { text: "Verify it — your employer might have started the rollover", id: "verify_it", unsafe: true, autofill: false, consequence: "Transfer approved. $4,850.00 released to an unknown fund." },
+      { text: "Lock the account now. Don't verify anything.", id: "lock_account", unsafe: false, autofill: false },
+      { text: "Check the super balance tomorrow and see what changed", id: "check_tomorrow", unsafe: true, passive: true, autofill: false, consequence: "Transfer left pending overnight. It may process unattended." },
+      { text: "Log in to the super fund's site to check", id: "check_fund", unsafe: true, passive: true, autofill: false, consequence: "Wrong system checked. The ATO request is still pending." }
     ],
     feedback: {
-      verify_it: "Never verify a transaction you did not initiate. Verifying tells the system the transfer is approved, and your super could be moved to a scammer's account.",
-      ignore: "Ignoring gives the scammer more time. If the transfer is pending, it may be processed while you wait.",
-      call_number: "The message is from the genuine ATO app, but any number in a follow-up message could be fake. For suspected fraud, use the official ATO contact number from ato.gov.au.",
-      lock_account: "Correct. The ATO's official guidance is clear: if you receive an ATO app message about transferring your super and you didn't make the request, do not verify it. Lock your account immediately."
+      verify_it: {
+        headline: "Super Released",
+        body: "Never verify a transaction you didn't start — verifying is approving.",
+        detail: "Employers pay super into your fund; they don't initiate rollovers out of it. That plausible-sounding explanation is doing the scam's work for it. The ATO's guidance is explicit: if you didn't request the transfer, do not verify it."
+      },
+      lock_account: {
+        headline: "Transfer Blocked",
+        body: "Locking stops the transfer and blocks further access straight away.",
+        detail: "This is the ATO's own instruction for an ATO app super transfer message you didn't request. While the record is locked no refunds issue and unauthorised access is blocked. You can unlock it later from the same registered device."
+      },
+      check_tomorrow: {
+        headline: "Clock Running",
+        body: "By the time the balance changes, the money has already moved.",
+        detail: "Waiting to see the damage is not the same as preventing it. A pending transfer can process overnight, and recovering super after it has left the fund is far harder than stopping it now."
+      },
+      check_fund: {
+        headline: "Wrong System",
+        body: "The request came through the ATO, so that's where it has to be stopped.",
+        detail: "Checking your fund's website is a reasonable instinct, but the fund can't cancel an ATO-side request, and the minutes you spend there are minutes the transfer is still live. Lock the ATO record first, then investigate."
+      }
     },
     reveal: {
-      title: "How Liam protects his account",
+      title: "Locking The Record",
       steps: [
         "Open the ATO app security message",
-        "Review the details — if suspicious, follow the prompts to lock your ATO record",
-        "Once locked, no refunds will issue and unauthorised access is blocked",
-        "Phone the ATO on 1800 467 033 (business hours) or 1800 008 540 to report suspected fraud"
+        "Follow the prompts to lock your ATO record",
+        "Phone 1800 467 033 to report suspected fraud"
       ],
-      truth: "Liam's super was safe. By locking his account, he stopped the unauthorised transfer before it completed.",
-      realismNote: "Account locking is a powerful fraud prevention tool. While locked, most personalised features and ATO Online services are inaccessible. You can unlock from the same registered device when it's safe.",
-      everyday: "The same ATO app that sent Liam the security alert is how Australians track their super balances, find lost super, and consolidate accounts safely — super management and fraud protection in one place.",
+      truth: "Liam's super was safe. Locking the account stopped the transfer.",
+      everyday: "Same app you'd use to find lost super or consolidate funds.",
+      detail: "Account locking is a powerful fraud prevention tool. While locked, most personalised features and ATO Online services are inaccessible, and you can unlock from the same registered device once it's safe.",
       source: "ato.gov.au/online-services/online-services-for-individuals-and-sole-traders/ato-app/manage-your-tax-and-super-with-the-ato-app"
     }
   },
@@ -860,38 +953,53 @@ const scenarios = [
     title: "Unauthorised Tax Lodgment",
     intrusionType: "UNAUTHORISED LODGMENT",
     character: { name: "Alex", age: 24, initial: "A", emoji: "👨‍💻" },
-    setup: "Alex usually lodges their own tax return in August. It is currently early July.",
-    vulnerability: "Return not yet lodged — the window is wide open for a fraudulent one.",
+    setup: "Usually lodges in August. It's early July.",
+    vulnerability: "Return not lodged yet — the window is wide open.",
     message: {
       channel: "Push notification",
       sender: "ATO app — Security message",
       timestamp: "Now",
       body: "ATO app: An income tax return has been lodged for the 2025-26 financial year.\n\nLodgment details:\nDate: 3 July 2026\nAgent: Fast Refund Tax Services\n\nTap to review this activity."
     },
-    question: "Alex did not lodge a tax return yet. What should they do?",
+    question: "Someone lodged for you. Now what?",
     options: [
-      { text: "Tap to review and approve the lodgment", id: "approve", unsafe: true, autofill: false, consequence: "Fraudulent return validated. Refund routed to the attacker." },
-      { text: "Wait and see if a notice of assessment arrives in the mail", id: "wait", unsafe: true, passive: true, autofill: false, consequence: "Return left unchallenged. Processing continues in the background." },
-      { text: "Open the ATO app, review the security message, and lock the account if suspicious", id: "lock_account", unsafe: false, autofill: false },
-      { text: "Email the 'agent' listed in the message to ask for details", id: "email_agent", unsafe: true, autofill: false, consequence: "Direct contact made with the fraudulent 'agent'." }
+      { text: "Review it — maybe a tax agent lodged early", id: "approve", unsafe: true, autofill: false, consequence: "Fraudulent return validated. Refund routed to the attacker." },
+      { text: "Wait for the notice of assessment to arrive", id: "wait_mail", unsafe: true, passive: true, autofill: false, consequence: "Return left unchallenged. Processing continues in the background." },
+      { text: "Email Fast Refund Tax Services and ask what happened", id: "email_agent", unsafe: true, autofill: false, consequence: "Direct contact made with the fraudulent 'agent'." },
+      { text: "Lock your ATO record and report identity fraud", id: "lock_account", unsafe: false, autofill: false }
     ],
     feedback: {
-      approve: "Approving a lodgment you did not make could validate a fraudulent tax return. Scammers may lodge returns to steal refunds.",
-      wait: "Waiting allows a fraudulent return to be processed. If a refund is issued, it could be sent to a scammer's bank account.",
-      email_agent: "The 'agent' may be part of the scam. Never contact third parties listed in suspicious messages. Go directly to official ATO channels.",
-      lock_account: "Correct. Alex should open the ATO app, review the security message details, and if the lodgment was not made by them, lock the account immediately. Then contact the ATO to report suspected identity fraud."
+      approve: {
+        headline: "Return Validated",
+        body: "Approving a lodgment you didn't make can sign off a fraudulent return.",
+        detail: "You'd know if you had engaged a tax agent — agents don't appear on your record unnoticed. Scammers lodge early precisely to beat you to your own refund, so an unexpected agent name is the warning, not the reassurance."
+      },
+      wait_mail: {
+        headline: "Refund In Transit",
+        body: "By the time the assessment arrives, the refund has been paid out.",
+        detail: "Notices of assessment are issued after processing, not before. Waiting for one gives the fraudulent return the time it needs, and the refund is likely routed to the scammer's account."
+      },
+      email_agent: {
+        headline: "Contact Established",
+        body: "The 'agent' is part of the scam — you just introduced yourself.",
+        detail: "Never contact a third party named in a suspicious message. Emailing them confirms the account is live and hands them a direct channel to work on you. Go to official ATO channels instead."
+      },
+      lock_account: {
+        headline: "Record Locked",
+        body: "Locking blocks further activity and starts the fraud report.",
+        detail: "Once locked, no refunds will issue and no further unauthorised changes can be made. Phoning 1800 008 540 lets the ATO place additional controls on your information while it's investigated."
+      }
     },
     reveal: {
-      title: "How Alex responds to identity fraud",
+      title: "Responding To Identity Fraud",
       steps: [
         "Open the ATO app and tap the security message",
-        "If the lodgment is unauthorised, follow the prompts to lock the ATO record",
-        "Phone the ATO on 1800 008 540 to report suspected identity fraud",
-        "The ATO will place further controls to protect your information"
+        "Follow the prompts to lock the ATO record",
+        "Phone 1800 008 540 to report identity fraud"
       ],
-      truth: "Alex's account was targeted by identity fraud. By locking the account immediately, they prevented further unauthorised activity.",
-      realismNote: "Real-time security messages are sent when key changes occur, including income tax lodgments, bank account updates, and device registrations. This feature helps detect identity crime as it happens.",
-      everyday: "The same ATO app security messages that alert Alex to fraud also notify users when their registered tax agent legitimately lodges a return — keeping taxpayers informed about all account activity.",
+      truth: "Alex's identity was targeted. Locking the record stopped it going further.",
+      everyday: "Same alerts that tell you when your real agent lodges for you.",
+      detail: "Real-time security messages fire when key changes occur — income tax lodgments, bank account updates and device registrations. The feature exists to help you catch identity crime as it happens.",
       source: "ato.gov.au/api/public/content/84940b3a8c384161b4fc0fe45461790a"
     }
   },
@@ -900,38 +1008,54 @@ const scenarios = [
     title: "Verify an ATO Phone Call",
     intrusionType: "PHONE SOCIAL ENGINEERING",
     character: { name: "Chris", age: 32, initial: "C", emoji: "🧑‍🌾" },
-    setup: "Chris runs a small landscaping business and is expecting contact from the ATO about a BAS query.",
-    vulnerability: "Genuine ATO contact already expected — primed to trust an incoming call.",
+    setup: "Runs a landscaping business, expecting an ATO call about his BAS.",
+    vulnerability: "Already expecting ATO contact — primed to trust the call.",
     message: {
       channel: "Phone call",
       sender: "Incoming call",
       timestamp: "Now",
       body: "Caller: 'Hello, this is Sarah from the Australian Taxation Office. I'm calling regarding your business activity statement. We need to verify some details before we can process your latest submission. Can you confirm your TFN and myGov password for security purposes?'"
     },
-    question: "The caller sounds professional and knows Chris's business name. How should Chris verify this call?",
+    question: "She knows your business name. Your move.",
     options: [
-      { text: "Provide the details — the ATO needs them to help", id: "provide_details", unsafe: true, autofill: true, consequence: "TFN and myGov password disclosed to an unverified caller." },
-      { text: "Ask the caller to hold while Chris calls the ATO on a different line", id: "hold_call", unsafe: true, autofill: false, consequence: "Line kept open by the caller. Channel never independently verified." },
-      { text: "Use the ATO app's 'Verify call' feature to confirm the call is genuine", id: "verify_call", unsafe: false, autofill: false },
-      { text: "Hang up immediately — the ATO never calls anyone", id: "hang_up", unsafe: true, passive: true, autofill: false, consequence: "Call ended without verification. A genuine ATO call would be lost too." }
+      { text: "Give her the TFN — she knows the business already", id: "provide_details", unsafe: true, autofill: true, consequence: "TFN and myGov password disclosed to an unverified caller." },
+      { text: "Ask for her employee ID to confirm she's real", id: "employee_id", unsafe: true, autofill: false, consequence: "An invented ID was accepted. The caller was never verified." },
+      { text: "Open the ATO app and hit Verify Call", id: "verify_call", unsafe: false, autofill: false },
+      { text: "Hang up — the ATO doesn't cold-call people", id: "hang_up", unsafe: true, passive: true, autofill: false, consequence: "Call ended unverified. A genuine ATO call would be lost too." }
     ],
     feedback: {
-      provide_details: "The ATO will never ask for your myGov password or TFN over the phone. This is a classic impersonation tactic. Never provide credentials to an unsolicited caller.",
-      hold_call: "Scammers may use techniques to keep the line open or transfer you to another scammer. The safest approach is to use the ATO app's built-in verification feature.",
-      hang_up: "The ATO does legitimately contact taxpayers by phone. The lesson is not to never trust an ATO call — it's to verify the caller through an official mechanism.",
-      verify_call: "Correct. Chris should use the ATO app's 'Verify call' feature. This is a real security feature launched in April 2026 as part of the ATO Counter Fraud Program."
+      provide_details: {
+        headline: "Credentials Disclosed",
+        body: "The ATO will never ask for your myGov password or TFN over the phone.",
+        detail: "Knowing your business name proves nothing — company names, ABNs and directors are public record on ABN Lookup. Scammers open with a detail you assume is private to buy your trust for the ask that follows."
+      },
+      employee_id: {
+        headline: "Fake ID Accepted",
+        body: "A scammer will simply make one up, and you have no way to check it.",
+        detail: "This is the most convincing wrong answer here, because it feels like exactly what a careful person would do. But any detail the caller supplies is a detail the caller controls. Verification has to come from a channel they can't touch."
+      },
+      verify_call: {
+        headline: "Caller Verified",
+        body: "The ATO app confirms in about 30 seconds whether the call is genuine.",
+        detail: "Verify call is a real feature launched in April 2026 under the ATO Counter Fraud Program. It's the one check the caller can't influence — the confirmation comes from the ATO's side, not theirs."
+      },
+      hang_up: {
+        headline: "Nothing Confirmed",
+        body: "The ATO does phone people — hanging up on every call isn't the lesson.",
+        detail: "Chris was genuinely expecting a call about his BAS, and refusing all contact would have cost him a real one. The habit isn't \"never trust an ATO call\", it's \"verify the caller through a channel they don't control\"."
+      }
     },
     reveal: {
-      title: "How Chris verifies the call",
+      title: "Using Verify Call",
       steps: [
-        "Open the ATO app on the registered device and log in",
-        "Select 'Verify call' from the menu",
-        "Within 30 seconds, a notification should confirm it is an ATO call",
-        "If no confirmation appears, hang up — it is not a genuine ATO call"
+        "Open the ATO app on your registered device",
+        "Select \"Verify call\" from the menu",
+        "A notification confirms a genuine ATO call within 30 seconds",
+        "No confirmation? Hang up."
       ],
-      truth: "Chris used the Verify call feature. The notification confirmed the call was genuine, and he could continue safely.",
-      realismNote: "The Verify call feature puts control back in taxpayers' hands. It is designed to shut down scam calls in real time. If verification cannot be confirmed, treat the interaction as suspicious and end the call.",
-      everyday: "The same ATO app Chris used to verify the call is how small business owners manage their BAS, track tax obligations, and access ABN Lookup — tax management and fraud protection together.",
+      truth: "Chris verified the call was genuine and carried on safely.",
+      everyday: "Same app you'd use to lodge a BAS or track obligations.",
+      detail: "Verify call is designed to shut down scam calls in real time by putting the check in the taxpayer's hands. If verification can't be confirmed, treat the interaction as suspicious and end the call.",
       source: "ato.gov.au/media-centre/ato-launches-new-app-feature-to-stop-scam-calls",
       screenshot: "ato-verify-call.png"
     }
@@ -1202,37 +1326,30 @@ function renderScenarioFeedback(container) {
   const s = scenarios[currentScenario];
   const choice = s.options.find(o => o.id === lastChoice);
   const outcome = outcomeOf(choice);
-  const feedbackText = s.feedback[lastChoice];
+  const fb = s.feedback[lastChoice];
 
   const view = {
-    safe: {
-      cardClass: 'card-secure', iconClass: 'safe', icon: '🔒',
-      title: 'Threat Neutralised',
-      consequence: 'Vault secured. Independent verification confirmed. No data exfiltrated.'
-    },
-    breach: {
-      cardClass: 'card-breach', iconClass: 'risky', icon: '⛔',
-      title: 'Breach In Progress',
-      consequence: choice.consequence
-    },
-    unresolved: {
-      cardClass: 'card-unresolved', iconClass: 'unresolved', icon: '⚠',
-      title: 'Threat Unresolved',
-      consequence: choice.consequence
-    }
+    safe:       { cardClass: 'card-secure',     iconClass: 'safe',       icon: '🔒', consequence: 'No data exfiltrated. Verified through an official ATO channel.' },
+    breach:     { cardClass: 'card-breach',     iconClass: 'risky',      icon: '⛔', consequence: choice.consequence },
+    unresolved: { cardClass: 'card-unresolved', iconClass: 'unresolved', icon: '⚠', consequence: choice.consequence }
   }[outcome];
 
   const consequenceClass = outcome === 'breach' ? 'risky' : outcome === 'unresolved' ? 'unresolved' : 'safe';
+  const detailLabel = outcome === 'safe' ? 'Why this works' : 'What went wrong';
 
   container.innerHTML = `
     <div class="card ${view.cardClass}">
       ${renderProgress({ bump: outcome === 'safe' })}
       <div class="verdict">
         <div class="verdict-icon ${view.iconClass}">${view.icon}</div>
-        <div class="verdict-title ${view.iconClass}">${view.title}</div>
+        <div class="verdict-title ${view.iconClass}">${fb.headline}</div>
       </div>
       <div class="consequence ${consequenceClass}">&gt; ${view.consequence}</div>
-      <p style="color:var(--text);">${feedbackText}</p>
+      <p class="lede">${fb.body}</p>
+      <details class="more">
+        <summary>${detailLabel}</summary>
+        <p>${fb.detail}</p>
+      </details>
       <button class="btn btn-primary" onclick="goTo('scenario-reveal')">View Forensic Analysis</button>
       ${outcome !== 'safe' ? `<button class="btn btn-back" onclick="goTo('scenario-decision')">Retry Countermeasure</button>` : ''}
     </div>
@@ -1263,25 +1380,24 @@ function renderScenarioReveal(container) {
   container.innerHTML = `
     <div class="card">
       ${renderProgress()}
-      <div class="sys-label">ATO Defence Grid — Incident Report</div>
-      <div class="sys-head" style="font-size:0.92rem;">Forensic Analysis</div>
-      <div class="sys-rule"></div>
+      <div class="sys-label">Forensic Analysis</div>
       <h2>${s.reveal.title}</h2>
+      <div class="sys-rule"></div>
       ${screenshotHtml}
-      <p style="font-size:0.85rem; margin-bottom:12px;">What the official ATO channels confirmed:</p>
       ${stepsHtml}
       <div class="reveal-box">
-        <h4>Forensic Finding</h4>
+        <h4>Result</h4>
         <p>${s.reveal.truth}</p>
       </div>
       <div class="reveal-box" style="border-left-color:var(--success); background:rgba(34,197,94,0.06); border-color:rgba(34,197,94,0.22);">
-        <h4 style="color:var(--success);">Same Channel, Everyday Use</h4>
+        <h4 style="color:var(--success);">Everyday Use</h4>
         <p>${s.reveal.everyday}</p>
       </div>
-      <div class="source-line">
-        ${s.reveal.realismNote}<br>
-        Source: ${s.reveal.source}
-      </div>
+      <details class="more">
+        <summary>The detail</summary>
+        <p>${s.reveal.detail}</p>
+      </details>
+      <div class="source-line">Source: ${s.reveal.source}</div>
       <button class="btn btn-primary" onclick="nextScenario()" style="margin-top:16px;">
         ${currentScenario < scenarios.length - 1 ? 'Next Intrusion' : 'View Defence Rating'}
       </button>
