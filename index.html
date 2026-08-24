@@ -251,6 +251,8 @@ to{opacity:1;transform:scale(1);letter-spacing:3px}
 .perfect-badge{text-align:center;margin:0 0 18px;padding:15px 16px;border-radius:10px;border:2px solid #fbbf24;background:linear-gradient(160deg,rgba(251,191,36,0.16),rgba(251,191,36,0.05));box-shadow:0 0 26px rgba(251,191,36,0.22)}
 .pb-title{font-family:var(--mono);font-weight:700;font-size:0.86rem;letter-spacing:1.8px;text-transform:uppercase;color:#fde68a;text-shadow:0 0 16px rgba(251,191,36,0.5);line-height:1.35;margin-bottom:6px}
 .pb-sub{font-size:0.8rem;color:#e2e8f0;line-height:1.5}
+.unlock-badge{display:block;margin-top:14px;padding:11px 13px;border-radius:8px;border:1px solid rgba(34,197,94,0.42);background:rgba(34,197,94,0.09);color:#bbf7d0;font-family:var(--mono);font-size:0.68rem;letter-spacing:0.7px;line-height:1.5}
+.unlock-badge b{color:#dcfce7;font-weight:700}
 .teacher-link{display:inline-block;width:auto;margin:2px auto 4px;background:none;border:none;cursor:pointer;font-family:var(--mono);font-size:0.7rem;letter-spacing:1px;text-transform:uppercase;color:var(--cyan);padding:10px 12px;min-height:40px;border-bottom:1px solid transparent}
 .teacher-link:hover{border-bottom-color:var(--cyan)}
 .modal{position:fixed;inset:0;z-index:300;display:flex;align-items:center;justify-content:center;padding:18px}
@@ -387,7 +389,7 @@ intrusionType: "They sent you a fake text",
 attacker: { name: "PHANTOM", emoji: "🕶" },
 stake: 642,
 loss: "Refund redirected: $642",
-setup: "Goes after first-time lodgers. You filed your first return three weeks ago.",
+setup: "You filed your first tax return three weeks ago. The ATO app is how you'd track it. But someone's trying to trick you into not checking.",
 message: {
 channel: "SMS",
 subject: "Text message",
@@ -433,7 +435,8 @@ steps: [
 ],
 truth: "Your return was still processing. No refund had been issued.",
 cost: "<strong>$642 stolen</strong> = about 24 hours of work at the national minimum wage.",
-everyday: "Same screen you'd open to track a real refund.",
+everyday: "This is the ATO screen Australians use to track real refunds. It also caught this fake.",
+feature: "Tax Return Status",
 detail: "Online returns generally process within two weeks, and up to 30 days if a manual review is needed. Three weeks with no refund is completely normal — which is exactly the uncertainty this scam is built to exploit.",
 source: "ato.gov.au/individuals-and-families/your-tax-return/check-the-progress-of-your-tax-return",
 screenshot: "ato-dashboard.jpg"
@@ -446,7 +449,7 @@ intrusionType: "They sent you a fake email",
 attacker: { name: "GHOST", emoji: "👻" },
 stake: 0,
 loss: "myGov login stolen",
-setup: "Goes after students with myGov linked to the ATO. That&rsquo;s you.",
+setup: "You use myGov to check your ATO messages. The app is how you'd view real alerts. But someone's trying to fake one.",
 message: {
 channel: "Email",
 subject: "URGENT: Suspicious activity detected on your ATO account",
@@ -492,7 +495,8 @@ steps: [
 ],
 truth: "Your ATO account showed no restrictions at all.",
 cost: "<strong>myGov credentials stolen</strong> = scammers can redirect your refunds and alter your super.",
-everyday: "Same login you'd use to view your TFN or set up a payment plan.",
+everyday: "This is the same myGov inbox you'd check for real ATO letters. It also exposed this fake.",
+feature: "myGov Inbox",
 detail: "Real ATO communications arrive in your myGov Inbox or as official letters — never as an unsolicited email with a login link. If a message and your Inbox disagree, the Inbox is right.",
 source: "ato.gov.au/online-services/scams-cyber-safety-and-identity-protection/verify-or-report-an-ato-scam"
 }
@@ -504,7 +508,7 @@ intrusionType: "They left you a threatening voicemail",
 attacker: { name: "SPECTER", emoji: "☠" },
 stake: 1204.65,
 loss: "Fake debt paid: $1,205",
-setup: "Goes after people who just changed jobs. You changed jobs last month.",
+setup: "You changed jobs last month. The ATO app is how you'd check if you owe anything. But someone's trying to scare you into paying a fake debt.",
 message: {
 channel: "Voicemail",
 subject: "Voicemail transcript",
@@ -550,7 +554,8 @@ steps: [
 ],
 truth: "Your ATO account showed no debt. The voicemail was fake.",
 cost: "<strong>$1,204.65 paid to a scammer</strong> = about 46 hours of work you'll never get back.",
-everyday: "Same place you'd manage a payment plan or find your assessment.",
+everyday: "This is where Australians check genuine tax debts and set up payment plans. It also proved this voicemail was a lie.",
+feature: "Account Balance &amp; Payment Plans",
 detail: "A genuine debt appears here with the exact amount and due date, and the ATO will work with you on a payment plan. It does not arrive as a threatening voicemail with a 24-hour deadline.",
 source: "ato.gov.au/individuals-and-families/paying-the-ato/how-much-you-owe"
 }
@@ -562,7 +567,7 @@ intrusionType: "They are moving your super",
 attacker: { name: "VIPER", emoji: "🐍" },
 stake: 4850,
 loss: "Super drained: $4,850",
-setup: "Goes after people part-way through merging their super. You started last week.",
+setup: "You started merging your super last week. The ATO app is how you'd track it. But someone's trying to move it without you knowing.",
 message: {
 channel: "Push notification",
 subject: "ATO app — security message",
@@ -609,7 +614,8 @@ steps: [
 truth: "Your super was safe. Locking the account stopped the transfer.",
 cost: "<strong>$4,850 stolen from super today</strong> = about $73,000 less at retirement, assuming 7% annual growth over 40 years.",
 costNote: "Independent calculation for illustration, not an ATO forecast.",
-everyday: "Same app you'd use to find lost super or consolidate funds.",
+everyday: "This is how Australians track super balances and find lost super. It also stopped this unauthorised transfer.",
+feature: "Super Balance &amp; Account Lock",
 detail: "Account locking is a powerful fraud prevention tool. While locked, most personalised features and ATO Online services are inaccessible, and you can unlock from the same registered device once it's safe.",
 source: "ato.gov.au/online-services/online-services-for-individuals-and-sole-traders/ato-app/manage-your-tax-and-super-with-the-ato-app"
 }
@@ -621,7 +627,7 @@ intrusionType: "They filed a tax return as you",
 attacker: { name: "WRAITH", emoji: "🎭" },
 stake: 0,
 loss: "Refund stolen in your name",
-setup: "Files before you do. You usually lodge in August. It&rsquo;s early July.",
+setup: "You usually lodge your tax in August. The ATO app is how you'd check if it's been filed. But someone's trying to lodge it for you.",
 message: {
 channel: "Push notification",
 subject: "ATO app — security message",
@@ -667,7 +673,8 @@ steps: [
 ],
 truth: "Your identity was targeted. Locking the record stopped it going further.",
 cost: "<strong>Scammers can steal your refund</strong> and lock you out of your own account.",
-everyday: "Same alerts that tell you when your real agent lodges for you.",
+everyday: "This is how Australians check when their real agent lodged their return. It also caught this identity fraud.",
+feature: "Lodgment History &amp; Security Alerts",
 detail: "Real-time security messages fire when key changes occur — income tax lodgments, bank account updates and device registrations. The feature exists to help you catch identity crime as it happens.",
 source: "ato.gov.au/online-services/scams-cyber-safety-and-identity-protection/help-for-identity-theft"
 }
@@ -679,7 +686,7 @@ intrusionType: "They are calling you right now",
 attacker: { name: "SHADOW", emoji: "🔦" },
 stake: 0,
 loss: "TFN and myGov password handed over",
-setup: "Calls business owners expecting the ATO. You&rsquo;re expecting a call about your BAS.",
+setup: "You're expecting an ATO call about your BAS. The app is how you'd confirm it's real. But scammers know you're waiting.",
 message: {
 channel: "Phone call",
 subject: "Live call — transcript",
@@ -726,7 +733,8 @@ steps: [
 ],
 truth: "The call was genuine. You verified it and carried on safely.",
 cost: "<strong>TFN + myGov password stolen</strong> = full account access. Scammers can redirect refunds and alter your super.",
-everyday: "Same app you'd use to lodge a BAS or track obligations.",
+everyday: "This is how business owners manage BAS and verify ATO contact. It also confirmed this call was real.",
+feature: "Verify Call",
 detail: "Verify call is designed to shut down scam calls in real time by putting the check in the taxpayer's hands. If verification can't be confirmed, treat the interaction as suspicious and end the call.",
 source: "ato.gov.au/media-centre/ato-launches-new-app-feature-to-stop-scam-calls",
 screenshot: "ato-verify-call.png"
@@ -930,8 +938,8 @@ container.innerHTML = `
 <div class="card" style="text-align:center;">
 <div class="vault-ring landing"><span>🔒</span></div>
 <div class="sys-label">Lockdown Protocol</div>
-<h1>This is YOUR vault</h1>
-<p style="font-size:1.02rem; color:var(--text);">Your tax. Your super. Someone is trying to break in.<br><b>Can you keep them out?</b></p>
+<h1>Your tax. Your super. One app.</h1>
+<p style="font-size:1.02rem; color:var(--text);">The ATO app and Online services manage your tax and super &mdash; and stop scammers using the exact same tools.<br><b>Can you tell the difference?</b></p>
 <div class="threat-meter">
 <div class="tm-head">
 <span class="sys-label">Threat Level</span>
@@ -1099,11 +1107,15 @@ ${renderProgress()}
 <h2>${s.reveal.title}</h2>
 <div class="sys-rule"></div>
 ${screenshotHtml}
+<div class="reveal-box" style="border-left-color:var(--success); background:rgba(34,197,94,0.06); border-color:rgba(34,197,94,0.22);">
+<h4 style="color:var(--success);">Everyday use</h4>
+<p>${s.reveal.everyday}</p>
+</div>
 <div class="reveal-box">
-<h4>The real story</h4>
-<p>${s.reveal.truth}</p>
-<div class="check-head">How to check it yourself</div>
+<div class="check-head" style="margin-top:0; padding-top:0; border-top:none;">How to check it yourself</div>
 ${stepsHtml}
+<h4 style="margin-top:14px;">The real story</h4>
+<p>${s.reveal.truth}</p>
 </div>
 <div class="reveal-box" style="border-left-color:var(--danger); background:rgba(239,68,68,0.07); border-color:rgba(239,68,68,0.22);">
 <h4 style="color:#fca5a5;">Cost of getting it wrong</h4>
@@ -1115,6 +1127,7 @@ ${s.reveal.costNote ? `<div class="source-line" style="margin-top:9px;">${s.reve
 <p>${s.reveal.detail}</p>
 </details>
 <div class="source-line">Source: ${s.reveal.source}</div>
+<div class="unlock-badge">🔓 Feature mastered: <b>${s.reveal.feature}</b></div>
 <button class="btn btn-primary" onclick="nextScenario()" style="margin-top:16px;">
 ${currentScenario < scenarios.length - 1 ? 'Next attack' : 'See how you did'}
 </button>
@@ -1206,17 +1219,15 @@ ${neutralised === total ? `
 </div>
 </div>
 <p style="text-align:center; color:var(--text);">
-${neutralised === total
-? "You stopped all six. Every time, you checked with the ATO yourself instead of trusting the message."
-: neutralised >= 4
-? "You stopped most of them. Have a look at the ones that got through — it's the same trick every time."
-: "A few got through. The move that always works: check it yourself in the ATO app or at my.gov.au."}
+${neutralised > 0
+? `You used <strong>${neutralised} ATO tax and super management ${neutralised === 1 ? 'feature' : 'features'}</strong> to stop ${neutralised} fraud ${neutralised === 1 ? 'attempt' : 'attempts'}. The same tools that manage your money also protect it.`
+: "Every one of these was stoppable with a tool you already have. The same ATO app that manages your tax and super is what proves a message is fake."}
 </p>
 <div style="margin:18px 0;">
 ${summaryHtml}
 </div>
 <div class="reveal-box" style="border-left-color:var(--success); background:rgba(34,197,94,0.06); border-color:rgba(34,197,94,0.22);">
-<h4 style="color:var(--success);">You'd use these anyway</h4>
+<h4 style="color:var(--success);">The tools you used</h4>
 <ul class="everyday-list">${everydayHtml}</ul>
 </div>
 <div class="reveal-box" style="border-left-color:var(--accent); background:rgba(245,158,11,0.08); border-color:rgba(245,158,11,0.25);">
