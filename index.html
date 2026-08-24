@@ -5,1980 +5,1332 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lockdown Protocol — ATO Scam Defence Simulator</title>
 <style>
-  :root {
-    --bg: #0f172a;
-    --bg-card: #1a2438;
-    --bg-deep: #0a1122;
-    --text: #eef4fb;
-    --text-muted: #93a5c0;
-    --accent: #f59e0b;
-    --accent-hover: #fbbf24;
-    --cyan: #38bdf8;
-    --danger: #ef4444;
-    --danger-bg: #7f1d1d;
-    --warn: #f59e0b;
-    --success: #22c55e;
-    --success-bg: #14532d;
-    --border: #2a3a56;
-    --radius: 10px;
-    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
-    --shadow: 0 4px 24px rgba(0,0,0,0.45);
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 16px;
-    line-height: 1.6;
-  }
-  /* Circuit grid backdrop — pure CSS, no image request. */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-    background-image:
-      linear-gradient(rgba(56,189,248,0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(56,189,248,0.05) 1px, transparent 1px);
-    background-size: 46px 46px;
-    -webkit-mask-image: radial-gradient(ellipse at 50% -10%, #000 0%, transparent 75%);
-    mask-image: radial-gradient(ellipse at 50% -10%, #000 0%, transparent 75%);
-  }
-  .disclaimer, .container, .sysbar { position: relative; z-index: 1; }
-
-  .sysbar {
-    max-width: 620px;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    font-family: var(--mono);
-    font-size: 0.62rem;
-    letter-spacing: 1px;
-    color: var(--cyan);
-    text-transform: uppercase;
-    padding: 0 2px 8px;
-  }
-  .sysbar .status-dot {
-    display: inline-block;
-    width: 7px; height: 7px;
-    border-radius: 50%;
-    background: var(--success);
-    margin-right: 6px;
-    vertical-align: middle;
-    animation: livePulse 2.2s ease-in-out infinite;
-  }
-  @keyframes livePulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
-
-  .disclaimer {
-    font-size: 11px;
-    color: var(--text-muted);
-    text-align: center;
-    padding: 8px 12px;
-    background: rgba(0,0,0,0.35);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    margin-bottom: 14px;
-    max-width: 620px;
-    width: 100%;
-  }
-  .container {
-    max-width: 620px;
-    width: 100%;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-  .card {
-    background: var(--bg-card);
-    border-radius: var(--radius);
-    padding: 26px 24px 28px;
-    box-shadow: var(--shadow);
-    border: 1px solid var(--border);
-    animation: fadeIn 0.35s ease;
-    position: relative;
-    overflow: hidden;
-  }
-  /* Corner bracket detailing on every panel. */
-  .card::before, .card::after {
-    content: '';
-    position: absolute;
-    width: 14px; height: 14px;
-    border-color: rgba(56,189,248,0.45);
-    border-style: solid;
-    pointer-events: none;
-  }
-  .card::before { top: 8px; left: 8px; border-width: 1px 0 0 1px; }
-  .card::after { bottom: 8px; right: 8px; border-width: 0 1px 1px 0; }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(12px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  h1 { font-size: 1.7rem; margin-bottom: 8px; color: var(--text); letter-spacing: 0.5px; }
-  h2 { font-size: 1.2rem; margin-bottom: 12px; }
-  p { margin-bottom: 16px; color: var(--text-muted); }
-
-  /* System-console typography */
-  .sys-label {
-    font-family: var(--mono);
-    font-size: 0.66rem;
-    letter-spacing: 1.4px;
-    text-transform: uppercase;
-    color: var(--cyan);
-    font-weight: 600;
-  }
-  .sys-head {
-    font-family: var(--mono);
-    font-size: 1rem;
-    letter-spacing: 1.6px;
-    text-transform: uppercase;
-    font-weight: 700;
-    margin-bottom: 4px;
-  }
-  .sys-rule {
-    height: 1px;
-    background: linear-gradient(90deg, var(--border), transparent);
-    margin: 12px 0 16px;
-  }
-
-  .btn {
-    display: block;
-    width: 100%;
-    padding: 16px 18px;
-    min-height: 52px;
-    margin-bottom: 12px;
-    border: none;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-align: left;
-    font-family: inherit;
-  }
-  .btn-primary {
-    background: var(--accent);
-    color: #0f172a;
-    text-align: center;
-    font-family: var(--mono);
-    font-size: 0.92rem;
-    min-height: 60px;
-    margin-top: 20px;
-    letter-spacing: 1.6px;
-    text-transform: uppercase;
-    font-weight: 700;
-    box-shadow: 0 4px 16px rgba(245,158,11,0.22);
-  }
-  .btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); }
-  .btn-option {
-    background: #22314c;
-    color: var(--text);
-    border: 1px solid var(--border);
-    animation: slideUp 0.32s ease backwards;
-  }
-  .btn-option:hover { background: #2b3d5e; border-color: var(--cyan); transform: translateX(3px); }
-  .opt-tag {
-    display: block;
-    font-family: var(--mono);
-    font-size: 0.6rem;
-    letter-spacing: 1.3px;
-    color: var(--cyan);
-    margin-bottom: 3px;
-    font-weight: 600;
-  }
-  .opt-text { display: block; font-size: 0.95rem; font-weight: 500; line-height: 1.45; }
-  .btn-back {
-    background: transparent;
-    color: var(--text-muted);
-    border: 1px solid var(--border);
-    text-align: center;
-    margin-top: 12px;
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    letter-spacing: 1.2px;
-    text-transform: uppercase;
-  }
-  .btn-back:hover { color: var(--text); border-color: var(--text-muted); }
-  .btn:active { transform: scale(0.985); }
-
-  .tag {
-    display: inline-block;
-    padding: 4px 10px;
-    border-radius: 4px;
-    font-family: var(--mono);
-    font-size: 0.62rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1.2px;
-    margin-bottom: 12px;
-  }
-  .tag-scam { background: var(--danger-bg); color: #fecaca; border: 1px solid rgba(239,68,68,0.5); }
-  .tag-real { background: var(--success-bg); color: #bbf7d0; border: 1px solid rgba(34,197,94,0.5); }
-  .tag-warn { background: #78350f; color: #fde68a; border: 1px solid rgba(245,158,11,0.5); }
-  .tag-simulated { background: rgba(239,68,68,0.12); color: #fca5a5; border: 1px solid rgba(239,68,68,0.4); }
-
-
-  /* Decrypt beat before the message lands */
-  .decrypt {
-    border: 1px dashed var(--border);
-    border-radius: 8px;
-    padding: 18px;
-    margin-bottom: 18px;
-    background: var(--bg-deep);
-  }
-  .decrypt-label {
-    font-family: var(--mono);
-    font-size: 0.66rem;
-    letter-spacing: 1.4px;
-    color: var(--cyan);
-    text-transform: uppercase;
-    margin-bottom: 10px;
-  }
-  .decrypt-label .dots::after {
-    content: '';
-    animation: dotCycle 1.1s steps(4, end) infinite;
-  }
-  @keyframes dotCycle { 0% { content: ''; } 25% { content: '.'; } 50% { content: '..'; } 75% { content: '...'; } }
-  .scan-track { height: 4px; background: #1b2740; border-radius: 2px; overflow: hidden; }
-  .scan-fill {
-    height: 100%; width: 40%;
-    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
-    animation: scanSweep 1.1s linear infinite;
-  }
-  @keyframes scanSweep { from { transform: translateX(-120%); } to { transform: translateX(320%); } }
-  .msg-in { animation: popIn 0.38s cubic-bezier(0.2,0.8,0.3,1.2); }
-  @keyframes popIn {
-    0% { opacity: 0; transform: scale(0.94) translateY(10px); }
-    60% { opacity: 1; transform: scale(1.02); }
-    100% { opacity: 1; transform: none; }
-  }
-  @keyframes slideUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
-
-  /* HUD */
-  .hud {
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 12px; margin-bottom: 8px;
-  }
-  .hud-label {
-    font-family: var(--mono);
-    font-size: 0.64rem; text-transform: uppercase; letter-spacing: 1.3px;
-    color: var(--text-muted); font-weight: 600;
-  }
-  .score-chip {
-    display: inline-flex; align-items: center; gap: 5px;
-    background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.35);
-    color: #bbf7d0; font-family: var(--mono); font-size: 0.62rem; font-weight: 700;
-    letter-spacing: 0.8px;
-    padding: 4px 9px; border-radius: 4px; white-space: nowrap;
-  }
-  .score-chip.bump { animation: pulseChip 0.45s ease; }
-  @keyframes pulseChip { 0% { transform: scale(1); } 40% { transform: scale(1.18); } 100% { transform: scale(1); } }
-
-  .layers-label {
-    font-family: var(--mono);
-    font-size: 0.58rem;
-    letter-spacing: 1.2px;
-    color: #8095b3;
-    text-transform: uppercase;
-    margin-bottom: 5px;
-  }
-  .progress-bar { display: flex; gap: 5px; margin-bottom: 18px; }
-  .progress-dot {
-    flex: 1; height: 4px; background: #1b2740; border-radius: 2px;
-    position: relative; overflow: hidden;
-  }
-  .progress-dot.complete { background: var(--success); }
-  .progress-dot.active::after {
-    content: ''; position: absolute; inset: 0;
-    background: var(--accent); transform-origin: left;
-    animation: fillBar 0.5s ease forwards;
-  }
-  @keyframes fillBar { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-
-
-  /* Breach / neutralised states */
-  .card-breach { border-color: rgba(239,68,68,0.55); animation: fadeIn 0.35s ease, shake 0.5s ease 0.05s, breachPulse 1.5s ease-in-out 0.4s 2; }
-  .card-unresolved { border-color: rgba(245,158,11,0.5); animation: fadeIn 0.35s ease, nudge 0.4s ease 0.05s; }
-  .card-secure { border-color: rgba(34,197,94,0.5); animation: fadeIn 0.35s ease, securePulse 1.1s ease 0.15s; }
-  @keyframes shake {
-    10%, 90% { transform: translateX(-2px); }
-    20%, 80% { transform: translateX(4px); }
-    30%, 50%, 70% { transform: translateX(-7px); }
-    40%, 60% { transform: translateX(7px); }
-  }
-  @keyframes nudge { 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
-  @keyframes breachPulse {
-    0%, 100% { box-shadow: var(--shadow), 0 0 0 0 rgba(239,68,68,0); }
-    50% { box-shadow: var(--shadow), 0 0 26px 2px rgba(239,68,68,0.3); }
-  }
-  @keyframes securePulse {
-    0% { box-shadow: var(--shadow), 0 0 0 0 rgba(34,197,94,0.5); }
-    100% { box-shadow: var(--shadow), 0 0 0 22px rgba(34,197,94,0); }
-  }
-
-  .verdict { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
-  .verdict-icon {
-    width: 46px; height: 46px; border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.4rem; flex-shrink: 0;
-  }
-  .verdict-icon.safe {
-    background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.55);
-    animation: lockSpin 0.6s cubic-bezier(0.2,0.8,0.3,1.4);
-  }
-  .verdict-icon.risky {
-    background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.55);
-    animation: badgeIn 0.45s cubic-bezier(0.2,0.8,0.3,1.4);
-  }
-  .verdict-icon.unresolved {
-    background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.55);
-    animation: badgeIn 0.45s cubic-bezier(0.2,0.8,0.3,1.4);
-  }
-  @keyframes lockSpin {
-    0% { transform: rotate(-150deg) scale(0.5); opacity: 0; }
-    55% { transform: rotate(12deg) scale(1.15); opacity: 1; }
-    100% { transform: rotate(0) scale(1); opacity: 1; }
-  }
-  @keyframes badgeIn {
-    0% { transform: scale(0.5) rotate(-12deg); opacity: 0; }
-    70% { transform: scale(1.08) rotate(3deg); opacity: 1; }
-    100% { transform: scale(1) rotate(0); opacity: 1; }
-  }
-  .verdict-title { font-family: var(--mono); font-size: 0.95rem; letter-spacing: 1.4px; font-weight: 700; text-transform: uppercase; }
-  .verdict-title.safe { color: var(--success); }
-  .verdict-title.risky { color: var(--danger); }
-  .verdict-title.unresolved { color: var(--warn); }
-  .consequence {
-    font-family: var(--mono);
-    font-size: 0.74rem;
-    line-height: 1.65;
-    padding: 10px 12px;
-    border-radius: 6px;
-    margin-bottom: 14px;
-  }
-  .consequence.risky { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #fca5a5; }
-  .consequence.unresolved { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); color: #fcd34d; }
-  .consequence.safe { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); color: #86efac; }
-
-  /* Forensic analysis */
-  .reveal-box {
-    background: rgba(56,189,248,0.07);
-    border: 1px solid rgba(56,189,248,0.22);
-    border-left: 3px solid var(--cyan);
-    padding: 14px 16px;
-    border-radius: 0 8px 8px 0;
-    margin: 14px 0;
-  }
-  .reveal-box h4 {
-    color: var(--cyan); margin-bottom: 6px;
-    font-family: var(--mono); font-size: 0.66rem;
-    text-transform: uppercase; letter-spacing: 1.3px;
-  }
-  .reveal-box p { margin: 0; color: #cbd5e1; font-size: 0.9rem; }
-  .pathway-step { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px; }
-  .pathway-num {
-    width: 24px; height: 24px; border-radius: 5px;
-    background: var(--accent); color: #0f172a;
-    display: flex; align-items: center; justify-content: center;
-    font-family: var(--mono); font-size: 0.7rem; font-weight: 700; flex-shrink: 0;
-  }
-  .pathway-text { font-size: 0.9rem; color: #cbd5e1; }
-  .screenshot-frame {
-    background: var(--bg-deep);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 12px;
-    margin: 16px 0;
-    text-align: center;
-  }
-  .screenshot-frame img { max-width: 100%; border-radius: 6px; display: block; margin: 0 auto; }
-  .screenshot-caption {
-    font-family: var(--mono); font-size: 0.6rem; color: #64748b;
-    margin-top: 8px; letter-spacing: 0.5px;
-  }
-  .source-line {
-    font-family: var(--mono); font-size: 0.6rem; color: #5b6b85;
-    margin-top: 16px; line-height: 1.7; word-break: break-word;
-  }
-
-  /* Lede: the one sentence that carries the screen */
-  .lede {
-    font-size: 1rem; line-height: 1.55; color: var(--text);
-    margin: 14px 0 4px;
-  }
-
-  /* Progressive disclosure */
-  .more { margin: 10px 0 14px; }
-  .more > summary {
-    list-style: none; cursor: pointer;
-    font-family: var(--mono); font-size: 0.66rem;
-    text-transform: uppercase; letter-spacing: 1.2px;
-    color: var(--cyan); padding: 7px 0;
-    display: flex; align-items: center; gap: 7px;
-  }
-  .more > summary::-webkit-details-marker { display: none; }
-  .more > summary::before {
-    content: '+'; font-size: 0.85rem; line-height: 1;
-    width: 15px; height: 15px; border-radius: 3px;
-    border: 1px solid rgba(56,189,248,0.4);
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-  }
-  .more[open] > summary::before { content: '−'; }
-  .more > summary:hover { color: #7dd3fc; }
-  .more > p {
-    margin: 4px 0 0; font-size: 0.84rem; line-height: 1.65;
-    color: var(--text-muted);
-    border-left: 2px solid rgba(56,189,248,0.25);
-    padding-left: 12px;
-  }
-
-  /* Threat meter (landing) */
-  .threat-meter {
-    background: var(--bg-deep);
-    border: 1px solid rgba(239,68,68,0.3);
-    border-radius: 8px;
-    padding: 14px 16px;
-    margin: 18px 0;
-    text-align: left;
-  }
-  .tm-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
-  .tm-val {
-    font-family: var(--mono); font-size: 0.7rem; font-weight: 700;
-    letter-spacing: 1.3px; color: var(--danger);
-    animation: livePulse 2s ease-in-out infinite;
-  }
-  .tm-track { height: 7px; background: #1b2740; border-radius: 3px; overflow: hidden; }
-  .tm-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--accent), var(--danger));
-    transform-origin: left;
-    animation: fillMeter 1.4s cubic-bezier(0.2,0.8,0.3,1) forwards;
-  }
-  @keyframes fillMeter { from { transform: scaleX(0); } to { transform: scaleX(0.87); } }
-  .tm-note { font-size: 0.8rem; color: #cbd5e1; margin-top: 10px; }
-  @keyframes floaty { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
-  .spec-bar {
-    font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.8px;
-    color: var(--text-muted); margin-bottom: 18px;
-  }
-
-  /* Landing: how it works */
-  .how-row {
-    display: flex; align-items: flex-start; justify-content: center;
-    gap: 4px; margin: 20px 0 16px;
-  }
-  .how-step { flex: 1 1 0; min-width: 0; text-align: center; }
-  .how-icon {
-    font-size: 1.6rem; line-height: 1;
-    margin-bottom: 7px;
-    filter: drop-shadow(0 0 10px rgba(56,189,248,0.25));
-  }
-  .how-text {
-    font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.6px;
-    color: var(--text-muted); text-transform: uppercase; line-height: 1.4;
-  }
-  .how-arrow {
-    color: var(--cyan); opacity: 0.5; font-size: 0.9rem;
-    padding-top: 9px; flex: 0 0 auto;
-  }
-
-  /* Setup: the header carries the screen */
-  .breach-banner {
-    font-family: var(--mono); font-weight: 700;
-    font-size: clamp(2rem, 8vw, 2.85rem);
-    line-height: 1.02; letter-spacing: 3px;
-    text-transform: uppercase; text-align: center;
-    color: var(--danger);
-    margin: 6px 0 10px;
-    text-shadow: 0 0 26px rgba(239,68,68,0.4);
-    animation: breachIn 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.4) backwards;
-  }
-  @keyframes breachIn {
-    from { opacity: 0; transform: scale(0.86); letter-spacing: 10px; }
-    to   { opacity: 1; transform: scale(1);    letter-spacing: 3px; }
-  }
-  .breach-sub {
-    font-family: var(--mono); font-size: 0.66rem; letter-spacing: 2.2px;
-    text-transform: uppercase; text-align: center;
-    color: var(--text-muted); margin-bottom: 18px;
-  }
-  .target-line {
-    display: flex; gap: 10px; align-items: baseline;
-    background: var(--bg-deep); border: 1px solid var(--border);
-    border-radius: 8px; padding: 11px 13px; margin-bottom: 16px;
-  }
-  .target-key {
-    font-family: var(--mono); font-size: 0.58rem; letter-spacing: 1.1px;
-    text-transform: uppercase; color: var(--accent);
-    flex: 0 0 auto; white-space: nowrap;
-  }
-  .target-val { font-size: 0.85rem; color: #cbd5e1; line-height: 1.5; }
-  .target-sep { color: #475569; padding: 0 2px; }
-
-  /* Option buttons: action icon on the left */
-  .btn-option { display: flex; align-items: center; gap: 14px; padding: 15px 16px; min-height: 62px; }
-  .btn-option:active { transform: translateX(3px) scale(0.985); }
-  .btn:active { transform: scale(0.985); }
-  .opt-icon {
-    flex: 0 0 auto; font-size: 1.3rem; line-height: 1;
-    width: 40px; height: 40px; border-radius: 8px;
-    background: rgba(15,23,42,0.55); border: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: center;
-  }
-  .opt-body { flex: 1 1 auto; min-width: 0; }
-  .btn-option:hover .opt-icon { border-color: var(--cyan); }
-
-  /* HUD: live rank + breach counter */
-  .hud-stats {
-    display: flex; flex-wrap: wrap; gap: 6px 16px;
-    margin-top: 9px; margin-bottom: 15px; padding-top: 9px;
-    border-top: 1px solid rgba(148,163,184,0.13);
-  }
-  .hud-stat { display: flex; align-items: baseline; gap: 6px; }
-  .hud-stat-key {
-    font-family: var(--mono); font-size: 0.55rem; letter-spacing: 1px;
-    text-transform: uppercase; color: #64748b;
-  }
-  .hud-stat-val {
-    font-family: var(--mono); font-size: 0.63rem; font-weight: 700;
-    letter-spacing: 0.6px; color: var(--cyan);
-  }
-
-  /* Reveal: pathway folded into the result box */
-  .check-head {
-    font-family: var(--mono); font-size: 0.58rem; letter-spacing: 1.2px;
-    text-transform: uppercase; color: var(--accent);
-    margin: 13px 0 9px; padding-top: 11px;
-    border-top: 1px solid rgba(148,163,184,0.14);
-  }
-  .reveal-box .pathway-step:last-child { margin-bottom: 0; }
-
-  /* Report: everyday-use roundup */
-  .everyday-list { margin: 0; padding-left: 17px; }
-  .everyday-list li {
-    color: #cbd5e1; font-size: 0.83rem; line-height: 1.55;
-    margin-bottom: 7px;
-  }
-  .everyday-list li:last-child { margin-bottom: 0; }
-  .everyday-list b { color: var(--text); }
-
-  /* Vault integrity bar */
-  .vault-health { margin-bottom: 11px; }
-  .vh-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 5px; }
-  .vh-key {
-    font-family: var(--mono); font-size: 0.55rem; letter-spacing: 1.3px;
-    text-transform: uppercase; color: #8095b3;
-  }
-  .vh-val { font-family: var(--mono); font-size: 0.72rem; font-weight: 700; }
-  .vh-val.good { color: var(--success); }
-  .vh-val.warn { color: var(--warn); }
-  .vh-val.bad  { color: var(--danger); }
-  .vh-track {
-    height: 7px; border-radius: 4px; overflow: hidden;
-    background: rgba(15,23,42,0.85); border: 1px solid var(--border);
-  }
-  .vh-fill {
-    height: 100%; border-radius: 3px;
-    transition: width 0.7s cubic-bezier(0.3,0.9,0.3,1), background 0.5s;
-  }
-  .vh-fill.good { background: linear-gradient(90deg, #16a34a, #22c55e); box-shadow: 0 0 11px rgba(34,197,94,0.5); }
-  .vh-fill.warn { background: linear-gradient(90deg, #d97706, #f59e0b); box-shadow: 0 0 11px rgba(245,158,11,0.5); }
-  .vh-fill.bad  { background: linear-gradient(90deg, #b91c1c, #ef4444); box-shadow: 0 0 13px rgba(239,68,68,0.65); animation: vhPanic 1.1s ease-in-out infinite; }
-  @keyframes vhPanic { 0%,100% { opacity: 1; } 50% { opacity: 0.62; } }
-
-  /* Phase escalation — border shifts as they get closer */
-  .card.phase-1 { border-color: rgba(245,158,11,0.42); }
-  .card.phase-2 { border-color: rgba(249,115,22,0.55); box-shadow: 0 0 26px rgba(249,115,22,0.10); }
-  .card.phase-3 { border-color: rgba(239,68,68,0.62); box-shadow: 0 0 30px rgba(239,68,68,0.15); }
-  .phase-tag {
-    font-family: var(--mono); font-size: 0.58rem; letter-spacing: 1.2px;
-    text-transform: uppercase; text-align: center;
-    padding: 5px 9px; border-radius: 4px; margin-bottom: 12px;
-  }
-  .phase-1 .phase-tag { color: #fcd34d; background: rgba(245,158,11,0.11); border: 1px solid rgba(245,158,11,0.3); }
-  .phase-2 .phase-tag { color: #fdba74; background: rgba(249,115,22,0.12); border: 1px solid rgba(249,115,22,0.35); }
-  .phase-3 .phase-tag { color: #fca5a5; background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.38); }
-
-  /* Combo */
-
-  /* Attacker line */
-  .target-avatar {
-    font-size: 1.15rem; line-height: 1; flex: 0 0 auto;
-  }
-  .codename {
-    font-family: var(--mono); letter-spacing: 1.4px; color: var(--danger);
-  }
-
-  /* Vault visual */
-  .vault-ring {
-    width: 92px; height: 92px; margin: 4px auto 14px;
-    border-radius: 50%; display: flex; align-items: center; justify-content: center;
-    font-size: 2.1rem;
-    background: radial-gradient(circle at 50% 38%, #1e2b45 0%, #131c2e 70%);
-    border: 3px solid var(--border);
-    position: relative;
-  }
-  .vault-ring::after {
-    content: ''; position: absolute; inset: 7px;
-    border-radius: 50%; border: 1px dashed rgba(148,163,184,0.24);
-  }
-  .vault-ring.landing { border-color: rgba(245,158,11,0.55); box-shadow: 0 0 30px rgba(245,158,11,0.28), inset 0 0 20px rgba(245,158,11,0.10); }
-  .vault-ring.sealed  { border-color: rgba(34,197,94,0.75);  box-shadow: 0 0 36px rgba(34,197,94,0.42),  inset 0 0 22px rgba(34,197,94,0.16); }
-  .vault-ring.held    { border-color: rgba(245,158,11,0.65); box-shadow: 0 0 30px rgba(245,158,11,0.30), inset 0 0 20px rgba(245,158,11,0.12); }
-  .vault-ring.cracked { border-color: rgba(239,68,68,0.78);  box-shadow: 0 0 36px rgba(239,68,68,0.45),  inset 0 0 22px rgba(239,68,68,0.18); border-style: dashed; }
-
-  /* Game over */
-  .gameover-head {
-    font-family: var(--mono); font-weight: 700;
-    font-size: clamp(1.9rem, 7.5vw, 2.6rem);
-    letter-spacing: 3px; text-transform: uppercase;
-    color: var(--danger); text-shadow: 0 0 26px rgba(239,68,68,0.45);
-    margin-bottom: 8px; line-height: 1.05;
-  }
-  .gameover-loss {
-    font-family: var(--mono); font-size: 0.8rem; color: #fca5a5;
-    letter-spacing: 0.5px; margin-bottom: 14px; line-height: 1.6;
-  }
-
-  /* Message, structured like mail but unmistakably this game's UI */
-  .mail {
-    background: var(--bg-deep);
-    border: 1px solid var(--border);
-    border-left: 3px solid var(--danger);
-    border-radius: 0 10px 10px 0;
-    margin-bottom: 20px;
-    overflow: hidden;
-  }
-  .mail-subject {
-    font-size: 1rem; font-weight: 600; color: var(--text);
-    line-height: 1.4; padding: 15px 17px 12px;
-    border-bottom: 1px solid rgba(148,163,184,0.12);
-  }
-  .mail-head {
-    display: flex; align-items: center; gap: 11px;
-    padding: 12px 17px;
-    border-bottom: 1px solid rgba(148,163,184,0.1);
-  }
-  .mail-avatar {
-    flex: 0 0 auto; width: 36px; height: 36px; border-radius: 50%;
-    background: rgba(239,68,68,0.14); border: 1px solid rgba(239,68,68,0.35);
-    display: flex; align-items: center; justify-content: center; font-size: 1.05rem;
-  }
-  .mail-who { flex: 1 1 auto; min-width: 0; }
-  .mail-from {
-    font-family: var(--mono); font-size: 0.72rem; color: #cbd5e1;
-    font-weight: 600; word-break: break-word; line-height: 1.4;
-  }
-  .mail-to { font-family: var(--mono); font-size: 0.62rem; color: #64748b; margin-top: 2px; }
-  .mail-to b { color: var(--accent); font-weight: 700; }
-  .mail-when {
-    flex: 0 0 auto; font-family: var(--mono); font-size: 0.6rem;
-    color: #64748b; text-align: right; line-height: 1.4;
-  }
-  .mail-body {
-    white-space: pre-line; color: var(--text);
-    font-size: 0.95rem; line-height: 1.65;
-    padding: 16px 17px;
-  }
-  .mail-foot {
-    font-family: var(--mono); font-size: 0.58rem; letter-spacing: 1.2px;
-    text-transform: uppercase; color: #64748b;
-    padding: 9px 17px; background: rgba(15,23,42,0.5);
-    border-top: 1px solid rgba(148,163,184,0.1);
-  }
-
-  /* Re-read before deciding */
-  .btn-review {
-    display: inline-flex; align-items: center; gap: 6px;
-    width: auto; margin: 4px 0 2px;
-    padding: 9px 14px; min-height: 40px;
-    background: transparent; color: var(--cyan);
-    border: 1px dashed rgba(56,189,248,0.42); border-radius: 7px;
-    font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.9px;
-    text-transform: uppercase; font-weight: 600; cursor: pointer;
-    transition: all 0.18s;
-  }
-  .btn-review:hover { background: rgba(56,189,248,0.1); border-style: solid; }
-  .btn-review:active { transform: scale(0.97); }
-
-  /* Breathing room */
-  .sys-rule { margin: 18px 0; }
-  .card h2 { line-height: 1.35; margin-bottom: 14px; }
-
-  /* Streak recognition — appears on the verdict, then settles back */
-  .streak-badge {
-    display: inline-block; margin: 2px 0 12px;
-    padding: 7px 13px; border-radius: 7px;
-    font-family: var(--mono); font-size: 0.72rem; font-weight: 700;
-    letter-spacing: 0.9px;
-    animation: streakPop 3.4s cubic-bezier(0.2,0.9,0.3,1.4) forwards;
-  }
-  .streak-badge.on  { color: #fde68a; background: rgba(245,158,11,0.16); border: 1px solid rgba(245,158,11,0.5); }
-  .streak-badge.off { color: #cbd5e1; background: rgba(148,163,184,0.12); border: 1px solid rgba(148,163,184,0.32); }
-  @keyframes streakPop {
-    0%   { transform: scale(0.7); opacity: 0; }
-    10%  { transform: scale(1.08); opacity: 1; }
-    18%  { transform: scale(1); opacity: 1; }
-    72%  { opacity: 1; }
-    100% { transform: scale(1); opacity: 0.34; }
-  }
-
-  /* What the attacker walked away with */
-  .stolen-list {
-    list-style: none; margin: 0 0 16px; padding: 0;
-    text-align: left; display: inline-block;
-  }
-  .stolen-list li {
-    font-family: var(--mono); font-size: 0.74rem; color: #fca5a5;
-    padding: 7px 0 7px 20px; position: relative; line-height: 1.5;
-    border-bottom: 1px solid rgba(239,68,68,0.16);
-  }
-  .stolen-list li:last-child { border-bottom: none; }
-  .stolen-list li::before {
-    content: '✕'; position: absolute; left: 2px; top: 7px;
-    color: var(--danger); font-size: 0.7rem;
-  }
-  .last-move {
-    text-align: left; font-size: 0.83rem; line-height: 1.6;
-    color: #cbd5e1; background: rgba(15,23,42,0.5);
-    border: 1px solid var(--border); border-radius: 8px;
-    padding: 11px 13px; margin-bottom: 16px;
-  }
-  .last-move-key {
-    display: block; font-family: var(--mono); font-size: 0.55rem;
-    letter-spacing: 1.2px; text-transform: uppercase;
-    color: #64748b; margin-bottom: 4px;
-  }
-
-  /* Perfect run */
-  .vault-ring.perfect {
-    border-color: #fbbf24;
-    box-shadow: 0 0 40px rgba(251,191,36,0.5), inset 0 0 24px rgba(251,191,36,0.2);
-    animation: perfectGlow 2.6s ease-in-out infinite;
-  }
-  @keyframes perfectGlow {
-    0%,100% { box-shadow: 0 0 40px rgba(251,191,36,0.5), inset 0 0 24px rgba(251,191,36,0.2); }
-    50%     { box-shadow: 0 0 58px rgba(251,191,36,0.75), inset 0 0 30px rgba(251,191,36,0.3); }
-  }
-  .perfect-badge {
-    text-align: center; margin: 0 0 18px;
-    padding: 15px 16px; border-radius: 10px;
-    border: 2px solid #fbbf24;
-    background: linear-gradient(160deg, rgba(251,191,36,0.16), rgba(251,191,36,0.05));
-    box-shadow: 0 0 26px rgba(251,191,36,0.22);
-  }
-  .pb-title {
-    font-family: var(--mono); font-weight: 700;
-    font-size: 0.86rem; letter-spacing: 1.8px; text-transform: uppercase;
-    color: #fde68a; text-shadow: 0 0 16px rgba(251,191,36,0.5);
-    line-height: 1.35; margin-bottom: 6px;
-  }
-  .pb-sub { font-size: 0.8rem; color: #e2e8f0; line-height: 1.5; }
-
-  /* Defence rating */
-  .rank-label {
-    text-align: center; font-family: var(--mono); font-weight: 700;
-    font-size: 0.95rem; letter-spacing: 1.5px; color: var(--accent);
-    text-transform: uppercase; margin-bottom: 2px;
-  }
-  .rank-sub { text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 18px; }
-  .report-metric {
-    text-align: center; padding: 22px;
-    background: rgba(245,158,11,0.07);
-    border: 1px solid rgba(245,158,11,0.22);
-    border-radius: var(--radius); margin-bottom: 16px;
-  }
-  .report-metric .number {
-    font-family: var(--mono); font-size: 3rem; font-weight: 800; color: var(--accent);
-  }
-  .report-metric .label {
-    font-family: var(--mono); font-size: 0.66rem; color: var(--text-muted);
-    text-transform: uppercase; letter-spacing: 1.3px; margin-top: 4px;
-  }
-  .tally {
-    display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap;
-  }
-  .tally-item {
-    flex: 1; min-width: 90px; text-align: center;
-    border: 1px solid var(--border); border-radius: 8px; padding: 10px 6px;
-    background: var(--bg-deep);
-  }
-  .tally-num { font-family: var(--mono); font-size: 1.4rem; font-weight: 800; }
-  .tally-key {
-    font-family: var(--mono); font-size: 0.55rem; letter-spacing: 1px;
-    text-transform: uppercase; color: var(--text-muted); margin-top: 2px;
-  }
-  .summary-item {
-    padding: 11px 12px;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    margin-bottom: 8px;
-    animation: slideUp 0.3s ease backwards;
-  }
-  .summary-item .title { font-weight: 600; font-size: 0.88rem; }
-  .summary-item .choice { font-size: 0.78rem; color: var(--text-muted); margin-top: 3px; }
-
-  /* Data exfiltration overlay */
-  .exfil-screen {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(10, 17, 34, 0.97);
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    z-index: 100; padding: 20px;
-  }
-  .exfil-box {
-    background: var(--bg-card);
-    border: 1px solid rgba(239,68,68,0.5);
-    border-radius: var(--radius);
-    padding: 24px;
-    max-width: 400px;
-    width: 100%;
-    animation: breachPulse 1.5s ease-in-out infinite;
-  }
-  .exfil-head {
-    font-family: var(--mono); font-size: 0.75rem; font-weight: 700;
-    letter-spacing: 1.4px; color: var(--danger); text-transform: uppercase;
-    margin-bottom: 4px;
-  }
-  .exfil-sub {
-    font-family: var(--mono); font-size: 0.6rem; color: var(--text-muted);
-    letter-spacing: 0.8px; margin-bottom: 18px;
-  }
-  .fake-field { margin-bottom: 12px; }
-  .fake-field-label {
-    font-family: var(--mono); font-size: 0.6rem; color: var(--text-muted);
-    text-transform: uppercase; letter-spacing: 1.1px; margin-bottom: 4px;
-  }
-  .fake-field-value {
-    height: 38px; background: var(--bg-deep);
-    border: 1px solid var(--border); border-radius: 5px;
-    display: flex; align-items: center; padding: 0 12px;
-    font-family: var(--mono); font-size: 0.85rem; color: var(--text);
-    overflow: hidden;
-  }
-  .fake-field-value .typed {
-    display: inline-block; white-space: nowrap; overflow: hidden;
-    animation: typing 1.5s steps(20, end) forwards; width: 0;
-  }
-  @keyframes typing { to { width: 100%; } }
-  .fake-field-value .cursor {
-    display: inline-block; width: 2px; height: 17px;
-    background: var(--danger); animation: blink 0.8s infinite; margin-left: 2px;
-  }
-  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-  .exfil-warning {
-    margin-top: 16px; padding: 12px;
-    background: var(--danger-bg); border-radius: 6px;
-    color: #fecaca; font-family: var(--mono); font-size: 0.7rem;
-    letter-spacing: 0.8px; text-align: center;
-    opacity: 0; animation: fadeIn 0.5s ease 3s forwards;
-  }
-  .hidden { display: none !important; }
-
-  /* Full-screen red wash when a breach lands */
-  #breach-flash {
-    position: fixed; inset: 0; pointer-events: none; z-index: 90; opacity: 0;
-    background: radial-gradient(ellipse at center, transparent 35%, rgba(239,68,68,0.5) 100%);
-  }
-  #breach-flash.fire { animation: breachFlash 0.75s ease-out; }
-  @keyframes breachFlash {
-    0% { opacity: 0; }
-    18% { opacity: 1; }
-    100% { opacity: 0; }
-  }
-
-  /* Particle burst layer */
-  #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 200; overflow: hidden; }
-  .confetti-piece {
-    position: absolute; top: -16px; width: 7px; height: 13px;
-    border-radius: 1px; animation: confettiFall linear forwards;
-  }
-  @keyframes confettiFall { to { transform: translate3d(var(--dx), 110vh, 0) rotate(var(--rot)); opacity: 0; } }
-
-  .sound-toggle {
-    position: fixed; bottom: 16px; right: 16px; z-index: 150;
-    width: 44px; height: 44px; border-radius: 9px;
-    background: rgba(26,36,56,0.94); border: 1px solid var(--border);
-    color: var(--text-muted); font-size: 0.95rem; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.2s;
-  }
-  .sound-toggle:hover { color: var(--text); border-color: var(--cyan); }
-
-  @media (max-width: 480px) {
-    body { padding: 12px; }
-    h1 { font-size: 1.4rem; }
-    .card { padding: 18px; }
-    .sysbar { font-size: 0.55rem; letter-spacing: 0.6px; }
-    .hud-label { font-size: 0.58rem; }
-    .score-chip { font-size: 0.55rem; padding: 3px 7px; }
-    .report-metric .number { font-size: 2.4rem; }
-    .rank-label { font-size: 0.82rem; letter-spacing: 1px; }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
-      animation-duration: 0.001ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.001ms !important;
-    }
-    .tm-fill { transform: scaleX(0.87); }
-  }
+:root{--bg:#0f172a;--bg-card:#1a2438;--bg-deep:#0a1122;--text:#eef4fb;--text-muted:#93a5c0;--accent:#f59e0b;--accent-hover:#fbbf24;--cyan:#38bdf8;--danger:#ef4444;--danger-bg:#7f1d1d;--warn:#f59e0b;--success:#22c55e;--success-bg:#14532d;--border:#2a3a56;--radius:10px;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;--shadow:0 4px 24px rgba(0,0,0,0.45)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:16px;line-height:1.6}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background-image:linear-gradient(rgba(56,189,248,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(56,189,248,0.05) 1px,transparent 1px);background-size:46px 46px;-webkit-mask-image:radial-gradient(ellipse at 50% -10%,#000 0%,transparent 75%);mask-image:radial-gradient(ellipse at 50% -10%,#000 0%,transparent 75%)}
+.disclaimer,.container,.sysbar{position:relative;z-index:1}
+.sysbar{max-width:620px;width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;font-family:var(--mono);font-size:0.62rem;letter-spacing:1px;color:var(--cyan);text-transform:uppercase;padding:0 2px 8px}
+.sysbar .status-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--success);margin-right:6px;vertical-align:middle;animation:livePulse 2.2s ease-in-out infinite}
+@keyframes livePulse{0%,100%{opacity:1}
+50%{opacity:0.3}
+}
+.disclaimer{font-size:11px;color:var(--text-muted);text-align:center;padding:8px 12px;background:rgba(0,0,0,0.35);border:1px solid var(--border);border-radius:6px;margin-bottom:14px;max-width:620px;width:100%}
+.container{max-width:620px;width:100%;flex:1;display:flex;flex-direction:column;justify-content:center}
+.card{background:var(--bg-card);border-radius:var(--radius);padding:26px 24px 28px;box-shadow:var(--shadow);border:1px solid var(--border);animation:fadeIn 0.35s ease;position:relative;overflow:hidden}
+.card::before,.card::after{content:'';position:absolute;width:14px;height:14px;border-color:rgba(56,189,248,0.45);border-style:solid;pointer-events:none}
+.card::before{top:8px;left:8px;border-width:1px 0 0 1px}
+.card::after{bottom:8px;right:8px;border-width:0 1px 1px 0}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}
+to{opacity:1;transform:translateY(0)}
+}
+h1{font-size:1.7rem;margin-bottom:8px;color:var(--text);letter-spacing:0.5px}
+h2{font-size:1.2rem;margin-bottom:12px}
+p{margin-bottom:16px;color:var(--text-muted)}
+.sys-label{font-family:var(--mono);font-size:0.66rem;letter-spacing:1.4px;text-transform:uppercase;color:var(--cyan);font-weight:600}
+.sys-head{font-family:var(--mono);font-size:1rem;letter-spacing:1.6px;text-transform:uppercase;font-weight:700;margin-bottom:4px}
+.sys-rule{height:1px;background:linear-gradient(90deg,var(--border),transparent);margin:12px 0 16px}
+.btn{display:block;width:100%;padding:16px 18px;min-height:52px;margin-bottom:12px;border:none;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;transition:all 0.2s;text-align:left;font-family:inherit}
+.btn-primary{background:var(--accent);color:#0f172a;text-align:center;font-family:var(--mono);font-size:0.92rem;min-height:60px;margin-top:20px;letter-spacing:1.6px;text-transform:uppercase;font-weight:700;box-shadow:0 4px 16px rgba(245,158,11,0.22)}
+.btn-primary:hover{background:var(--accent-hover);transform:translateY(-1px)}
+.btn-option{background:#22314c;color:var(--text);border:1px solid var(--border);animation:slideUp 0.32s ease backwards}
+.btn-option:hover{background:#2b3d5e;border-color:var(--cyan);transform:translateX(3px)}
+.opt-tag{display:block;font-family:var(--mono);font-size:0.6rem;letter-spacing:1.3px;color:var(--cyan);margin-bottom:3px;font-weight:600}
+.opt-text{display:block;font-size:0.95rem;font-weight:500;line-height:1.45}
+.btn-back{background:transparent;color:var(--text-muted);border:1px solid var(--border);text-align:center;margin-top:12px;font-family:var(--mono);font-size:0.72rem;letter-spacing:1.2px;text-transform:uppercase}
+.btn-back:hover{color:var(--text);border-color:var(--text-muted)}
+.btn:active{transform:scale(0.985)}
+.tag{display:inline-block;padding:4px 10px;border-radius:4px;font-family:var(--mono);font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:12px}
+.tag-scam{background:var(--danger-bg);color:#fecaca;border:1px solid rgba(239,68,68,0.5)}
+.tag-real{background:var(--success-bg);color:#bbf7d0;border:1px solid rgba(34,197,94,0.5)}
+.tag-warn{background:#78350f;color:#fde68a;border:1px solid rgba(245,158,11,0.5)}
+.tag-simulated{background:rgba(239,68,68,0.12);color:#fca5a5;border:1px solid rgba(239,68,68,0.4)}
+.decrypt{border:1px dashed var(--border);border-radius:8px;padding:18px;margin-bottom:18px;background:var(--bg-deep)}
+.decrypt-label{font-family:var(--mono);font-size:0.66rem;letter-spacing:1.4px;color:var(--cyan);text-transform:uppercase;margin-bottom:10px}
+.decrypt-label .dots::after{content:'';animation:dotCycle 1.1s steps(4,end) infinite}
+@keyframes dotCycle{0%{content:''}
+25%{content:'.'}
+50%{content:'..'}
+75%{content:'...'}
+}
+.scan-track{height:4px;background:#1b2740;border-radius:2px;overflow:hidden}
+.scan-fill{height:100%;width:40%;background:linear-gradient(90deg,transparent,var(--cyan),transparent);animation:scanSweep 1.1s linear infinite}
+@keyframes scanSweep{from{transform:translateX(-120%)}
+to{transform:translateX(320%)}
+}
+.msg-in{animation:popIn 0.38s cubic-bezier(0.2,0.8,0.3,1.2)}
+@keyframes popIn{0%{opacity:0;transform:scale(0.94) translateY(10px)}
+60%{opacity:1;transform:scale(1.02)}
+100%{opacity:1;transform:none}
+}
+@keyframes slideUp{from{opacity:0;transform:translateY(18px)}
+to{opacity:1;transform:none}
+}
+.hud{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
+.hud-label{font-family:var(--mono);font-size:0.64rem;text-transform:uppercase;letter-spacing:1.3px;color:var(--text-muted);font-weight:600}
+.score-chip{display:inline-flex;align-items:center;gap:5px;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.35);color:#bbf7d0;font-family:var(--mono);font-size:0.62rem;font-weight:700;letter-spacing:0.8px;padding:4px 9px;border-radius:4px;white-space:nowrap}
+.score-chip.bump{animation:pulseChip 0.45s ease}
+@keyframes pulseChip{0%{transform:scale(1)}
+40%{transform:scale(1.18)}
+100%{transform:scale(1)}
+}
+.layers-label{font-family:var(--mono);font-size:0.58rem;letter-spacing:1.2px;color:#8095b3;text-transform:uppercase;margin-bottom:5px}
+.progress-bar{display:flex;gap:5px;margin-bottom:18px}
+.progress-dot{flex:1;height:4px;background:#1b2740;border-radius:2px;position:relative;overflow:hidden}
+.progress-dot.complete{background:var(--success)}
+.progress-dot.active::after{content:'';position:absolute;inset:0;background:var(--accent);transform-origin:left;animation:fillBar 0.5s ease forwards}
+@keyframes fillBar{from{transform:scaleX(0)}
+to{transform:scaleX(1)}
+}
+.card-breach{border-color:rgba(239,68,68,0.55);animation:fadeIn 0.35s ease,shake 0.5s ease 0.05s,breachPulse 1.5s ease-in-out 0.4s 2}
+.card-unresolved{border-color:rgba(245,158,11,0.5);animation:fadeIn 0.35s ease,nudge 0.4s ease 0.05s}
+.card-secure{border-color:rgba(34,197,94,0.5);animation:fadeIn 0.35s ease,securePulse 1.1s ease 0.15s}
+@keyframes shake{10%,90%{transform:translateX(-2px)}
+20%,80%{transform:translateX(4px)}
+30%,50%,70%{transform:translateX(-7px)}
+40%,60%{transform:translateX(7px)}
+}
+@keyframes nudge{25%{transform:translateX(-3px)}
+75%{transform:translateX(3px)}
+}
+@keyframes breachPulse{0%,100%{box-shadow:var(--shadow),0 0 0 0 rgba(239,68,68,0)}
+50%{box-shadow:var(--shadow),0 0 26px 2px rgba(239,68,68,0.3)}
+}
+@keyframes securePulse{0%{box-shadow:var(--shadow),0 0 0 0 rgba(34,197,94,0.5)}
+100%{box-shadow:var(--shadow),0 0 0 22px rgba(34,197,94,0)}
+}
+.verdict{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.verdict-icon{width:46px;height:46px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0}
+.verdict-icon.safe{background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.55);animation:lockSpin 0.6s cubic-bezier(0.2,0.8,0.3,1.4)}
+.verdict-icon.risky{background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.55);animation:badgeIn 0.45s cubic-bezier(0.2,0.8,0.3,1.4)}
+.verdict-icon.unresolved{background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.55);animation:badgeIn 0.45s cubic-bezier(0.2,0.8,0.3,1.4)}
+@keyframes lockSpin{0%{transform:rotate(-150deg) scale(0.5);opacity:0}
+55%{transform:rotate(12deg) scale(1.15);opacity:1}
+100%{transform:rotate(0) scale(1);opacity:1}
+}
+@keyframes badgeIn{0%{transform:scale(0.5) rotate(-12deg);opacity:0}
+70%{transform:scale(1.08) rotate(3deg);opacity:1}
+100%{transform:scale(1) rotate(0);opacity:1}
+}
+.verdict-title{font-family:var(--mono);font-size:0.95rem;letter-spacing:1.4px;font-weight:700;text-transform:uppercase}
+.verdict-title.safe{color:var(--success)}
+.verdict-title.risky{color:var(--danger)}
+.verdict-title.unresolved{color:var(--warn)}
+.consequence{font-family:var(--mono);font-size:0.74rem;line-height:1.65;padding:10px 12px;border-radius:6px;margin-bottom:14px}
+.consequence.risky{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#fca5a5}
+.consequence.unresolved{background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);color:#fcd34d}
+.consequence.safe{background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);color:#86efac}
+.reveal-box{background:rgba(56,189,248,0.07);border:1px solid rgba(56,189,248,0.22);border-left:3px solid var(--cyan);padding:14px 16px;border-radius:0 8px 8px 0;margin:14px 0}
+.reveal-box h4{color:var(--cyan);margin-bottom:6px;font-family:var(--mono);font-size:0.66rem;text-transform:uppercase;letter-spacing:1.3px}
+.reveal-box p{margin:0;color:#cbd5e1;font-size:0.9rem}
+.pathway-step{display:flex;gap:10px;align-items:flex-start;margin-bottom:10px}
+.pathway-num{width:24px;height:24px;border-radius:5px;background:var(--accent);color:#0f172a;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:0.7rem;font-weight:700;flex-shrink:0}
+.pathway-text{font-size:0.9rem;color:#cbd5e1}
+.screenshot-frame{background:var(--bg-deep);border:1px solid var(--border);border-radius:8px;padding:12px;margin:16px 0;text-align:center}
+.screenshot-frame img{max-width:100%;border-radius:6px;display:block;margin:0 auto}
+.screenshot-caption{font-family:var(--mono);font-size:0.6rem;color:#64748b;margin-top:8px;letter-spacing:0.5px}
+.source-line{font-family:var(--mono);font-size:0.6rem;color:#5b6b85;margin-top:16px;line-height:1.7;word-break:break-word}
+.lede{font-size:1rem;line-height:1.55;color:var(--text);margin:14px 0 4px}
+.more{margin:10px 0 14px}
+.more>summary{list-style:none;cursor:pointer;font-family:var(--mono);font-size:0.66rem;text-transform:uppercase;letter-spacing:1.2px;color:var(--cyan);padding:7px 0;display:flex;align-items:center;gap:7px}
+.more>summary::-webkit-details-marker{display:none}
+.more>summary::before{content:'+';font-size:0.85rem;line-height:1;width:15px;height:15px;border-radius:3px;border:1px solid rgba(56,189,248,0.4);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.more[open]>summary::before{content:'−'}
+.more>summary:hover{color:#7dd3fc}
+.more>p{margin:4px 0 0;font-size:0.84rem;line-height:1.65;color:var(--text-muted);border-left:2px solid rgba(56,189,248,0.25);padding-left:12px}
+.threat-meter{background:var(--bg-deep);border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:14px 16px;margin:18px 0;text-align:left}
+.tm-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.tm-val{font-family:var(--mono);font-size:0.7rem;font-weight:700;letter-spacing:1.3px;color:var(--danger);animation:livePulse 2s ease-in-out infinite}
+.tm-track{height:7px;background:#1b2740;border-radius:3px;overflow:hidden}
+.tm-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--danger));transform-origin:left;animation:fillMeter 1.4s cubic-bezier(0.2,0.8,0.3,1) forwards}
+@keyframes fillMeter{from{transform:scaleX(0)}
+to{transform:scaleX(0.87)}
+}
+.tm-note{font-size:0.8rem;color:#cbd5e1;margin-top:10px}
+@keyframes floaty{0%,100%{transform:translateY(0)}
+50%{transform:translateY(-6px)}
+}
+.spec-bar{font-family:var(--mono);font-size:0.66rem;letter-spacing:0.8px;color:var(--text-muted);margin-bottom:18px}
+.how-row{display:flex;align-items:flex-start;justify-content:center;gap:4px;margin:20px 0 16px}
+.how-step{flex:1 1 0;min-width:0;text-align:center}
+.how-icon{font-size:1.6rem;line-height:1;margin-bottom:7px;filter:drop-shadow(0 0 10px rgba(56,189,248,0.25))}
+.how-text{font-family:var(--mono);font-size:0.6rem;letter-spacing:0.6px;color:var(--text-muted);text-transform:uppercase;line-height:1.4}
+.how-arrow{color:var(--cyan);opacity:0.5;font-size:0.9rem;padding-top:9px;flex:0 0 auto}
+.breach-banner{font-family:var(--mono);font-weight:700;font-size:clamp(2rem,8vw,2.85rem);line-height:1.02;letter-spacing:3px;text-transform:uppercase;text-align:center;color:var(--danger);margin:6px 0 10px;text-shadow:0 0 26px rgba(239,68,68,0.4);animation:breachIn 0.45s cubic-bezier(0.2,0.9,0.3,1.4) backwards}
+@keyframes breachIn{from{opacity:0;transform:scale(0.86);letter-spacing:10px}
+to{opacity:1;transform:scale(1);letter-spacing:3px}
+}
+.breach-sub{font-family:var(--mono);font-size:0.66rem;letter-spacing:2.2px;text-transform:uppercase;text-align:center;color:var(--text-muted);margin-bottom:18px}
+.target-line{display:flex;gap:10px;align-items:baseline;background:var(--bg-deep);border:1px solid var(--border);border-radius:8px;padding:11px 13px;margin-bottom:16px}
+.target-key{font-family:var(--mono);font-size:0.58rem;letter-spacing:1.1px;text-transform:uppercase;color:var(--accent);flex:0 0 auto;white-space:nowrap}
+.target-val{font-size:0.85rem;color:#cbd5e1;line-height:1.5}
+.target-sep{color:#475569;padding:0 2px}
+.btn-option{display:flex;align-items:center;gap:14px;padding:15px 16px;min-height:62px}
+.btn-option:active{transform:translateX(3px) scale(0.985)}
+.btn:active{transform:scale(0.985)}
+.opt-icon{flex:0 0 auto;font-size:1.3rem;line-height:1;width:40px;height:40px;border-radius:8px;background:rgba(15,23,42,0.55);border:1px solid var(--border);display:flex;align-items:center;justify-content:center}
+.opt-body{flex:1 1 auto;min-width:0}
+.btn-option:hover .opt-icon{border-color:var(--cyan)}
+.hud-stats{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:9px;margin-bottom:15px;padding-top:9px;border-top:1px solid rgba(148,163,184,0.13)}
+.hud-stat{display:flex;align-items:baseline;gap:6px}
+.hud-stat-key{font-family:var(--mono);font-size:0.55rem;letter-spacing:1px;text-transform:uppercase;color:#64748b}
+.hud-stat-val{font-family:var(--mono);font-size:0.63rem;font-weight:700;letter-spacing:0.6px;color:var(--cyan)}
+.check-head{font-family:var(--mono);font-size:0.58rem;letter-spacing:1.2px;text-transform:uppercase;color:var(--accent);margin:13px 0 9px;padding-top:11px;border-top:1px solid rgba(148,163,184,0.14)}
+.reveal-box .pathway-step:last-child{margin-bottom:0}
+.everyday-list{margin:0;padding-left:17px}
+.everyday-list li{color:#cbd5e1;font-size:0.83rem;line-height:1.55;margin-bottom:7px}
+.everyday-list li:last-child{margin-bottom:0}
+.everyday-list b{color:var(--text)}
+.vault-health{margin-bottom:11px}
+.vh-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px}
+.vh-key{font-family:var(--mono);font-size:0.55rem;letter-spacing:1.3px;text-transform:uppercase;color:#8095b3}
+.vh-val{font-family:var(--mono);font-size:0.72rem;font-weight:700}
+.vh-val.good{color:var(--success)}
+.vh-val.warn{color:var(--warn)}
+.vh-val.bad{color:var(--danger)}
+.vh-track{height:7px;border-radius:4px;overflow:hidden;background:rgba(15,23,42,0.85);border:1px solid var(--border)}
+.vh-fill{height:100%;border-radius:3px;transition:width 0.7s cubic-bezier(0.3,0.9,0.3,1),background 0.5s}
+.vh-fill.good{background:linear-gradient(90deg,#16a34a,#22c55e);box-shadow:0 0 11px rgba(34,197,94,0.5)}
+.vh-fill.warn{background:linear-gradient(90deg,#d97706,#f59e0b);box-shadow:0 0 11px rgba(245,158,11,0.5)}
+.vh-fill.bad{background:linear-gradient(90deg,#b91c1c,#ef4444);box-shadow:0 0 13px rgba(239,68,68,0.65);animation:vhPanic 1.1s ease-in-out infinite}
+@keyframes vhPanic{0%,100%{opacity:1}
+50%{opacity:0.62}
+}
+.card.phase-1{border-color:rgba(245,158,11,0.42)}
+.card.phase-2{border-color:rgba(249,115,22,0.55);box-shadow:0 0 26px rgba(249,115,22,0.10)}
+.card.phase-3{border-color:rgba(239,68,68,0.62);box-shadow:0 0 30px rgba(239,68,68,0.15)}
+.phase-tag{font-family:var(--mono);font-size:0.58rem;letter-spacing:1.2px;text-transform:uppercase;text-align:center;padding:5px 9px;border-radius:4px;margin-bottom:12px}
+.phase-1 .phase-tag{color:#fcd34d;background:rgba(245,158,11,0.11);border:1px solid rgba(245,158,11,0.3)}
+.phase-2 .phase-tag{color:#fdba74;background:rgba(249,115,22,0.12);border:1px solid rgba(249,115,22,0.35)}
+.phase-3 .phase-tag{color:#fca5a5;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.38)}
+.target-avatar{font-size:1.15rem;line-height:1;flex:0 0 auto}
+.codename{font-family:var(--mono);letter-spacing:1.4px;color:var(--danger)}
+.vault-ring{width:92px;height:92px;margin:4px auto 14px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2.1rem;background:radial-gradient(circle at 50% 38%,#1e2b45 0%,#131c2e 70%);border:3px solid var(--border);position:relative}
+.vault-ring::after{content:'';position:absolute;inset:7px;border-radius:50%;border:1px dashed rgba(148,163,184,0.24)}
+.vault-ring.landing{border-color:rgba(245,158,11,0.55);box-shadow:0 0 30px rgba(245,158,11,0.28),inset 0 0 20px rgba(245,158,11,0.10)}
+.vault-ring.sealed{border-color:rgba(34,197,94,0.75);box-shadow:0 0 36px rgba(34,197,94,0.42),inset 0 0 22px rgba(34,197,94,0.16)}
+.vault-ring.held{border-color:rgba(245,158,11,0.65);box-shadow:0 0 30px rgba(245,158,11,0.30),inset 0 0 20px rgba(245,158,11,0.12)}
+.vault-ring.cracked{border-color:rgba(239,68,68,0.78);box-shadow:0 0 36px rgba(239,68,68,0.45),inset 0 0 22px rgba(239,68,68,0.18);border-style:dashed}
+.gameover-head{font-family:var(--mono);font-weight:700;font-size:clamp(1.9rem,7.5vw,2.6rem);letter-spacing:3px;text-transform:uppercase;color:var(--danger);text-shadow:0 0 26px rgba(239,68,68,0.45);margin-bottom:8px;line-height:1.05}
+.gameover-loss{font-family:var(--mono);font-size:0.8rem;color:#fca5a5;letter-spacing:0.5px;margin-bottom:14px;line-height:1.6}
+.mail{background:var(--bg-deep);border:1px solid var(--border);border-left:3px solid var(--danger);border-radius:0 10px 10px 0;margin-bottom:20px;overflow:hidden}
+.mail-subject{font-size:1rem;font-weight:600;color:var(--text);line-height:1.4;padding:15px 17px 12px;border-bottom:1px solid rgba(148,163,184,0.12)}
+.mail-head{display:flex;align-items:center;gap:11px;padding:12px 17px;border-bottom:1px solid rgba(148,163,184,0.1)}
+.mail-avatar{flex:0 0 auto;width:36px;height:36px;border-radius:50%;background:rgba(239,68,68,0.14);border:1px solid rgba(239,68,68,0.35);display:flex;align-items:center;justify-content:center;font-size:1.05rem}
+.mail-who{flex:1 1 auto;min-width:0}
+.mail-from{font-family:var(--mono);font-size:0.72rem;color:#cbd5e1;font-weight:600;word-break:break-word;line-height:1.4}
+.mail-to{font-family:var(--mono);font-size:0.62rem;color:#64748b;margin-top:2px}
+.mail-to b{color:var(--accent);font-weight:700}
+.mail-when{flex:0 0 auto;font-family:var(--mono);font-size:0.6rem;color:#64748b;text-align:right;line-height:1.4}
+.mail-body{white-space:pre-line;color:var(--text);font-size:0.95rem;line-height:1.65;padding:16px 17px}
+.mail-foot{font-family:var(--mono);font-size:0.58rem;letter-spacing:1.2px;text-transform:uppercase;color:#64748b;padding:9px 17px;background:rgba(15,23,42,0.5);border-top:1px solid rgba(148,163,184,0.1)}
+.btn-review{display:inline-flex;align-items:center;gap:6px;width:auto;margin:4px 0 2px;padding:9px 14px;min-height:40px;background:transparent;color:var(--cyan);border:1px dashed rgba(56,189,248,0.42);border-radius:7px;font-family:var(--mono);font-size:0.68rem;letter-spacing:0.9px;text-transform:uppercase;font-weight:600;cursor:pointer;transition:all 0.18s}
+.btn-review:hover{background:rgba(56,189,248,0.1);border-style:solid}
+.btn-review:active{transform:scale(0.97)}
+.sys-rule{margin:18px 0}
+.card h2{line-height:1.35;margin-bottom:14px}
+.streak-badge{display:inline-block;margin:2px 0 12px;padding:7px 13px;border-radius:7px;font-family:var(--mono);font-size:0.72rem;font-weight:700;letter-spacing:0.9px;animation:streakPop 3.4s cubic-bezier(0.2,0.9,0.3,1.4) forwards}
+.streak-badge.on{color:#fde68a;background:rgba(245,158,11,0.16);border:1px solid rgba(245,158,11,0.5)}
+.streak-badge.off{color:#cbd5e1;background:rgba(148,163,184,0.12);border:1px solid rgba(148,163,184,0.32)}
+@keyframes streakPop{0%{transform:scale(0.7);opacity:0}
+10%{transform:scale(1.08);opacity:1}
+18%{transform:scale(1);opacity:1}
+72%{opacity:1}
+100%{transform:scale(1);opacity:0.34}
+}
+.stolen-list{list-style:none;margin:0 0 16px;padding:0;text-align:left;display:inline-block}
+.stolen-list li{font-family:var(--mono);font-size:0.74rem;color:#fca5a5;padding:7px 0 7px 20px;position:relative;line-height:1.5;border-bottom:1px solid rgba(239,68,68,0.16)}
+.stolen-list li:last-child{border-bottom:none}
+.stolen-list li::before{content:'✕';position:absolute;left:2px;top:7px;color:var(--danger);font-size:0.7rem}
+.last-move{text-align:left;font-size:0.83rem;line-height:1.6;color:#cbd5e1;background:rgba(15,23,42,0.5);border:1px solid var(--border);border-radius:8px;padding:11px 13px;margin-bottom:16px}
+.last-move-key{display:block;font-family:var(--mono);font-size:0.55rem;letter-spacing:1.2px;text-transform:uppercase;color:#64748b;margin-bottom:4px}
+.vault-ring.perfect{border-color:#fbbf24;box-shadow:0 0 40px rgba(251,191,36,0.5),inset 0 0 24px rgba(251,191,36,0.2);animation:perfectGlow 2.6s ease-in-out infinite}
+@keyframes perfectGlow{0%,100%{box-shadow:0 0 40px rgba(251,191,36,0.5),inset 0 0 24px rgba(251,191,36,0.2)}
+50%{box-shadow:0 0 58px rgba(251,191,36,0.75),inset 0 0 30px rgba(251,191,36,0.3)}
+}
+.perfect-badge{text-align:center;margin:0 0 18px;padding:15px 16px;border-radius:10px;border:2px solid #fbbf24;background:linear-gradient(160deg,rgba(251,191,36,0.16),rgba(251,191,36,0.05));box-shadow:0 0 26px rgba(251,191,36,0.22)}
+.pb-title{font-family:var(--mono);font-weight:700;font-size:0.86rem;letter-spacing:1.8px;text-transform:uppercase;color:#fde68a;text-shadow:0 0 16px rgba(251,191,36,0.5);line-height:1.35;margin-bottom:6px}
+.pb-sub{font-size:0.8rem;color:#e2e8f0;line-height:1.5}
+.teacher-link{display:inline-block;width:auto;margin:2px auto 4px;background:none;border:none;cursor:pointer;font-family:var(--mono);font-size:0.7rem;letter-spacing:1px;text-transform:uppercase;color:var(--cyan);padding:10px 12px;min-height:40px;border-bottom:1px solid transparent}
+.teacher-link:hover{border-bottom-color:var(--cyan)}
+.modal{position:fixed;inset:0;z-index:300;display:flex;align-items:center;justify-content:center;padding:18px}
+.modal-backdrop{position:absolute;inset:0;background:rgba(6,11,22,0.82)}
+.modal-card{position:relative;z-index:1;width:100%;max-width:460px;max-height:88vh;overflow-y:auto;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:24px 22px 26px;box-shadow:var(--shadow)}
+.modal-close{position:absolute;top:12px;right:12px;width:40px;height:40px;border-radius:8px;background:rgba(15,23,42,0.6);border:1px solid var(--border);color:var(--text-muted);font-size:0.85rem;cursor:pointer}
+.modal-close:hover{color:var(--text);border-color:var(--cyan)}
+.tg-facts{margin:16px 0 4px}
+.tg-row{display:flex;gap:12px;padding:9px 0;border-bottom:1px solid rgba(148,163,184,0.12)}
+.tg-row:last-child{border-bottom:none}
+.tg-key{flex:0 0 96px;font-family:var(--mono);font-size:0.58rem;letter-spacing:1px;text-transform:uppercase;color:var(--accent);padding-top:2px}
+.tg-val{flex:1 1 auto;font-size:0.86rem;color:#cbd5e1;line-height:1.5;font-family:inherit;font-weight:400;letter-spacing:normal}
+.tg-head{font-family:var(--mono);font-size:0.62rem;letter-spacing:1.3px;text-transform:uppercase;color:var(--cyan);margin:20px 0 10px}
+.tg-list{margin:0;padding-left:18px}
+.tg-list li{font-size:0.86rem;line-height:1.6;color:#cbd5e1;margin-bottom:8px}
+.tg-list li:last-child{margin-bottom:0}
+.rank-label{text-align:center;font-family:var(--mono);font-weight:700;font-size:0.95rem;letter-spacing:1.5px;color:var(--accent);text-transform:uppercase;margin-bottom:2px}
+.rank-sub{text-align:center;font-size:0.85rem;color:var(--text-muted);margin-bottom:18px}
+.report-metric{text-align:center;padding:22px;background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.22);border-radius:var(--radius);margin-bottom:16px}
+.report-metric .number{font-family:var(--mono);font-size:3rem;font-weight:800;color:var(--accent)}
+.report-metric .label{font-family:var(--mono);font-size:0.66rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1.3px;margin-top:4px}
+.tally{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+.tally-item{flex:1;min-width:90px;text-align:center;border:1px solid var(--border);border-radius:8px;padding:10px 6px;background:var(--bg-deep)}
+.tally-num{font-family:var(--mono);font-size:1.4rem;font-weight:800}
+.tally-key{font-family:var(--mono);font-size:0.55rem;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-top:2px}
+.summary-item{padding:11px 12px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;margin-bottom:8px;animation:slideUp 0.3s ease backwards}
+.summary-item .title{font-weight:600;font-size:0.88rem}
+.summary-item .choice{font-size:0.78rem;color:var(--text-muted);margin-top:3px}
+.exfil-screen{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(10,17,34,0.97);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;padding:20px}
+.exfil-box{background:var(--bg-card);border:1px solid rgba(239,68,68,0.5);border-radius:var(--radius);padding:24px;max-width:400px;width:100%;animation:breachPulse 1.5s ease-in-out infinite}
+.exfil-head{font-family:var(--mono);font-size:0.75rem;font-weight:700;letter-spacing:1.4px;color:var(--danger);text-transform:uppercase;margin-bottom:4px}
+.exfil-sub{font-family:var(--mono);font-size:0.6rem;color:var(--text-muted);letter-spacing:0.8px;margin-bottom:18px}
+.fake-field{margin-bottom:12px}
+.fake-field-label{font-family:var(--mono);font-size:0.6rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1.1px;margin-bottom:4px}
+.fake-field-value{height:38px;background:var(--bg-deep);border:1px solid var(--border);border-radius:5px;display:flex;align-items:center;padding:0 12px;font-family:var(--mono);font-size:0.85rem;color:var(--text);overflow:hidden}
+.fake-field-value .typed{display:inline-block;white-space:nowrap;overflow:hidden;animation:typing 1.5s steps(20,end) forwards;width:0}
+@keyframes typing{to{width:100%}
+}
+.fake-field-value .cursor{display:inline-block;width:2px;height:17px;background:var(--danger);animation:blink 0.8s infinite;margin-left:2px}
+@keyframes blink{0%,100%{opacity:1}
+50%{opacity:0}
+}
+.exfil-warning{margin-top:16px;padding:12px;background:var(--danger-bg);border-radius:6px;color:#fecaca;font-family:var(--mono);font-size:0.7rem;letter-spacing:0.8px;text-align:center;opacity:0;animation:fadeIn 0.5s ease 3s forwards}
+.hidden{display:none !important}
+#breach-flash{position:fixed;inset:0;pointer-events:none;z-index:90;opacity:0;background:radial-gradient(ellipse at center,transparent 35%,rgba(239,68,68,0.5) 100%)}
+#breach-flash.fire{animation:breachFlash 0.75s ease-out}
+@keyframes breachFlash{0%{opacity:0}
+18%{opacity:1}
+100%{opacity:0}
+}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:200;overflow:hidden}
+.confetti-piece{position:absolute;top:-16px;width:7px;height:13px;border-radius:1px;animation:confettiFall linear forwards}
+@keyframes confettiFall{to{transform:translate3d(var(--dx),110vh,0) rotate(var(--rot));opacity:0}
+}
+.sound-toggle{position:fixed;bottom:16px;right:16px;z-index:150;width:44px;height:44px;border-radius:9px;background:rgba(26,36,56,0.94);border:1px solid var(--border);color:var(--text-muted);font-size:0.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
+.sound-toggle:hover{color:var(--text);border-color:var(--cyan)}
+@media (max-width:480px){body{padding:12px}
+h1{font-size:1.4rem}
+.card{padding:18px}
+.sysbar{font-size:0.55rem;letter-spacing:0.6px}
+.hud-label{font-size:0.58rem}
+.score-chip{font-size:0.55rem;padding:3px 7px}
+.report-metric .number{font-size:2.4rem}
+.rank-label{font-size:0.82rem;letter-spacing:1px}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.001ms !important;animation-iteration-count:1 !important;transition-duration:0.001ms !important}
+.tm-fill{transform:scaleX(0.87)}
+}
 </style>
 </head>
 <body>
-
 <div class="sysbar">
-  <span><span class="status-dot"></span>Vault Defence System — Online</span>
-  <span id="sys-clock">SIMULATION</span>
+<span><span class="status-dot"></span>Vault Defence System — Online</span>
+<span id="sys-clock">SIMULATION</span>
 </div>
-
 <div class="disclaimer">
-  An independent student project. Not affiliated with or endorsed by the Australian Taxation Office.
+An independent student project. Not affiliated with or endorsed by the Australian Taxation Office.
 </div>
-
 <div class="container" id="app"></div>
-
 <div id="exfil-overlay" class="exfil-screen hidden">
-  <div class="exfil-box">
-    <div class="exfil-head">⚠ Your info is being stolen</div>
-    <div class="exfil-sub">Going straight to someone you don't know</div>
-    <div class="fake-field">
-      <div class="fake-field-label">Full Name</div>
-      <div class="fake-field-value"><span class="typed" style="animation-delay:0.3s;">Your name</span><span class="cursor"></span></div>
-    </div>
-    <div class="fake-field">
-      <div class="fake-field-label">Tax File Number</div>
-      <div class="fake-field-value"><span class="typed" style="animation-delay:1.2s;">••• ••• •••</span><span class="cursor"></span></div>
-    </div>
-    <div class="fake-field">
-      <div class="fake-field-label">Bank BSB / Account</div>
-      <div class="fake-field-value"><span class="typed" style="animation-delay:2.0s;">062-000 / ••••••••</span><span class="cursor"></span></div>
-    </div>
-    <div class="exfil-warning">
-      SENDING TO AN UNKNOWN SERVER
-    </div>
-  </div>
+<div class="exfil-box">
+<div class="exfil-head">⚠ Your info is being stolen</div>
+<div class="exfil-sub">Going straight to someone you don't know</div>
+<div class="fake-field">
+<div class="fake-field-label">Full Name</div>
+<div class="fake-field-value"><span class="typed" style="animation-delay:0.3s;">Your name</span><span class="cursor"></span></div>
 </div>
-
+<div class="fake-field">
+<div class="fake-field-label">Tax File Number</div>
+<div class="fake-field-value"><span class="typed" style="animation-delay:1.2s;">••• ••• •••</span><span class="cursor"></span></div>
+</div>
+<div class="fake-field">
+<div class="fake-field-label">Bank BSB / Account</div>
+<div class="fake-field-value"><span class="typed" style="animation-delay:2.0s;">062-000 / ••••••••</span><span class="cursor"></span></div>
+</div>
+<div class="exfil-warning">
+SENDING TO AN UNKNOWN SERVER
+</div>
+</div>
+</div>
+<div id="teacher-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="tg-title">
+<div class="modal-backdrop" onclick="closeTeachers()"></div>
+<div class="modal-card">
+<button class="modal-close" onclick="closeTeachers()" aria-label="Close">&#10005;</button>
+<div class="sys-label">Classroom guide</div>
+<h2 id="tg-title" style="margin-top:4px;">For Teachers</h2>
+<div class="sys-rule"></div>
+<p class="lede">Prove It is a 5-minute interactive simulator that teaches students to verify suspicious tax and super messages through official ATO channels.</p>
+<div class="tg-facts">
+<div class="tg-row"><span class="tg-key">Year level</span><span class="tg-val">Year 10&ndash;12</span></div>
+<div class="tg-row"><span class="tg-key">Time required</span><span class="tg-val">15 minutes total (5 min simulator + 10 min class discussion)</span></div>
+<div class="tg-row"><span class="tg-key">Setup</span><span class="tg-val">None. No login, no app install, no student data collected. Works on mobile and school networks.</span></div>
+</div>
+<h4 class="tg-head">Learning outcomes</h4>
+<ul class="tg-list">
+<li>Identify common ATO impersonation scams across SMS, email, phone and app notifications.</li>
+<li>Verify suspicious contact independently through the ATO app or my.gov.au instead of trusting the message.</li>
+<li>Explain why checks the caller controls &mdash; caller ID, employee ID numbers &mdash; prove nothing.</li>
+<li>Locate refund status, account balances and security messages in official ATO channels.</li>
+<li>Describe what to do if an account is compromised, including locking an ATO record and who to phone.</li>
+</ul>
+<button class="btn btn-primary" onclick="closeTeachers()" style="margin-top:18px;">Close</button>
+</div>
+</div>
 <div id="confetti" aria-hidden="true"></div>
 <div id="breach-flash" aria-hidden="true"></div>
 <button id="sound-toggle" class="sound-toggle" onclick="toggleSound()" aria-pressed="true" aria-label="Sound effects on — tap to mute" title="Sound effects on — tap to mute">🔊</button>
-
 <script>
 const scenarios = [
-  {
-    id: 1,
-    title: "Fake Tax Refund",
-    intrusionType: "They sent you a fake text",
-    attacker: { name: "PHANTOM", emoji: "🕶" },
-    stake: 642,
-    loss: "Refund redirected: $642",
-    setup: "Goes after first-time lodgers. You filed your first return three weeks ago.",
-    message: {
-      channel: "SMS",
-      subject: "Text message",
-      sender: "+61 4•• ••• 291",
-      timestamp: "Today, 4:12pm",
-      body: "ATO: You are due a tax refund of $642.00 for the 2025-26 financial year. Your refund has been approved but requires verification. Click the link below to confirm your bank details within 24 hours to avoid forfeiture.\n\n[Link: ato-refund-verify.com]"
-    },
-    question: "What's your move?",
-    options: [
-      { icon: "🔗", text: "Open the link and log in", id: "tap_link", unsafe: true, autofill: true, consequence: "Credentials and bank details captured by an unknown host." },
-      { icon: "📞", text: "Call the number — Google matched it", id: "call_number", unsafe: true, autofill: false, consequence: "Call routed straight back to the attacker." },
-      { icon: "📱", text: "Check refund status in ATO app", id: "ato_app", unsafe: false, autofill: false },
-      { icon: "💬", text: "Screenshot it, ask the group chat", id: "ask_chat", unsafe: true, passive: true, autofill: false, consequence: "Opinions gathered. The account itself was never checked." }
-    ],
-    feedback: {
-      tap_link: {
-        headline: "They got your details",
-        body: "The ATO never sends unsolicited messages with links asking you to log in.",
-        detail: "The link leads to a cloned login page built to capture your myGov credentials and bank details. Real ATO messages never contain login links or QR codes — if a message has one, that alone is enough to distrust it."
-      },
-      call_number: {
-        headline: "You called them back",
-        body: "A scam message can list any number it likes, including one that looks right.",
-        detail: "Search results can be paid for, so \"it matches Google\" proves nothing. The ATO does not display a number when it calls. If you need to phone the ATO, take the number from ato.gov.au — scam reports go to 1800 008 540."
-      },
-      ato_app: {
-        headline: "Stopped them",
-        body: "You went to the source instead of trusting the message.",
-        detail: "Opening the ATO app or typing my.gov.au yourself is the only thing that shows your real refund status. Nothing inside an unexpected message — no link, no number, no logo — can confirm itself."
-      },
-      ask_chat: {
-        headline: "You still don't know",
-        body: "You collected opinions, not an answer.",
-        detail: "Your group chat can't see your ATO account. Crowdsourcing feels like checking, and it might get you lucky, but the only thing that settles it is your own refund status in the ATO app."
-      }
-    },
-    reveal: {
-      title: "Inside The ATO App",
-      steps: [
-        "Log in to the ATO app",
-        "Select \"Your tax return for 2025-26\"",
-        "Read the status: issued, processing, or tax owed"
-      ],
-      truth: "Your return was still processing. No refund had been issued.",
-      cost: "<strong>$642 stolen</strong> = about 24 hours of work at the national minimum wage.",
-      everyday: "Same screen you'd open to track a real refund.",
-      detail: "Online returns generally process within two weeks, and up to 30 days if a manual review is needed. Three weeks with no refund is completely normal — which is exactly the uncertainty this scam is built to exploit.",
-      source: "ato.gov.au/individuals-and-families/your-tax-return/check-the-progress-of-your-tax-return",
-      screenshot: "ato-dashboard.jpg"
-    }
-  },
-  {
-    id: 2,
-    title: "Fake Account Security Alert",
-    intrusionType: "They sent you a fake email",
-    attacker: { name: "GHOST", emoji: "👻" },
-    stake: 0,
-    loss: "myGov login stolen",
-    setup: "Goes after students with myGov linked to the ATO. That&rsquo;s you.",
-    message: {
-      channel: "Email",
-      subject: "URGENT: Suspicious activity detected on your ATO account",
-      sender: "security@ato-gov-alert.com",
-      timestamp: "Today, 9:47am",
-      body: "Dear Taxpayer,\n\nWe have detected unusual login activity on your ATO account. For your security, your account has been temporarily restricted.\n\nYou must verify your identity within 24 hours to prevent permanent suspension.\n\n[Verify Account Now]\n\nAustralian Taxation Office"
-    },
-    question: "What now?",
-    options: [
-      { icon: "🌐", text: "Type my.gov.au in the browser", id: "type_mygov", unsafe: false, autofill: false },
-      { icon: "🔗", text: "Click Verify Account Now — perfect branding", id: "click_link", unsafe: true, autofill: true, consequence: "myGov credentials submitted to a cloned login page." },
-      { icon: "✉️", text: "Reply asking them to confirm identity", id: "reply_email", unsafe: true, autofill: false, consequence: "Address confirmed as live. Target flagged for repeat attempts." },
-      { icon: "💬", text: "Forward it to a tax agent", id: "ask_agent", unsafe: true, passive: true, autofill: false, consequence: "Advice pending. The ATO account still unchecked." }
-    ],
-    feedback: {
-      type_mygov: {
-        headline: "Nice. You went direct.",
-        body: "You never touched the email — you opened the account yourself.",
-        detail: "Typing my.gov.au into the address bar means no link, no lookalike domain, and no cloned page can sit between you and the real service. Genuine ATO messages wait for you in your myGov Inbox."
-      },
-      click_link: {
-        headline: "They got your login",
-        body: "Perfect branding is cheap — the sender address is the giveaway.",
-        detail: "\"ato-gov-alert.com\" is not an ATO domain. Logos, footers and formatting can be copied in minutes, so how a message looks tells you nothing. The ATO never sends unsolicited emails containing hyperlinks or QR codes."
-      },
-      reply_email: {
-        headline: "Now they know you're real",
-        body: "Replying proves your address is live and invites more attempts.",
-        detail: "A scammer who gets a reply now knows a real person reads that inbox, which makes you worth targeting again. The ATO will never ask for personal identifying information over email."
-      },
-      ask_agent: {
-        headline: "Good instinct, still waiting",
-        body: "A tax agent is a real authority, but the account still hasn't been checked.",
-        detail: "Asking a professional is a genuinely good instinct and not a wrong one. It's just slower than the answer: you can settle this yourself in under a minute by logging in to myGov. Ask the agent as well, not instead."
-      }
-    },
-    reveal: {
-      title: "Checking The Real Account",
-      steps: [
-        "Type my.gov.au in the address bar",
-        "Log in and open ATO from linked services",
-        "Check the myGov Inbox for genuine ATO messages"
-      ],
-      truth: "Your ATO account showed no restrictions at all.",
-      cost: "<strong>myGov credentials stolen</strong> = scammers can redirect your refunds and alter your super.",
-      everyday: "Same login you'd use to view your TFN or set up a payment plan.",
-      detail: "Real ATO communications arrive in your myGov Inbox or as official letters — never as an unsolicited email with a login link. If a message and your Inbox disagree, the Inbox is right.",
-      source: "ato.gov.au/online-services/scams-cyber-safety-and-identity-protection/verify-or-report-an-ato-scam"
-    }
-  },
-  {
-    id: 3,
-    title: "Fake ATO Debt Demand",
-    intrusionType: "They left you a threatening voicemail",
-    attacker: { name: "SPECTER", emoji: "☠" },
-    stake: 1204.65,
-    loss: "Fake debt paid: $1,205",
-    setup: "Goes after people who just changed jobs. You changed jobs last month.",
-    message: {
-      channel: "Voicemail",
-      subject: "Voicemail transcript",
-      sender: "ATO Legal Department",
-      timestamp: "Missed call, 11:23am",
-      body: "This is the Australian Taxation Office Legal Department. A tax debt of $1,204.65 has been flagged against your account for the 2024-25 financial year. Failure to pay within 24 hours will result in legal action, including a warrant for your arrest and cancellation of your Tax File Number.\n\nTo make an immediate payment, press 1 to speak with our payments team."
-    },
-    question: "They want payment today. Your call.",
-    options: [
-      { icon: "💳", text: "Press 1 and pay the debt", id: "press_1", unsafe: true, autofill: false, consequence: "Payment details handed straight to the attacker." },
-      { icon: "🆔", text: "Check caller ID matches ATO number", id: "check_caller_id", unsafe: true, autofill: false, consequence: "Caller ID spoofed. A false confirmation was accepted." },
-      { icon: "📞", text: "Call back, ask for case number", id: "call_back", unsafe: true, autofill: false, consequence: "Callback reaches the spoofed line. The attacker controls the channel." },
-      { icon: "📱", text: "Log in, check your ATO balance", id: "ato_app", unsafe: false, autofill: false }
-    ],
-    feedback: {
-      press_1: {
-        headline: "Your money's gone",
-        body: "The ATO will never threaten arrest or demand payment within 24 hours.",
-        detail: "Arrest threats, TFN cancellation and same-day deadlines are pressure tactics, not tax administration. A real debt sits quietly in your ATO account with an amount and a due date, and nobody phones you to shout about it."
-      },
-      check_caller_id: {
-        headline: "That ID was fake",
-        body: "Caller ID can be faked — a matching number proves nothing.",
-        detail: "This is the trap: it feels like verification, so people stop checking right when they should start. Scammers routinely display a real ATO number. Anything shown to you by the caller is under the caller's control, which is why verification has to start from your end."
-      },
-      call_back: {
-        headline: "Still their phone line",
-        body: "Asking for a reference number sounds careful, but you're still talking to the scammer.",
-        detail: "A callback to the number that rang you reaches whoever set up that line, and they will happily invent a reference number. Due diligence only counts when you choose the channel."
-      },
-      ato_app: {
-        headline: "Nothing there. You're fine.",
-        body: "A real debt would be sitting in the account, with an amount and a date.",
-        detail: "Your ATO account is the single source of truth for what you owe. If the voicemail and your account disagree, the account wins — no phone call can override it."
-      }
-    },
-    reveal: {
-      title: "Where A Real Debt Lives",
-      steps: [
-        "Log in to the ATO app or ATO Online services",
-        "Read your balance on the home screen",
-        "Open Tax → Accounts for a full breakdown"
-      ],
-      truth: "Your ATO account showed no debt. The voicemail was fake.",
-      cost: "<strong>$1,204.65 paid to a scammer</strong> = about 46 hours of work you'll never get back.",
-      everyday: "Same place you'd manage a payment plan or find your assessment.",
-      detail: "A genuine debt appears here with the exact amount and due date, and the ATO will work with you on a payment plan. It does not arrive as a threatening voicemail with a 24-hour deadline.",
-      source: "ato.gov.au/individuals-and-families/paying-the-ato/how-much-you-owe"
-    }
-  },
-  {
-    id: 4,
-    title: "Unauthorised Super Transfer",
-    intrusionType: "They are moving your super",
-    attacker: { name: "VIPER", emoji: "🐍" },
-    stake: 4850,
-    loss: "Super drained: $4,850",
-    setup: "Goes after people part-way through merging their super. You started last week.",
-    message: {
-      channel: "Push notification",
-      subject: "ATO app — security message",
-      sender: "ATO app — Security message",
-      timestamp: "Now",
-      body: "ATO app: A request to transfer super has been initiated on your account.\n\nTransfer details:\nFrom: Australian Super\nTo: Unknown Fund\nAmount: $4,850.00\n\nTap to verify this transaction."
-    },
-    question: "$4,850 is moving. Act.",
-    options: [
-      { icon: "📱", text: "Verify it — employer probably started it", id: "verify_it", unsafe: true, autofill: false, consequence: "Transfer approved. $4,850.00 released to an unknown fund." },
-      { icon: "🔒", text: "Lock the account. Don't verify.", id: "lock_account", unsafe: false, autofill: false },
-      { icon: "⏳", text: "Check the balance tomorrow instead", id: "check_tomorrow", unsafe: true, passive: true, autofill: false, consequence: "Transfer left pending overnight. It may process unattended." },
-      { icon: "🌐", text: "Check the super fund's website first", id: "check_fund", unsafe: true, passive: true, autofill: false, consequence: "Wrong system checked. The ATO request is still pending." }
-    ],
-    feedback: {
-      verify_it: {
-        headline: "You just approved it",
-        body: "Never verify a transaction you didn't start — verifying is approving.",
-        detail: "Employers pay super into your fund; they don't initiate rollovers out of it. That plausible-sounding explanation is doing the scam's work for it. The ATO's guidance is explicit: if you didn't request the transfer, do not verify it."
-      },
-      lock_account: {
-        headline: "Locked them out",
-        body: "Locking stops the transfer and blocks further access straight away.",
-        detail: "This is the ATO's own instruction for an ATO app super transfer message you didn't request. While the record is locked no refunds issue and unauthorised access is blocked. You can unlock it later from the same registered device."
-      },
-      check_tomorrow: {
-        headline: "Too late tomorrow",
-        body: "By the time the balance changes, the money has already moved.",
-        detail: "Waiting to see the damage is not the same as preventing it. A pending transfer can process overnight, and recovering super after it has left the fund is far harder than stopping it now."
-      },
-      check_fund: {
-        headline: "Wrong place to look",
-        body: "The request came through the ATO, so that's where it has to be stopped.",
-        detail: "Checking your fund's website is a reasonable instinct, but the fund can't cancel an ATO-side request, and the minutes you spend there are minutes the transfer is still live. Lock the ATO record first, then investigate."
-      }
-    },
-    reveal: {
-      title: "Locking The Record",
-      steps: [
-        "Open the ATO app security message",
-        "Follow the prompts to lock your ATO record",
-        "Phone 1800 467 033 to report suspected fraud"
-      ],
-      truth: "Your super was safe. Locking the account stopped the transfer.",
-      cost: "<strong>$4,850 stolen from super today</strong> = about $73,000 less at retirement, assuming 7% annual growth over 40 years.",
-      costNote: "Independent calculation for illustration, not an ATO forecast.",
-      everyday: "Same app you'd use to find lost super or consolidate funds.",
-      detail: "Account locking is a powerful fraud prevention tool. While locked, most personalised features and ATO Online services are inaccessible, and you can unlock from the same registered device once it's safe.",
-      source: "ato.gov.au/online-services/online-services-for-individuals-and-sole-traders/ato-app/manage-your-tax-and-super-with-the-ato-app"
-    }
-  },
-  {
-    id: 5,
-    title: "Unauthorised Tax Lodgment",
-    intrusionType: "They filed a tax return as you",
-    attacker: { name: "WRAITH", emoji: "🎭" },
-    stake: 0,
-    loss: "Refund stolen in your name",
-    setup: "Files before you do. You usually lodge in August. It&rsquo;s early July.",
-    message: {
-      channel: "Push notification",
-      subject: "ATO app — security message",
-      sender: "ATO app — Security message",
-      timestamp: "Now",
-      body: "ATO app: An income tax return has been lodged for the 2025-26 financial year.\n\nLodgment details:\nDate: 3 July 2026\nAgent: Fast Refund Tax Services\n\nTap to review this activity."
-    },
-    question: "Someone lodged for you. Now what?",
-    options: [
-      { icon: "📱", text: "Review it — agent probably lodged early", id: "approve", unsafe: true, autofill: false, consequence: "Fraudulent return validated. Refund routed to the attacker." },
-      { icon: "⏳", text: "Wait for the assessment notice", id: "wait_mail", unsafe: true, passive: true, autofill: false, consequence: "Return left unchallenged. Processing continues in the background." },
-      { icon: "✉️", text: "Email the agent, ask what happened", id: "email_agent", unsafe: true, autofill: false, consequence: "Direct contact made with the fraudulent 'agent'." },
-      { icon: "🚨", text: "Lock your record, report fraud", id: "lock_account", unsafe: false, autofill: false }
-    ],
-    feedback: {
-      approve: {
-        headline: "You signed off on it",
-        body: "Approving a lodgment you didn't make can sign off a fraudulent return.",
-        detail: "You'd know if you had engaged a tax agent — agents don't appear on your record unnoticed. Scammers lodge early precisely to beat you to your own refund, so an unexpected agent name is the warning, not the reassurance."
-      },
-      wait_mail: {
-        headline: "The refund's already gone",
-        body: "By the time the assessment arrives, the refund has been paid out.",
-        detail: "Notices of assessment are issued after processing, not before. Waiting for one gives the fraudulent return the time it needs, and the refund is likely routed to the scammer's account."
-      },
-      email_agent: {
-        headline: "You messaged the scammer",
-        body: "The 'agent' is part of the scam — you just introduced yourself.",
-        detail: "Never contact a third party named in a suspicious message. Emailing them confirms the account is live and hands them a direct channel to work on you. Go to official ATO channels instead."
-      },
-      lock_account: {
-        headline: "Shut it down",
-        body: "Locking blocks further activity and starts the fraud report.",
-        detail: "Once locked, no refunds will issue and no further unauthorised changes can be made. Phoning the Client Identity Support Centre on 1800 467 033 (8am\u20136pm, Mon\u2013Fri) lets the ATO place extra protections on your account while it's investigated."
-      }
-    },
-    reveal: {
-      title: "Responding To Identity Fraud",
-      steps: [
-        "Open the ATO app and tap the security message",
-        "Follow the prompts to lock the ATO record",
-        "Phone 1800 467 033 to report identity fraud"
-      ],
-      truth: "Your identity was targeted. Locking the record stopped it going further.",
-      cost: "<strong>Scammers can steal your refund</strong> and lock you out of your own account.",
-      everyday: "Same alerts that tell you when your real agent lodges for you.",
-      detail: "Real-time security messages fire when key changes occur — income tax lodgments, bank account updates and device registrations. The feature exists to help you catch identity crime as it happens.",
-      source: "ato.gov.au/online-services/scams-cyber-safety-and-identity-protection/help-for-identity-theft"
-    }
-  },
-  {
-    id: 6,
-    title: "Verify an ATO Phone Call",
-    intrusionType: "They are calling you right now",
-    attacker: { name: "SHADOW", emoji: "🔦" },
-    stake: 0,
-    loss: "TFN and myGov password handed over",
-    setup: "Calls business owners expecting the ATO. You&rsquo;re expecting a call about your BAS.",
-    message: {
-      channel: "Phone call",
-      subject: "Live call — transcript",
-      sender: "Incoming call",
-      timestamp: "Now",
-      body: "Caller: 'Hello, this is Sarah from the Australian Taxation Office. I'm calling regarding your business activity statement. We need to verify some details before we can process your latest submission. Can you confirm your TFN and myGov password for security purposes?'"
-    },
-    question: "She knows your business name. Your move.",
-    options: [
-      { icon: "🗣", text: "Give the TFN — she knows already", id: "provide_details", unsafe: true, autofill: true, consequence: "TFN and myGov password disclosed to an unverified caller." },
-      { icon: "🆔", text: "Ask for her employee ID", id: "employee_id", unsafe: true, autofill: false, consequence: "An invented ID was accepted. The caller was never verified." },
-      { icon: "📱", text: "Open ATO app, hit Verify Call", id: "verify_call", unsafe: false, autofill: false },
-      { icon: "📞", text: "Hang up — ATO never cold-calls", id: "hang_up", unsafe: true, passive: true, autofill: false, consequence: "Call ended unverified. A genuine ATO call would be lost too." }
-    ],
-    feedback: {
-      provide_details: {
-        headline: "They got your TFN",
-        body: "The ATO will never ask for your myGov password or TFN over the phone.",
-        detail: "Knowing your business name proves nothing — company names, ABNs and directors are public record on ABN Lookup. Scammers open with a detail you assume is private to buy your trust for the ask that follows."
-      },
-      employee_id: {
-        headline: "She made that up",
-        body: "A scammer will simply make one up, and you have no way to check it.",
-        detail: "This is the most convincing wrong answer here, because it feels like exactly what a careful person would do. But any detail the caller supplies is a detail the caller controls. Verification has to come from a channel they can't touch."
-      },
-      verify_call: {
-        headline: "Confirmed. It's really them.",
-        body: "The ATO app confirms in about 30 seconds whether the call is genuine.",
-        detail: "Verify call is a real feature launched in April 2026 under the ATO Counter Fraud Program. It's the one check the caller can't influence — the confirmation comes from the ATO's side, not theirs."
-      },
-      hang_up: {
-        headline: "You'll miss the real ones",
-        body: "The ATO does phone people — hanging up on every call isn't the lesson.",
-        detail: "You were genuinely expecting a call about your BAS, and refusing every call would have cost you a real one. The habit isn't \"never trust an ATO call\", it's \"verify the caller through a channel they don't control\"."
-      }
-    },
-    reveal: {
-      title: "Using Verify Call",
-      steps: [
-        "Open the ATO app on your registered device",
-        "Select \"Verify call\" from the menu",
-        "A notification confirms a genuine ATO call within 30 seconds",
-        "No confirmation? Hang up."
-      ],
-      truth: "The call was genuine. You verified it and carried on safely.",
-      cost: "<strong>TFN + myGov password stolen</strong> = full account access. Scammers can redirect refunds and alter your super.",
-      everyday: "Same app you'd use to lodge a BAS or track obligations.",
-      detail: "Verify call is designed to shut down scam calls in real time by putting the check in the taxpayer's hands. If verification can't be confirmed, treat the interaction as suspicious and end the call.",
-      source: "ato.gov.au/media-centre/ato-launches-new-app-feature-to-stop-scam-calls",
-      screenshot: "ato-verify-call.png"
-    }
-  }
+{
+id: 1,
+title: "Fake Tax Refund",
+intrusionType: "They sent you a fake text",
+attacker: { name: "PHANTOM", emoji: "🕶" },
+stake: 642,
+loss: "Refund redirected: $642",
+setup: "Goes after first-time lodgers. You filed your first return three weeks ago.",
+message: {
+channel: "SMS",
+subject: "Text message",
+sender: "+61 4•• ••• 291",
+timestamp: "Today, 4:12pm",
+body: "ATO: You are due a tax refund of $642.00 for the 2025-26 financial year. Your refund has been approved but requires verification. Click the link below to confirm your bank details within 24 hours to avoid forfeiture.\n\n[Link: ato-refund-verify.com]"
+},
+question: "What's your move?",
+options: [
+{ icon: "🔗", text: "Open the link and log in", id: "tap_link", unsafe: true, autofill: true, consequence: "Credentials and bank details captured by an unknown host." },
+{ icon: "📞", text: "Call the number — Google matched it", id: "call_number", unsafe: true, autofill: false, consequence: "Call routed straight back to the attacker." },
+{ icon: "📱", text: "Check refund status in ATO app", id: "ato_app", unsafe: false, autofill: false },
+{ icon: "💬", text: "Screenshot it, ask the group chat", id: "ask_chat", unsafe: true, passive: true, autofill: false, consequence: "Opinions gathered. The account itself was never checked." }
+],
+feedback: {
+tap_link: {
+headline: "They got your details",
+body: "The ATO never sends unsolicited messages with links asking you to log in.",
+detail: "The link leads to a cloned login page built to capture your myGov credentials and bank details. Real ATO messages never contain login links or QR codes — if a message has one, that alone is enough to distrust it."
+},
+call_number: {
+headline: "You called them back",
+body: "A scam message can list any number it likes, including one that looks right.",
+detail: "Search results can be paid for, so \"it matches Google\" proves nothing. The ATO does not display a number when it calls. If you need to phone the ATO, take the number from ato.gov.au — scam reports go to 1800 008 540."
+},
+ato_app: {
+headline: "Stopped them",
+body: "You went to the source instead of trusting the message.",
+detail: "Opening the ATO app or typing my.gov.au yourself is the only thing that shows your real refund status. Nothing inside an unexpected message — no link, no number, no logo — can confirm itself."
+},
+ask_chat: {
+headline: "You still don't know",
+body: "You collected opinions, not an answer.",
+detail: "Your group chat can't see your ATO account. Crowdsourcing feels like checking, and it might get you lucky, but the only thing that settles it is your own refund status in the ATO app."
+}
+},
+reveal: {
+title: "Inside The ATO App",
+steps: [
+"Log in to the ATO app",
+"Select \"Your tax return for 2025-26\"",
+"Read the status: issued, processing, or tax owed"
+],
+truth: "Your return was still processing. No refund had been issued.",
+cost: "<strong>$642 stolen</strong> = about 24 hours of work at the national minimum wage.",
+everyday: "Same screen you'd open to track a real refund.",
+detail: "Online returns generally process within two weeks, and up to 30 days if a manual review is needed. Three weeks with no refund is completely normal — which is exactly the uncertainty this scam is built to exploit.",
+source: "ato.gov.au/individuals-and-families/your-tax-return/check-the-progress-of-your-tax-return",
+screenshot: "ato-dashboard.jpg"
+}
+},
+{
+id: 2,
+title: "Fake Account Security Alert",
+intrusionType: "They sent you a fake email",
+attacker: { name: "GHOST", emoji: "👻" },
+stake: 0,
+loss: "myGov login stolen",
+setup: "Goes after students with myGov linked to the ATO. That&rsquo;s you.",
+message: {
+channel: "Email",
+subject: "URGENT: Suspicious activity detected on your ATO account",
+sender: "security@ato-gov-alert.com",
+timestamp: "Today, 9:47am",
+body: "Dear Taxpayer,\n\nWe have detected unusual login activity on your ATO account. For your security, your account has been temporarily restricted.\n\nYou must verify your identity within 24 hours to prevent permanent suspension.\n\n[Verify Account Now]\n\nAustralian Taxation Office"
+},
+question: "What now?",
+options: [
+{ icon: "🌐", text: "Type my.gov.au in the browser", id: "type_mygov", unsafe: false, autofill: false },
+{ icon: "🔗", text: "Click Verify Account Now — perfect branding", id: "click_link", unsafe: true, autofill: true, consequence: "myGov credentials submitted to a cloned login page." },
+{ icon: "✉️", text: "Reply asking them to confirm identity", id: "reply_email", unsafe: true, autofill: false, consequence: "Address confirmed as live. Target flagged for repeat attempts." },
+{ icon: "💬", text: "Forward it to a tax agent", id: "ask_agent", unsafe: true, passive: true, autofill: false, consequence: "Advice pending. The ATO account still unchecked." }
+],
+feedback: {
+type_mygov: {
+headline: "Nice. You went direct.",
+body: "You never touched the email — you opened the account yourself.",
+detail: "Typing my.gov.au into the address bar means no link, no lookalike domain, and no cloned page can sit between you and the real service. Genuine ATO messages wait for you in your myGov Inbox."
+},
+click_link: {
+headline: "They got your login",
+body: "Perfect branding is cheap — the sender address is the giveaway.",
+detail: "\"ato-gov-alert.com\" is not an ATO domain. Logos, footers and formatting can be copied in minutes, so how a message looks tells you nothing. The ATO never sends unsolicited emails containing hyperlinks or QR codes."
+},
+reply_email: {
+headline: "Now they know you're real",
+body: "Replying proves your address is live and invites more attempts.",
+detail: "A scammer who gets a reply now knows a real person reads that inbox, which makes you worth targeting again. The ATO will never ask for personal identifying information over email."
+},
+ask_agent: {
+headline: "Good instinct, still waiting",
+body: "A tax agent is a real authority, but the account still hasn't been checked.",
+detail: "Asking a professional is a genuinely good instinct and not a wrong one. It's just slower than the answer: you can settle this yourself in under a minute by logging in to myGov. Ask the agent as well, not instead."
+}
+},
+reveal: {
+title: "Checking The Real Account",
+steps: [
+"Type my.gov.au in the address bar",
+"Log in and open ATO from linked services",
+"Check the myGov Inbox for genuine ATO messages"
+],
+truth: "Your ATO account showed no restrictions at all.",
+cost: "<strong>myGov credentials stolen</strong> = scammers can redirect your refunds and alter your super.",
+everyday: "Same login you'd use to view your TFN or set up a payment plan.",
+detail: "Real ATO communications arrive in your myGov Inbox or as official letters — never as an unsolicited email with a login link. If a message and your Inbox disagree, the Inbox is right.",
+source: "ato.gov.au/online-services/scams-cyber-safety-and-identity-protection/verify-or-report-an-ato-scam"
+}
+},
+{
+id: 3,
+title: "Fake ATO Debt Demand",
+intrusionType: "They left you a threatening voicemail",
+attacker: { name: "SPECTER", emoji: "☠" },
+stake: 1204.65,
+loss: "Fake debt paid: $1,205",
+setup: "Goes after people who just changed jobs. You changed jobs last month.",
+message: {
+channel: "Voicemail",
+subject: "Voicemail transcript",
+sender: "ATO Legal Department",
+timestamp: "Missed call, 11:23am",
+body: "This is the Australian Taxation Office Legal Department. A tax debt of $1,204.65 has been flagged against your account for the 2024-25 financial year. Failure to pay within 24 hours will result in legal action, including a warrant for your arrest and cancellation of your Tax File Number.\n\nTo make an immediate payment, press 1 to speak with our payments team."
+},
+question: "They want payment today. Your call.",
+options: [
+{ icon: "💳", text: "Press 1 and pay the debt", id: "press_1", unsafe: true, autofill: false, consequence: "Payment details handed straight to the attacker." },
+{ icon: "🆔", text: "Check caller ID matches ATO number", id: "check_caller_id", unsafe: true, autofill: false, consequence: "Caller ID spoofed. A false confirmation was accepted." },
+{ icon: "📞", text: "Call back, ask for case number", id: "call_back", unsafe: true, autofill: false, consequence: "Callback reaches the spoofed line. The attacker controls the channel." },
+{ icon: "📱", text: "Log in, check your ATO balance", id: "ato_app", unsafe: false, autofill: false }
+],
+feedback: {
+press_1: {
+headline: "Your money's gone",
+body: "The ATO will never threaten arrest or demand payment within 24 hours.",
+detail: "Arrest threats, TFN cancellation and same-day deadlines are pressure tactics, not tax administration. A real debt sits quietly in your ATO account with an amount and a due date, and nobody phones you to shout about it."
+},
+check_caller_id: {
+headline: "That ID was fake",
+body: "Caller ID can be faked — a matching number proves nothing.",
+detail: "This is the trap: it feels like verification, so people stop checking right when they should start. Scammers routinely display a real ATO number. Anything shown to you by the caller is under the caller's control, which is why verification has to start from your end."
+},
+call_back: {
+headline: "Still their phone line",
+body: "Asking for a reference number sounds careful, but you're still talking to the scammer.",
+detail: "A callback to the number that rang you reaches whoever set up that line, and they will happily invent a reference number. Due diligence only counts when you choose the channel."
+},
+ato_app: {
+headline: "Nothing there. You're fine.",
+body: "A real debt would be sitting in the account, with an amount and a date.",
+detail: "Your ATO account is the single source of truth for what you owe. If the voicemail and your account disagree, the account wins — no phone call can override it."
+}
+},
+reveal: {
+title: "Where A Real Debt Lives",
+steps: [
+"Log in to the ATO app or ATO Online services",
+"Read your balance on the home screen",
+"Open Tax → Accounts for a full breakdown"
+],
+truth: "Your ATO account showed no debt. The voicemail was fake.",
+cost: "<strong>$1,204.65 paid to a scammer</strong> = about 46 hours of work you'll never get back.",
+everyday: "Same place you'd manage a payment plan or find your assessment.",
+detail: "A genuine debt appears here with the exact amount and due date, and the ATO will work with you on a payment plan. It does not arrive as a threatening voicemail with a 24-hour deadline.",
+source: "ato.gov.au/individuals-and-families/paying-the-ato/how-much-you-owe"
+}
+},
+{
+id: 4,
+title: "Unauthorised Super Transfer",
+intrusionType: "They are moving your super",
+attacker: { name: "VIPER", emoji: "🐍" },
+stake: 4850,
+loss: "Super drained: $4,850",
+setup: "Goes after people part-way through merging their super. You started last week.",
+message: {
+channel: "Push notification",
+subject: "ATO app — security message",
+sender: "ATO app — Security message",
+timestamp: "Now",
+body: "ATO app: A request to transfer super has been initiated on your account.\n\nTransfer details:\nFrom: Australian Super\nTo: Unknown Fund\nAmount: $4,850.00\n\nTap to verify this transaction."
+},
+question: "$4,850 is moving. Act.",
+options: [
+{ icon: "📱", text: "Verify it — employer probably started it", id: "verify_it", unsafe: true, autofill: false, consequence: "Transfer approved. $4,850.00 released to an unknown fund." },
+{ icon: "🔒", text: "Lock the account. Don't verify.", id: "lock_account", unsafe: false, autofill: false },
+{ icon: "⏳", text: "Check the balance tomorrow instead", id: "check_tomorrow", unsafe: true, passive: true, autofill: false, consequence: "Transfer left pending overnight. It may process unattended." },
+{ icon: "🌐", text: "Check the super fund's website first", id: "check_fund", unsafe: true, passive: true, autofill: false, consequence: "Wrong system checked. The ATO request is still pending." }
+],
+feedback: {
+verify_it: {
+headline: "You just approved it",
+body: "Never verify a transaction you didn't start — verifying is approving.",
+detail: "Employers pay super into your fund; they don't initiate rollovers out of it. That plausible-sounding explanation is doing the scam's work for it. The ATO's guidance is explicit: if you didn't request the transfer, do not verify it."
+},
+lock_account: {
+headline: "Locked them out",
+body: "Locking stops the transfer and blocks further access straight away.",
+detail: "This is the ATO's own instruction for an ATO app super transfer message you didn't request. While the record is locked no refunds issue and unauthorised access is blocked. You can unlock it later from the same registered device."
+},
+check_tomorrow: {
+headline: "Too late tomorrow",
+body: "By the time the balance changes, the money has already moved.",
+detail: "Waiting to see the damage is not the same as preventing it. A pending transfer can process overnight, and recovering super after it has left the fund is far harder than stopping it now."
+},
+check_fund: {
+headline: "Wrong place to look",
+body: "The request came through the ATO, so that's where it has to be stopped.",
+detail: "Checking your fund's website is a reasonable instinct, but the fund can't cancel an ATO-side request, and the minutes you spend there are minutes the transfer is still live. Lock the ATO record first, then investigate."
+}
+},
+reveal: {
+title: "Locking The Record",
+steps: [
+"Open the ATO app security message",
+"Follow the prompts to lock your ATO record",
+"Phone 1800 467 033 to report suspected fraud"
+],
+truth: "Your super was safe. Locking the account stopped the transfer.",
+cost: "<strong>$4,850 stolen from super today</strong> = about $73,000 less at retirement, assuming 7% annual growth over 40 years.",
+costNote: "Independent calculation for illustration, not an ATO forecast.",
+everyday: "Same app you'd use to find lost super or consolidate funds.",
+detail: "Account locking is a powerful fraud prevention tool. While locked, most personalised features and ATO Online services are inaccessible, and you can unlock from the same registered device once it's safe.",
+source: "ato.gov.au/online-services/online-services-for-individuals-and-sole-traders/ato-app/manage-your-tax-and-super-with-the-ato-app"
+}
+},
+{
+id: 5,
+title: "Unauthorised Tax Lodgment",
+intrusionType: "They filed a tax return as you",
+attacker: { name: "WRAITH", emoji: "🎭" },
+stake: 0,
+loss: "Refund stolen in your name",
+setup: "Files before you do. You usually lodge in August. It&rsquo;s early July.",
+message: {
+channel: "Push notification",
+subject: "ATO app — security message",
+sender: "ATO app — Security message",
+timestamp: "Now",
+body: "ATO app: An income tax return has been lodged for the 2025-26 financial year.\n\nLodgment details:\nDate: 3 July 2026\nAgent: Fast Refund Tax Services\n\nTap to review this activity."
+},
+question: "Someone lodged for you. Now what?",
+options: [
+{ icon: "📱", text: "Review it — agent probably lodged early", id: "approve", unsafe: true, autofill: false, consequence: "Fraudulent return validated. Refund routed to the attacker." },
+{ icon: "⏳", text: "Wait for the assessment notice", id: "wait_mail", unsafe: true, passive: true, autofill: false, consequence: "Return left unchallenged. Processing continues in the background." },
+{ icon: "✉️", text: "Email the agent, ask what happened", id: "email_agent", unsafe: true, autofill: false, consequence: "Direct contact made with the fraudulent 'agent'." },
+{ icon: "🚨", text: "Lock your record, report fraud", id: "lock_account", unsafe: false, autofill: false }
+],
+feedback: {
+approve: {
+headline: "You signed off on it",
+body: "Approving a lodgment you didn't make can sign off a fraudulent return.",
+detail: "You'd know if you had engaged a tax agent — agents don't appear on your record unnoticed. Scammers lodge early precisely to beat you to your own refund, so an unexpected agent name is the warning, not the reassurance."
+},
+wait_mail: {
+headline: "The refund's already gone",
+body: "By the time the assessment arrives, the refund has been paid out.",
+detail: "Notices of assessment are issued after processing, not before. Waiting for one gives the fraudulent return the time it needs, and the refund is likely routed to the scammer's account."
+},
+email_agent: {
+headline: "You messaged the scammer",
+body: "The 'agent' is part of the scam — you just introduced yourself.",
+detail: "Never contact a third party named in a suspicious message. Emailing them confirms the account is live and hands them a direct channel to work on you. Go to official ATO channels instead."
+},
+lock_account: {
+headline: "Shut it down",
+body: "Locking blocks further activity and starts the fraud report.",
+detail: "Once locked, no refunds will issue and no further unauthorised changes can be made. Phoning the Client Identity Support Centre on 1800 467 033 (8am\u20136pm, Mon\u2013Fri) lets the ATO place extra protections on your account while it's investigated."
+}
+},
+reveal: {
+title: "Responding To Identity Fraud",
+steps: [
+"Open the ATO app and tap the security message",
+"Follow the prompts to lock the ATO record",
+"Phone 1800 467 033 to report identity fraud"
+],
+truth: "Your identity was targeted. Locking the record stopped it going further.",
+cost: "<strong>Scammers can steal your refund</strong> and lock you out of your own account.",
+everyday: "Same alerts that tell you when your real agent lodges for you.",
+detail: "Real-time security messages fire when key changes occur — income tax lodgments, bank account updates and device registrations. The feature exists to help you catch identity crime as it happens.",
+source: "ato.gov.au/online-services/scams-cyber-safety-and-identity-protection/help-for-identity-theft"
+}
+},
+{
+id: 6,
+title: "Verify an ATO Phone Call",
+intrusionType: "They are calling you right now",
+attacker: { name: "SHADOW", emoji: "🔦" },
+stake: 0,
+loss: "TFN and myGov password handed over",
+setup: "Calls business owners expecting the ATO. You&rsquo;re expecting a call about your BAS.",
+message: {
+channel: "Phone call",
+subject: "Live call — transcript",
+sender: "Incoming call",
+timestamp: "Now",
+body: "Caller: 'Hello, this is Sarah from the Australian Taxation Office. I'm calling regarding your business activity statement. We need to verify some details before we can process your latest submission. Can you confirm your TFN and myGov password for security purposes?'"
+},
+question: "She knows your business name. Your move.",
+options: [
+{ icon: "🗣", text: "Give the TFN — she knows already", id: "provide_details", unsafe: true, autofill: true, consequence: "TFN and myGov password disclosed to an unverified caller." },
+{ icon: "🆔", text: "Ask for her employee ID", id: "employee_id", unsafe: true, autofill: false, consequence: "An invented ID was accepted. The caller was never verified." },
+{ icon: "📱", text: "Open ATO app, hit Verify Call", id: "verify_call", unsafe: false, autofill: false },
+{ icon: "📞", text: "Hang up — ATO never cold-calls", id: "hang_up", unsafe: true, passive: true, autofill: false, consequence: "Call ended unverified. A genuine ATO call would be lost too." }
+],
+feedback: {
+provide_details: {
+headline: "They got your TFN",
+body: "The ATO will never ask for your myGov password or TFN over the phone.",
+detail: "Knowing your business name proves nothing — company names, ABNs and directors are public record on ABN Lookup. Scammers open with a detail you assume is private to buy your trust for the ask that follows."
+},
+employee_id: {
+headline: "She made that up",
+body: "A scammer will simply make one up, and you have no way to check it.",
+detail: "This is the most convincing wrong answer here, because it feels like exactly what a careful person would do. But any detail the caller supplies is a detail the caller controls. Verification has to come from a channel they can't touch."
+},
+verify_call: {
+headline: "Confirmed. It's really them.",
+body: "The ATO app confirms in about 30 seconds whether the call is genuine.",
+detail: "Verify call is a real feature launched in April 2026 under the ATO Counter Fraud Program. It's the one check the caller can't influence — the confirmation comes from the ATO's side, not theirs."
+},
+hang_up: {
+headline: "You'll miss the real ones",
+body: "The ATO does phone people — hanging up on every call isn't the lesson.",
+detail: "You were genuinely expecting a call about your BAS, and refusing every call would have cost you a real one. The habit isn't \"never trust an ATO call\", it's \"verify the caller through a channel they don't control\"."
+}
+},
+reveal: {
+title: "Using Verify Call",
+steps: [
+"Open the ATO app on your registered device",
+"Select \"Verify call\" from the menu",
+"A notification confirms a genuine ATO call within 30 seconds",
+"No confirmation? Hang up."
+],
+truth: "The call was genuine. You verified it and carried on safely.",
+cost: "<strong>TFN + myGov password stolen</strong> = full account access. Scammers can redirect refunds and alter your super.",
+everyday: "Same app you'd use to lodge a BAS or track obligations.",
+detail: "Verify call is designed to shut down scam calls in real time by putting the check in the taxpayer's hands. If verification can't be confirmed, treat the interaction as suspicious and end the call.",
+source: "ato.gov.au/media-centre/ato-launches-new-app-feature-to-stop-scam-calls",
+screenshot: "ato-verify-call.png"
+}
+}
 ];
-
 let currentScreen = 'landing';
 let currentScenario = 0;
 let userChoices = [];
 let vaultHealth = 100;
-
-// Health moves once per attack, on your FIRST answer, so "try again" is neither
-// a way to farm health back nor a second punishment.
 const HEALTH = { safe: 5, unresolved: -15, breach: -20 };
-
 function phaseOf(i) { return i < 2 ? 1 : i < 4 ? 2 : 3; }
 const PHASES = {
-  1: { label: "Phase 1 — They're watching you" },
-  2: { label: "Phase 2 — They're going for your money" },
-  3: { label: "Phase 3 — They're inside. Lock it down." }
+1: { label: "Phase 1 — They're watching you" },
+2: { label: "Phase 2 — They're going for your money" },
+3: { label: "Phase 3 — They're inside. Lock it down." }
 };
 function phaseClass() { return 'phase-' + phaseOf(currentScenario); }
-
-// Consecutive safe answers, counted from the first attack forward.
 function comboStreak() {
-  let streak = 0;
-  for (const s of scenarios) {
-    const c = userChoices.find(x => x.scenarioId === s.id);
-    if (!c) break;
-    streak = c.outcome === 'safe' ? streak + 1 : 0;
-  }
-  return streak;
+let streak = 0;
+for (const s of scenarios) {
+const c = userChoices.find(x => x.scenarioId === s.id);
+if (!c) break;
+streak = c.outcome === 'safe' ? streak + 1 : 0;
 }
-
-// The streak as it stood before the current attack was answered.
+return streak;
+}
 function streakBefore() {
-  let n = 0;
-  for (const s of scenarios) {
-    if (s.id === scenarios[currentScenario].id) break;
-    const c = userChoices.find(x => x.scenarioId === s.id);
-    if (!c) break;
-    n = c.outcome === 'safe' ? n + 1 : 0;
-  }
-  return n;
+let n = 0;
+for (const s of scenarios) {
+if (s.id === scenarios[currentScenario].id) break;
+const c = userChoices.find(x => x.scenarioId === s.id);
+if (!c) break;
+n = c.outcome === 'safe' ? n + 1 : 0;
 }
-
+return n;
+}
 function streakLine(streak) {
-  if (streak >= 6) return streak + ' in a row! Flawless!';
-  if (streak === 5) return '5 in a row! Lockdown Legend!';
-  if (streak === 4) return '4 in a row! Unstoppable!';
-  if (streak === 3) return '3 in a row! On fire!';
-  if (streak === 2) return '2 in a row!';
-  return '';
+if (streak >= 6) return streak + ' in a row! Flawless!';
+if (streak === 5) return '5 in a row! Lockdown Legend!';
+if (streak === 4) return '4 in a row! Unstoppable!';
+if (streak === 3) return '3 in a row! On fire!';
+if (streak === 2) return '2 in a row!';
+return '';
 }
-
-// Only counts money the scenarios actually name.
 function stolenTotal() {
-  return userChoices.filter(c => c.outcome === 'breach').reduce((t, c) => {
-    const s = scenarios.find(x => x.id === c.scenarioId);
-    return t + (s && s.stake ? s.stake : 0);
-  }, 0);
+return userChoices.filter(c => c.outcome === 'breach').reduce((t, c) => {
+const s = scenarios.find(x => x.id === c.scenarioId);
+return t + (s && s.stake ? s.stake : 0);
+}, 0);
 }
 let lastChoice = null;
 let msgTimer = null;
 let exfilTimer = null;
-let reviewing = false;   // re-reading the message from the decision screen
-
+let reviewing = false;
 function reducedMotion() {
-  return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
-
-/* ---------- Audio: synthesised via Web Audio, no files, no page weight ---------- */
 let soundOn = true;
 let audioCtx = null;
-
 function ac() {
-  if (!audioCtx) {
-    const Ctx = window.AudioContext || window.webkitAudioContext;
-    if (!Ctx) return null;
-    audioCtx = new Ctx();
-  }
-  if (audioCtx.state === 'suspended') audioCtx.resume();
-  return audioCtx;
+if (!audioCtx) {
+const Ctx = window.AudioContext || window.webkitAudioContext;
+if (!Ctx) return null;
+audioCtx = new Ctx();
 }
-
-// One oscillator with an attack/decay envelope.
+if (audioCtx.state === 'suspended') audioCtx.resume();
+return audioCtx;
+}
 function tone(freq, start, dur, vol, type) {
-  const ctx = ac();
-  if (!ctx) return;
-  const t = ctx.currentTime + start;
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
-  osc.type = type || 'sine';
-  osc.frequency.setValueAtTime(freq, t);
-  gain.gain.setValueAtTime(0, t);
-  gain.gain.linearRampToValueAtTime(vol, t + 0.012);
-  gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-  osc.connect(gain).connect(ctx.destination);
-  osc.start(t);
-  osc.stop(t + dur + 0.02);
+const ctx = ac();
+if (!ctx) return;
+const t = ctx.currentTime + start;
+const osc = ctx.createOscillator();
+const gain = ctx.createGain();
+osc.type = type || 'sine';
+osc.frequency.setValueAtTime(freq, t);
+gain.gain.setValueAtTime(0, t);
+gain.gain.linearRampToValueAtTime(vol, t + 0.012);
+gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+osc.connect(gain).connect(ctx.destination);
+osc.start(t);
+osc.stop(t + dur + 0.02);
 }
-
 function sweep(from, to, start, dur, vol, type) {
-  const ctx = ac();
-  if (!ctx) return;
-  const t = ctx.currentTime + start;
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
-  osc.type = type || 'sawtooth';
-  osc.frequency.setValueAtTime(from, t);
-  osc.frequency.linearRampToValueAtTime(to, t + dur);
-  gain.gain.setValueAtTime(0, t);
-  gain.gain.linearRampToValueAtTime(vol, t + 0.02);
-  gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-  osc.connect(gain).connect(ctx.destination);
-  osc.start(t);
-  osc.stop(t + dur + 0.02);
+const ctx = ac();
+if (!ctx) return;
+const t = ctx.currentTime + start;
+const osc = ctx.createOscillator();
+const gain = ctx.createGain();
+osc.type = type || 'sawtooth';
+osc.frequency.setValueAtTime(from, t);
+osc.frequency.linearRampToValueAtTime(to, t + dur);
+gain.gain.setValueAtTime(0, t);
+gain.gain.linearRampToValueAtTime(vol, t + 0.02);
+gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+osc.connect(gain).connect(ctx.destination);
+osc.start(t);
+osc.stop(t + dur + 0.02);
 }
-
 const Sound = {
-  tap()        { if (soundOn) tone(520, 0, 0.07, 0.05, 'triangle'); },
-  intercept()  { if (!soundOn) return; tone(660, 0, 0.09, 0.06, 'square'); tone(880, 0.1, 0.11, 0.05, 'square'); },
-  secure()     { if (!soundOn) return; tone(150, 0, 0.14, 0.13, 'square'); tone(523, 0.14, 0.13, 0.08); tone(659, 0.26, 0.13, 0.08); tone(784, 0.38, 0.24, 0.09); },
-  breach()     { if (!soundOn) return; sweep(420, 180, 0, 0.3, 0.09); sweep(420, 180, 0.34, 0.3, 0.08); },
-  unresolved() { if (!soundOn) return; tone(392, 0, 0.13, 0.07, 'triangle'); tone(392, 0.18, 0.16, 0.06, 'triangle'); },
-  count()      { if (soundOn) tone(700, 0, 0.06, 0.045, 'triangle'); },
-  finish()     { if (!soundOn) return; [523, 659, 784, 1047].forEach((f, i) => tone(f, i * 0.11, 0.3, 0.09)); }
+tap()        { if (soundOn) tone(520, 0, 0.07, 0.05, 'triangle'); },
+intercept()  { if (!soundOn) return; tone(660, 0, 0.09, 0.06, 'square'); tone(880, 0.1, 0.11, 0.05, 'square'); },
+secure()     { if (!soundOn) return; tone(150, 0, 0.14, 0.13, 'square'); tone(523, 0.14, 0.13, 0.08); tone(659, 0.26, 0.13, 0.08); tone(784, 0.38, 0.24, 0.09); },
+breach()     { if (!soundOn) return; sweep(420, 180, 0, 0.3, 0.09); sweep(420, 180, 0.34, 0.3, 0.08); },
+unresolved() { if (!soundOn) return; tone(392, 0, 0.13, 0.07, 'triangle'); tone(392, 0.18, 0.16, 0.06, 'triangle'); },
+count()      { if (soundOn) tone(700, 0, 0.06, 0.045, 'triangle'); },
+finish()     { if (!soundOn) return; [523, 659, 784, 1047].forEach((f, i) => tone(f, i * 0.11, 0.3, 0.09)); }
 };
-
 function toggleSound() {
-  soundOn = !soundOn;
-  const b = document.getElementById('sound-toggle');
-  b.textContent = soundOn ? '🔊' : '🔇';
-  const label = soundOn ? 'Sound effects on — tap to mute' : 'Sound effects off — tap to turn on';
-  b.setAttribute('aria-pressed', soundOn ? 'true' : 'false');
-  b.setAttribute('aria-label', label);
-  b.setAttribute('title', label);
-  b.style.opacity = soundOn ? '1' : '0.72';
-  if (soundOn) Sound.tap();
+soundOn = !soundOn;
+const b = document.getElementById('sound-toggle');
+b.textContent = soundOn ? '🔊' : '🔇';
+const label = soundOn ? 'Sound effects on — tap to mute' : 'Sound effects off — tap to turn on';
+b.setAttribute('aria-pressed', soundOn ? 'true' : 'false');
+b.setAttribute('aria-label', label);
+b.setAttribute('title', label);
+b.style.opacity = soundOn ? '1' : '0.72';
+if (soundOn) Sound.tap();
 }
-
 function confetti(count) {
-  if (reducedMotion()) return;
-  const layer = document.getElementById('confetti');
-  const colours = ['#22c55e', '#38bdf8', '#f59e0b', '#a3e635', '#e2e8f0'];
-  for (let i = 0; i < count; i++) {
-    const p = document.createElement('div');
-    p.className = 'confetti-piece';
-    p.style.left = Math.random() * 100 + 'vw';
-    p.style.background = colours[Math.floor(Math.random() * colours.length)];
-    p.style.setProperty('--dx', (Math.random() * 160 - 80) + 'px');
-    p.style.setProperty('--rot', (Math.random() * 900 - 450) + 'deg');
-    p.style.animationDuration = (1.6 + Math.random() * 1.4) + 's';
-    p.style.animationDelay = (Math.random() * 0.35) + 's';
-    layer.appendChild(p);
-    setTimeout(() => p.remove(), 3600);
-  }
+if (reducedMotion()) return;
+const layer = document.getElementById('confetti');
+const colours = ['#22c55e', '#38bdf8', '#f59e0b', '#a3e635', '#e2e8f0'];
+for (let i = 0; i < count; i++) {
+const p = document.createElement('div');
+p.className = 'confetti-piece';
+p.style.left = Math.random() * 100 + 'vw';
+p.style.background = colours[Math.floor(Math.random() * colours.length)];
+p.style.setProperty('--dx', (Math.random() * 160 - 80) + 'px');
+p.style.setProperty('--rot', (Math.random() * 900 - 450) + 'deg');
+p.style.animationDuration = (1.6 + Math.random() * 1.4) + 's';
+p.style.animationDelay = (Math.random() * 0.35) + 's';
+layer.appendChild(p);
+setTimeout(() => p.remove(), 3600);
 }
-
+}
 function breachFlash() {
-  if (reducedMotion()) return;
-  const el = document.getElementById('breach-flash');
-  el.classList.remove('fire');
-  void el.offsetWidth; // force reflow so the animation restarts
-  el.classList.add('fire');
+if (reducedMotion()) return;
+const el = document.getElementById('breach-flash');
+el.classList.remove('fire');
+void el.offsetWidth;
+el.classList.add('fire');
 }
-
 function outcomeOf(opt) {
-  if (!opt.unsafe) return 'safe';
-  return opt.passive ? 'unresolved' : 'breach';
+if (!opt.unsafe) return 'safe';
+return opt.passive ? 'unresolved' : 'breach';
 }
-
 function rankFor(n) {
-  if (n === 6) return { icon: '🏆', label: 'Untouchable',   sub: 'Nothing got through. Not one.' };
-  if (n >= 4)  return { icon: '🛡', label: 'Lockdown Pro',  sub: 'You stopped most of them.' };
-  if (n >= 2)  return { icon: '📡', label: 'Getting There', sub: 'Some got through. Look at those ones.' };
-  return              { icon: '🔓', label: 'They Got You',  sub: 'They got in more than they should have.' };
+if (n === 6) return { icon: '🏆', label: 'Untouchable',   sub: 'Nothing got through. Not one.' };
+if (n >= 4)  return { icon: '🛡', label: 'Lockdown Pro',  sub: 'You stopped most of them.' };
+if (n >= 2)  return { icon: '📡', label: 'Getting There', sub: 'Some got through. Look at those ones.' };
+return              { icon: '🔓', label: 'They Got You',  sub: 'They got in more than they should have.' };
 }
-
 function neutralisedCount() {
-  return userChoices.filter(c => c.outcome === 'safe').length;
+return userChoices.filter(c => c.outcome === 'safe').length;
 }
-
 function render() {
-  const app = document.getElementById('app');
-  app.innerHTML = '';
-  if (currentScreen === 'landing') renderLanding(app);
-  else if (currentScreen === 'scenario-setup') renderScenarioSetup(app);
-  else if (currentScreen === 'scenario-message') renderScenarioMessage(app);
-  else if (currentScreen === 'scenario-decision') renderScenarioDecision(app);
-  else if (currentScreen === 'scenario-feedback') renderScenarioFeedback(app);
-  else if (currentScreen === 'scenario-reveal') renderScenarioReveal(app);
-  else if (currentScreen === 'gameover') renderGameOver(app);
-  else if (currentScreen === 'report') renderReport(app);
+const app = document.getElementById('app');
+app.innerHTML = '';
+if (currentScreen === 'landing') renderLanding(app);
+else if (currentScreen === 'scenario-setup') renderScenarioSetup(app);
+else if (currentScreen === 'scenario-message') renderScenarioMessage(app);
+else if (currentScreen === 'scenario-decision') renderScenarioDecision(app);
+else if (currentScreen === 'scenario-feedback') renderScenarioFeedback(app);
+else if (currentScreen === 'scenario-reveal') renderScenarioReveal(app);
+else if (currentScreen === 'gameover') renderGameOver(app);
+else if (currentScreen === 'report') renderReport(app);
 }
-
 function renderProgress(opts = {}) {
-  const hp = vaultHealth > 60 ? 'good' : vaultHealth > 30 ? 'warn' : 'bad';
-  let dots = '';
-  for (let i = 0; i < scenarios.length; i++) {
-    let cls = '';
-    if (i < currentScenario) cls = 'complete';
-    else if (i === currentScenario) cls = 'active';
-    dots += `<div class="progress-dot ${cls}"></div>`;
-  }
-  return `
-    <div class="vault-health">
-      <div class="vh-top">
-        <span class="vh-key">Vault integrity</span>
-        <span class="vh-val ${hp}">${vaultHealth}%</span>
-      </div>
-      <div class="vh-track"><div class="vh-fill ${hp}" style="width:${vaultHealth}%"></div></div>
-    </div>
-    <div class="hud">
-      <span class="hud-label">Attack ${currentScenario + 1} of ${scenarios.length}</span>
-      <span class="score-chip ${opts.bump ? 'bump' : ''}">🛡 ${neutralisedCount()}/${scenarios.length} stopped</span>
-    </div>
-    <div class="layers-label">Your progress</div>
-    <div class="progress-bar">${dots}</div>
-    <div class="hud-stats">
-      <span class="hud-stat"><span class="hud-stat-key">Rank</span><span class="hud-stat-val">${rankFor(neutralisedCount()).icon} ${rankFor(neutralisedCount()).label}</span></span>
-      <span class="hud-stat"><span class="hud-stat-key">Attacks stopped</span><span class="hud-stat-val">${neutralisedCount()}/${scenarios.length}</span></span>
-    </div>
-  `;
+const hp = vaultHealth > 60 ? 'good' : vaultHealth > 30 ? 'warn' : 'bad';
+let dots = '';
+for (let i = 0; i < scenarios.length; i++) {
+let cls = '';
+if (i < currentScenario) cls = 'complete';
+else if (i === currentScenario) cls = 'active';
+dots += `<div class="progress-dot ${cls}"></div>`;
 }
-
+return `
+<div class="vault-health">
+<div class="vh-top">
+<span class="vh-key">Vault integrity</span>
+<span class="vh-val ${hp}">${vaultHealth}%</span>
+</div>
+<div class="vh-track"><div class="vh-fill ${hp}" style="width:${vaultHealth}%"></div></div>
+</div>
+<div class="hud">
+<span class="hud-label">Attack ${currentScenario + 1} of ${scenarios.length}</span>
+<span class="score-chip ${opts.bump ? 'bump' : ''}">🛡 ${neutralisedCount()}/${scenarios.length} stopped</span>
+</div>
+<div class="layers-label">Your progress</div>
+<div class="progress-bar">${dots}</div>
+<div class="hud-stats">
+<span class="hud-stat"><span class="hud-stat-key">Rank</span><span class="hud-stat-val">${rankFor(neutralisedCount()).icon} ${rankFor(neutralisedCount()).label}</span></span>
+<span class="hud-stat"><span class="hud-stat-key">Attacks stopped</span><span class="hud-stat-val">${neutralisedCount()}/${scenarios.length}</span></span>
+</div>
+`;
+}
 function renderLanding(container) {
-  container.innerHTML = `
-    <div class="card" style="text-align:center;">
-      <div class="vault-ring landing"><span>🔒</span></div>
-      <div class="sys-label">Lockdown Protocol</div>
-      <h1>This is YOUR vault</h1>
-      <p style="font-size:1.02rem; color:var(--text);">Your tax. Your super. Someone is trying to break in.<br><b>Can you keep them out?</b></p>
-      <div class="threat-meter">
-        <div class="tm-head">
-          <span class="sys-label">Threat Level</span>
-          <span class="tm-val">Elevated</span>
-        </div>
-        <div class="tm-track"><div class="tm-fill"></div></div>
-        <div class="tm-note">Almost <strong>7,500 ATO impersonation scams</strong> were reported in July 2025 alone.</div>
-      </div>
-      <div class="how-row">
-        <div class="how-step"><div class="how-icon">📱</div><div class="how-text">Message appears</div></div>
-        <div class="how-arrow">→</div>
-        <div class="how-step"><div class="how-icon">🛡</div><div class="how-text">Pick defence</div></div>
-        <div class="how-arrow">→</div>
-        <div class="how-step"><div class="how-icon">✅</div><div class="how-text">See result</div></div>
-      </div>
-      <div class="spec-bar">6 rounds &nbsp;·&nbsp; ~5 minutes &nbsp;·&nbsp; Zero data required</div>
-      <button class="btn btn-primary" onclick="startScenarios()">Start</button>
-      <div class="source-line" style="text-align:center;">Source: ATO Media Centre, April 2026</div>
-    </div>
-  `;
+container.innerHTML = `
+<div class="card" style="text-align:center;">
+<div class="vault-ring landing"><span>🔒</span></div>
+<div class="sys-label">Lockdown Protocol</div>
+<h1>This is YOUR vault</h1>
+<p style="font-size:1.02rem; color:var(--text);">Your tax. Your super. Someone is trying to break in.<br><b>Can you keep them out?</b></p>
+<div class="threat-meter">
+<div class="tm-head">
+<span class="sys-label">Threat Level</span>
+<span class="tm-val">Elevated</span>
+</div>
+<div class="tm-track"><div class="tm-fill"></div></div>
+<div class="tm-note">Almost <strong>7,500 ATO impersonation scams</strong> were reported in July 2025 alone.</div>
+</div>
+<div class="how-row">
+<div class="how-step"><div class="how-icon">📱</div><div class="how-text">Message appears</div></div>
+<div class="how-arrow">→</div>
+<div class="how-step"><div class="how-icon">🛡</div><div class="how-text">Pick defence</div></div>
+<div class="how-arrow">→</div>
+<div class="how-step"><div class="how-icon">✅</div><div class="how-text">See result</div></div>
+</div>
+<div class="spec-bar">6 rounds &nbsp;·&nbsp; ~5 minutes &nbsp;·&nbsp; Zero data required</div>
+<button class="btn btn-primary" onclick="startScenarios()">Start</button>
+<button class="teacher-link" onclick="openTeachers()">For Teachers &rarr;</button>
+<div class="source-line" style="text-align:center;">Source: ATO Media Centre, April 2026</div>
+</div>
+`;
 }
-
 function renderScenarioSetup(container) {
-  const s = scenarios[currentScenario];
-  container.innerHTML = `
-    <div class="card ${phaseClass()}">
-      ${renderProgress()}
-      <div class="phase-tag">${PHASES[phaseOf(currentScenario)].label}</div>
-      <div class="breach-banner">They're trying<br>to get in</div>
-      <div class="breach-sub">${s.intrusionType}</div>
-      <div class="target-line">
-        <span class="target-avatar">${s.attacker.emoji}</span>
-        <span class="target-val"><b class="codename">${s.attacker.name}</b> <span class="target-sep">|</span> ${s.setup}</span>
-      </div>
-      <button class="btn btn-primary" onclick="seeMessage()">See the message</button>
-    </div>
-  `;
+const s = scenarios[currentScenario];
+container.innerHTML = `
+<div class="card ${phaseClass()}">
+${renderProgress()}
+<div class="phase-tag">${PHASES[phaseOf(currentScenario)].label}</div>
+<div class="breach-banner">They're trying<br>to get in</div>
+<div class="breach-sub">${s.intrusionType}</div>
+<div class="target-line">
+<span class="target-avatar">${s.attacker.emoji}</span>
+<span class="target-val"><b class="codename">${s.attacker.name}</b> <span class="target-sep">|</span> ${s.setup}</span>
+</div>
+<button class="btn btn-primary" onclick="seeMessage()">See the message</button>
+</div>
+`;
 }
-
 function renderScenarioMessage(container) {
-  const s = scenarios[currentScenario];
-  const messageHtml = `
-    <div class="mail msg-in">
-      <div class="mail-subject">${s.message.subject}</div>
-      <div class="mail-head">
-        <div class="mail-avatar">${s.attacker.emoji}</div>
-        <div class="mail-who">
-          <div class="mail-from">${s.message.sender}</div>
-          <div class="mail-to">to <b>you</b></div>
-        </div>
-        <div class="mail-when">${s.message.timestamp}</div>
-      </div>
-      <div class="mail-body">${s.message.body}</div>
-      <div class="mail-foot">${s.message.channel}</div>
-    </div>
-    ${reviewing
-      ? `<button class="btn btn-primary" onclick="backToOptions()">↩ Back to my options</button>`
-      : `<button class="btn btn-primary" onclick="goTo('scenario-decision')">What do I do?</button>`}
-  `;
-
-  container.innerHTML = `
-    <div class="card ${phaseClass()}">
-      ${renderProgress()}
-      <span class="tag tag-simulated">⚠ Not real — this is a simulation</span>
-      <div class="sys-head" style="font-size:0.92rem;">${reviewing ? 'Reading it again' : s.attacker.emoji + ' ' + s.attacker.name + ' just contacted you'}</div>
-      <div class="sys-rule"></div>
-      <div id="msg-slot">
-        <div class="decrypt">
-          <div class="decrypt-label">Opening the message<span class="dots"></span></div>
-          <div class="scan-track"><div class="scan-fill"></div></div>
-        </div>
-      </div>
-    </div>
-  `;
-
-  const slot = container.querySelector('#msg-slot');
-  clearTimeout(msgTimer);
-
-  const reveal = () => {
-    if (currentScreen !== 'scenario-message') return;
-    slot.innerHTML = messageHtml;
-    if (!reviewing) Sound.intercept();
-  };
-
-  if (reducedMotion() || reviewing) reveal();   // no re-run of the opening beat
-  else msgTimer = setTimeout(reveal, 950);
+const s = scenarios[currentScenario];
+const messageHtml = `
+<div class="mail msg-in">
+<div class="mail-subject">${s.message.subject}</div>
+<div class="mail-head">
+<div class="mail-avatar">${s.attacker.emoji}</div>
+<div class="mail-who">
+<div class="mail-from">${s.message.sender}</div>
+<div class="mail-to">to <b>you</b></div>
+</div>
+<div class="mail-when">${s.message.timestamp}</div>
+</div>
+<div class="mail-body">${s.message.body}</div>
+<div class="mail-foot">${s.message.channel}</div>
+</div>
+${reviewing
+? `<button class="btn btn-primary" onclick="backToOptions()">↩ Back to my options</button>`
+: `<button class="btn btn-primary" onclick="goTo('scenario-decision')">What do I do?</button>`}
+`;
+container.innerHTML = `
+<div class="card ${phaseClass()}">
+${renderProgress()}
+<span class="tag tag-simulated">⚠ Not real — this is a simulation</span>
+<div class="sys-head" style="font-size:0.92rem;">${reviewing ? 'Reading it again' : s.attacker.emoji + ' ' + s.attacker.name + ' just contacted you'}</div>
+<div class="sys-rule"></div>
+<div id="msg-slot">
+<div class="decrypt">
+<div class="decrypt-label">Opening the message<span class="dots"></span></div>
+<div class="scan-track"><div class="scan-fill"></div></div>
+</div>
+</div>
+</div>
+`;
+const slot = container.querySelector('#msg-slot');
+clearTimeout(msgTimer);
+const reveal = () => {
+if (currentScreen !== 'scenario-message') return;
+slot.innerHTML = messageHtml;
+if (!reviewing) Sound.intercept();
+};
+if (reducedMotion() || reviewing) reveal();
+else msgTimer = setTimeout(reveal, 950);
 }
-
 function renderScenarioDecision(container) {
-  const s = scenarios[currentScenario];
-  let optionsHtml = '';
-  s.options.forEach((opt, i) => {
-    optionsHtml += `
-      <button class="btn btn-option" style="animation-delay:${(i * 0.06).toFixed(2)}s" onclick="chooseOption('${opt.id}')">
-        <span class="opt-icon" aria-hidden="true">${opt.icon}</span>
-        <span class="opt-body"><span class="opt-text">${opt.text}</span></span>
-      </button>
-    `;
-  });
-  container.innerHTML = `
-    <div class="card ${phaseClass()}">
-      ${renderProgress()}
-      <div class="sys-label">What do you do?</div>
-      <h2 style="margin-top:6px;">${s.question}</h2>
-      <button class="btn-review" onclick="reviewMessage()">↩ Review message</button>
-      <div class="sys-rule"></div>
-      ${optionsHtml}
-    </div>
-  `;
+const s = scenarios[currentScenario];
+let optionsHtml = '';
+s.options.forEach((opt, i) => {
+optionsHtml += `
+<button class="btn btn-option" style="animation-delay:${(i * 0.06).toFixed(2)}s" onclick="chooseOption('${opt.id}')">
+<span class="opt-icon" aria-hidden="true">${opt.icon}</span>
+<span class="opt-body"><span class="opt-text">${opt.text}</span></span>
+</button>
+`;
+});
+container.innerHTML = `
+<div class="card ${phaseClass()}">
+${renderProgress()}
+<div class="sys-label">What do you do?</div>
+<h2 style="margin-top:6px;">${s.question}</h2>
+<button class="btn-review" onclick="reviewMessage()">↩ Review message</button>
+<div class="sys-rule"></div>
+${optionsHtml}
+</div>
+`;
 }
-
 function renderScenarioFeedback(container) {
-  const s = scenarios[currentScenario];
-  const choice = s.options.find(o => o.id === lastChoice);
-  if (!choice) { goTo('scenario-decision'); return; }   // stale deferred render
-  const outcome = outcomeOf(choice);
-  const fb = s.feedback[lastChoice];
-
-  const view = {
-    safe:       { cardClass: 'card-secure',     iconClass: 'safe',       icon: '🔒', consequence: 'Nothing got out. You checked with the ATO yourself.' },
-    breach:     { cardClass: 'card-breach',     iconClass: 'risky',      icon: '⛔', consequence: choice.consequence },
-    unresolved: { cardClass: 'card-unresolved', iconClass: 'unresolved', icon: '⚠', consequence: choice.consequence }
-  }[outcome];
-
-  const consequenceClass = outcome === 'breach' ? 'risky' : outcome === 'unresolved' ? 'unresolved' : 'safe';
-  const detailLabel = outcome === 'safe' ? 'Why this works' : 'What went wrong';
-  const dead = vaultHealth <= 0;
-  const streakText = outcome === 'safe'
-    ? streakLine(comboStreak())
-    : (streakBefore() >= 2 ? 'Streak broken. Stay sharp.' : '');
-
-  container.innerHTML = `
-    <div class="card ${phaseClass()} ${view.cardClass}">
-      ${renderProgress({ bump: outcome === 'safe' })}
-      <div class="verdict">
-        <div class="verdict-icon ${view.iconClass}">${view.icon}</div>
-        <div class="verdict-title ${view.iconClass}">${fb.headline}</div>
-      </div>
-      ${streakText ? `<div class="streak-badge ${outcome === 'safe' ? 'on' : 'off'}">${outcome === 'safe' ? '🔥 ' : '💔 '}${streakText}</div>` : ''}
-      <div class="consequence ${consequenceClass}">&gt; ${view.consequence}</div>
-      <p class="lede">${fb.body}</p>
-      <details class="more">
-        <summary>${detailLabel}</summary>
-        <p>${fb.detail}</p>
-      </details>
-      ${dead
-        ? `<button class="btn btn-primary" onclick="goTo('gameover')">See the damage</button>`
-        : `<button class="btn btn-primary" onclick="goTo('scenario-reveal')">Here's what really happened</button>
-           ${outcome !== 'safe' ? `<button class="btn btn-back" onclick="goTo('scenario-decision')">Try again</button>` : ''}`}
-    </div>
-  `;
-
-  if (outcome === 'safe') { Sound.secure(); confetti(18); }
-  else if (outcome === 'breach') { Sound.breach(); breachFlash(); }
-  else Sound.unresolved();
+const s = scenarios[currentScenario];
+const choice = s.options.find(o => o.id === lastChoice);
+if (!choice) { goTo('scenario-decision'); return; }
+const outcome = outcomeOf(choice);
+const fb = s.feedback[lastChoice];
+const view = {
+safe:       { cardClass: 'card-secure',     iconClass: 'safe',       icon: '🔒', consequence: 'Nothing got out. You checked with the ATO yourself.' },
+breach:     { cardClass: 'card-breach',     iconClass: 'risky',      icon: '⛔', consequence: choice.consequence },
+unresolved: { cardClass: 'card-unresolved', iconClass: 'unresolved', icon: '⚠', consequence: choice.consequence }
+}[outcome];
+const consequenceClass = outcome === 'breach' ? 'risky' : outcome === 'unresolved' ? 'unresolved' : 'safe';
+const detailLabel = outcome === 'safe' ? 'Why this works' : 'What went wrong';
+const dead = vaultHealth <= 0;
+const streakText = outcome === 'safe'
+? streakLine(comboStreak())
+: (streakBefore() >= 2 ? 'Streak broken. Stay sharp.' : '');
+container.innerHTML = `
+<div class="card ${phaseClass()} ${view.cardClass}">
+${renderProgress({ bump: outcome === 'safe' })}
+<div class="verdict">
+<div class="verdict-icon ${view.iconClass}">${view.icon}</div>
+<div class="verdict-title ${view.iconClass}">${fb.headline}</div>
+</div>
+${streakText ? `<div class="streak-badge ${outcome === 'safe' ? 'on' : 'off'}">${outcome === 'safe' ? '🔥 ' : '💔 '}${streakText}</div>` : ''}
+<div class="consequence ${consequenceClass}">&gt; ${view.consequence}</div>
+<p class="lede">${fb.body}</p>
+<details class="more">
+<summary>${detailLabel}</summary>
+<p>${fb.detail}</p>
+</details>
+${dead
+? `<button class="btn btn-primary" onclick="goTo('gameover')">See the damage</button>`
+: `<button class="btn btn-primary" onclick="goTo('scenario-reveal')">Here's what really happened</button>
+${outcome !== 'safe' ? `<button class="btn btn-back" onclick="goTo('scenario-decision')">Try again</button>` : ''}`}
+</div>
+`;
+if (outcome === 'safe') { Sound.secure(); confetti(18); }
+else if (outcome === 'breach') { Sound.breach(); breachFlash(); }
+else Sound.unresolved();
 }
-
 function renderScenarioReveal(container) {
-  const s = scenarios[currentScenario];
-  let stepsHtml = '';
-  s.reveal.steps.forEach((step, i) => {
-    stepsHtml += `
-      <div class="pathway-step">
-        <div class="pathway-num">${i+1}</div>
-        <div class="pathway-text">${step}</div>
-      </div>
-    `;
-  });
-
-  let screenshotHtml = '';
-  if (s.reveal.screenshot) {
-    screenshotHtml = `<div class="screenshot-frame"><img src="${s.reveal.screenshot}" alt="Official ATO app screenshot" onerror="this.style.display='none'"><div class="screenshot-caption">Official ATO app screenshot · Source: ATO Media Centre</div></div>`;
-  }
-
-  container.innerHTML = `
-    <div class="card ${phaseClass()}">
-      ${renderProgress()}
-      <div class="sys-label">Here's what really happened</div>
-      <h2>${s.reveal.title}</h2>
-      <div class="sys-rule"></div>
-      ${screenshotHtml}
-      <div class="reveal-box">
-        <h4>The real story</h4>
-        <p>${s.reveal.truth}</p>
-        <div class="check-head">How to check it yourself</div>
-        ${stepsHtml}
-      </div>
-      <div class="reveal-box" style="border-left-color:var(--danger); background:rgba(239,68,68,0.07); border-color:rgba(239,68,68,0.22);">
-        <h4 style="color:#fca5a5;">Cost of getting it wrong</h4>
-        <p>${s.reveal.cost}</p>
-        ${s.reveal.costNote ? `<div class="source-line" style="margin-top:9px;">${s.reveal.costNote}</div>` : ''}
-      </div>
-      <details class="more">
-        <summary>The detail</summary>
-        <p>${s.reveal.detail}</p>
-      </details>
-      <div class="source-line">Source: ${s.reveal.source}</div>
-      <button class="btn btn-primary" onclick="nextScenario()" style="margin-top:16px;">
-        ${currentScenario < scenarios.length - 1 ? 'Next attack' : 'See how you did'}
-      </button>
-    </div>
-  `;
+const s = scenarios[currentScenario];
+let stepsHtml = '';
+s.reveal.steps.forEach((step, i) => {
+stepsHtml += `
+<div class="pathway-step">
+<div class="pathway-num">${i+1}</div>
+<div class="pathway-text">${step}</div>
+</div>
+`;
+});
+let screenshotHtml = '';
+if (s.reveal.screenshot) {
+screenshotHtml = `<div class="screenshot-frame"><img src="${s.reveal.screenshot}" alt="Official ATO app screenshot" onerror="this.style.display='none'"><div class="screenshot-caption">Official ATO app screenshot · Source: ATO Media Centre</div></div>`;
 }
-
+container.innerHTML = `
+<div class="card ${phaseClass()}">
+${renderProgress()}
+<div class="sys-label">Here's what really happened</div>
+<h2>${s.reveal.title}</h2>
+<div class="sys-rule"></div>
+${screenshotHtml}
+<div class="reveal-box">
+<h4>The real story</h4>
+<p>${s.reveal.truth}</p>
+<div class="check-head">How to check it yourself</div>
+${stepsHtml}
+</div>
+<div class="reveal-box" style="border-left-color:var(--danger); background:rgba(239,68,68,0.07); border-color:rgba(239,68,68,0.22);">
+<h4 style="color:#fca5a5;">Cost of getting it wrong</h4>
+<p>${s.reveal.cost}</p>
+${s.reveal.costNote ? `<div class="source-line" style="margin-top:9px;">${s.reveal.costNote}</div>` : ''}
+</div>
+<details class="more">
+<summary>The detail</summary>
+<p>${s.reveal.detail}</p>
+</details>
+<div class="source-line">Source: ${s.reveal.source}</div>
+<button class="btn btn-primary" onclick="nextScenario()" style="margin-top:16px;">
+${currentScenario < scenarios.length - 1 ? 'Next attack' : 'See how you did'}
+</button>
+</div>
+`;
+}
 function renderGameOver(container) {
-  clearTimeout(msgTimer);
-  clearTimeout(exfilTimer);
-  document.getElementById('exfil-overlay').classList.add('hidden');
-  const amt = stolenTotal();
-  const taken = userChoices.filter(c => c.outcome === 'breach')
-    .map(c => scenarios.find(s => s.id === c.scenarioId))
-    .filter(Boolean);
-  const stolenList = taken.length
-    ? taken.map(s => `<li>${s.loss}</li>`).join('')
-    : `<li>Nothing confirmed gone — but you never actually checked.</li>`;
-  const loss = amt > 0
-    ? `$${Math.round(amt).toLocaleString()} gone, plus your TFN and your myGov login.`
-    : `Your TFN and your myGov login are gone.`;
-  const lastOpt = scenarios[currentScenario].options.find(o => o.id === lastChoice);
-  const lastFb = lastOpt ? scenarios[currentScenario].feedback[lastOpt.id] : null;
-  container.innerHTML = `
-    <div class="card card-breach phase-3" style="text-align:center;">
-      <div class="vault-ring cracked"><span>🔓</span></div>
-      <div class="gameover-head">They got in</div>
-      <div class="gameover-loss">${loss}</div>
-      <ul class="stolen-list">${stolenList}</ul>
-      ${lastFb ? `<div class="last-move"><span class="last-move-key">Your last move</span>${lastFb.headline} — ${lastFb.body}</div>` : ''}
-      <p style="color:var(--text);">Your vault is compromised. Every one of those attacks had the same way out: stop, and check it yourself in the ATO app or at my.gov.au.</p>
-      <div class="reveal-box" style="border-left-color:var(--accent); background:rgba(245,158,11,0.08); border-color:rgba(245,158,11,0.25); text-align:left;">
-        <h4 style="color:var(--accent);">The one rule</h4>
-        <p>Never trust the message. Open the ATO app or type my.gov.au yourself. A real message will still be there. A fake one can't follow you.</p>
-      </div>
-      <button class="btn btn-primary" onclick="restart()" style="margin-top:16px;">Try again</button>
-    </div>
-  `;
-  Sound.breach();
-  breachFlash();
+clearTimeout(msgTimer);
+clearTimeout(exfilTimer);
+document.getElementById('exfil-overlay').classList.add('hidden');
+const amt = stolenTotal();
+const taken = userChoices.filter(c => c.outcome === 'breach')
+.map(c => scenarios.find(s => s.id === c.scenarioId))
+.filter(Boolean);
+const stolenList = taken.length
+? taken.map(s => `<li>${s.loss}</li>`).join('')
+: `<li>Nothing confirmed gone — but you never actually checked.</li>`;
+const loss = amt > 0
+? `$${Math.round(amt).toLocaleString()} gone, plus your TFN and your myGov login.`
+: `Your TFN and your myGov login are gone.`;
+const lastOpt = scenarios[currentScenario].options.find(o => o.id === lastChoice);
+const lastFb = lastOpt ? scenarios[currentScenario].feedback[lastOpt.id] : null;
+container.innerHTML = `
+<div class="card card-breach phase-3" style="text-align:center;">
+<div class="vault-ring cracked"><span>🔓</span></div>
+<div class="gameover-head">They got in</div>
+<div class="gameover-loss">${loss}</div>
+<ul class="stolen-list">${stolenList}</ul>
+${lastFb ? `<div class="last-move"><span class="last-move-key">Your last move</span>${lastFb.headline} — ${lastFb.body}</div>` : ''}
+<p style="color:var(--text);">Your vault is compromised. Every one of those attacks had the same way out: stop, and check it yourself in the ATO app or at my.gov.au.</p>
+<div class="reveal-box" style="border-left-color:var(--accent); background:rgba(245,158,11,0.08); border-color:rgba(245,158,11,0.25); text-align:left;">
+<h4 style="color:var(--accent);">The one rule</h4>
+<p>Never trust the message. Open the ATO app or type my.gov.au yourself. A real message will still be there. A fake one can't follow you.</p>
+</div>
+<button class="btn btn-primary" onclick="restart()" style="margin-top:16px;">Try again</button>
+</div>
+`;
+Sound.breach();
+breachFlash();
 }
-
 function renderReport(container) {
-  const total = scenarios.length;
-  const neutralised = userChoices.filter(c => c.outcome === 'safe').length;
-  const compromised = userChoices.filter(c => c.outcome === 'breach').length;
-  const unresolved = userChoices.filter(c => c.outcome === 'unresolved').length;
-
-  let summaryHtml = '';
-  scenarios.forEach((s, i) => {
-    const choice = userChoices.find(c => c.scenarioId === s.id);
-    const chosenOpt = s.options.find(o => o.id === choice?.choiceId);
-    const icon = choice?.outcome === 'safe' ? '🔒' : choice?.outcome === 'unresolved' ? '⚠' : '⛔';
-    summaryHtml += `
-      <div class="summary-item" style="animation-delay:${(i * 0.07).toFixed(2)}s">
-        <div class="title">${icon} ${s.title}</div>
-        <div class="choice">You picked: ${chosenOpt?.text || 'None'}</div>
-      </div>
-    `;
-  });
-
-  const rank = rankFor(neutralised);
-  const everydayHtml = scenarios.map(s =>
-    `<li><b>${s.title}</b> — ${s.reveal.everyday}</li>`).join('');
-
-  container.innerHTML = `
-    <div class="card">
-      <div class="sys-label" style="text-align:center;">Done</div>
-      <h1 style="text-align:center; font-family:var(--mono); font-size:1.3rem; letter-spacing:1.6px; text-transform:uppercase;">How you did</h1>
-      <div class="vault-ring ${neutralised === total ? 'sealed perfect' : compromised >= 3 ? 'cracked' : 'held'}"><span>${rank.icon}</span></div>
-      ${neutralised === total ? `
-        <div class="perfect-badge">
-          <div class="pb-title">Perfect Run — Untouchable</div>
-          <div class="pb-sub">6/6 attacks stopped. Zero compromise. Maximum security.</div>
-        </div>` : ''}
-      <div class="rank-label">${rank.label}</div>
-      <div class="rank-sub">${rank.sub}</div>
-      <div class="report-metric">
-        <div class="number" id="score-number">0/${total}</div>
-        <div class="label">Attacks stopped</div>
-      </div>
-      <div class="tally">
-        <div class="tally-item">
-          <div class="tally-num" style="color:var(--success);">${neutralised}</div>
-          <div class="tally-key">Stopped</div>
-        </div>
-        <div class="tally-item">
-          <div class="tally-num" style="color:var(--warn);">${unresolved}</div>
-          <div class="tally-key">Too slow</div>
-        </div>
-        <div class="tally-item">
-          <div class="tally-num" style="color:var(--danger);">${compromised}</div>
-          <div class="tally-key">They got in</div>
-        </div>
-      </div>
-      <p style="text-align:center; color:var(--text);">
-        ${neutralised === total
-          ? "You stopped all six. Every time, you checked with the ATO yourself instead of trusting the message."
-          : neutralised >= 4
-            ? "You stopped most of them. Have a look at the ones that got through — it's the same trick every time."
-            : "A few got through. The move that always works: check it yourself in the ATO app or at my.gov.au."}
-      </p>
-      <div style="margin:18px 0;">
-        ${summaryHtml}
-      </div>
-      <div class="reveal-box" style="border-left-color:var(--success); background:rgba(34,197,94,0.06); border-color:rgba(34,197,94,0.22);">
-        <h4 style="color:var(--success);">You'd use these anyway</h4>
-        <ul class="everyday-list">${everydayHtml}</ul>
-      </div>
-      <div class="reveal-box" style="border-left-color:var(--accent); background:rgba(245,158,11,0.08); border-color:rgba(245,158,11,0.25);">
-        <h4 style="color:var(--accent);">The one rule</h4>
-        <p>If a message about your tax or super looks off, don't trust it and don't ignore it. <strong>Open the ATO app, or type my.gov.au yourself, and check.</strong> That's the whole thing.</p>
-      </div>
-      <button class="btn btn-primary" onclick="restart()" style="margin-top:16px;">Play again</button>
-    </div>
-  `;
-
-  const scoreEl = container.querySelector('#score-number');
-  const celebrate = () => {
-    Sound.finish();
-    if (neutralised >= 4) confetti(50);
-  };
-
-  if (reducedMotion() || neutralised === 0) {
-    scoreEl.textContent = `${neutralised}/${total}`;
-    setTimeout(celebrate, 200);
-  } else {
-    let n = 0;
-    const tick = () => {
-      n++;
-      scoreEl.textContent = `${n}/${total}`;
-      Sound.count();
-      if (n < neutralised) setTimeout(tick, 220);
-      else setTimeout(celebrate, 300);
-    };
-    setTimeout(tick, 320);
-  }
+const total = scenarios.length;
+const neutralised = userChoices.filter(c => c.outcome === 'safe').length;
+const compromised = userChoices.filter(c => c.outcome === 'breach').length;
+const unresolved = userChoices.filter(c => c.outcome === 'unresolved').length;
+let summaryHtml = '';
+scenarios.forEach((s, i) => {
+const choice = userChoices.find(c => c.scenarioId === s.id);
+const chosenOpt = s.options.find(o => o.id === choice?.choiceId);
+const icon = choice?.outcome === 'safe' ? '🔒' : choice?.outcome === 'unresolved' ? '⚠' : '⛔';
+summaryHtml += `
+<div class="summary-item" style="animation-delay:${(i * 0.07).toFixed(2)}s">
+<div class="title">${icon} ${s.title}</div>
+<div class="choice">You picked: ${chosenOpt?.text || 'None'}</div>
+</div>
+`;
+});
+const rank = rankFor(neutralised);
+const everydayHtml = scenarios.map(s =>
+`<li><b>${s.title}</b> — ${s.reveal.everyday}</li>`).join('');
+container.innerHTML = `
+<div class="card">
+<div class="sys-label" style="text-align:center;">Done</div>
+<h1 style="text-align:center; font-family:var(--mono); font-size:1.3rem; letter-spacing:1.6px; text-transform:uppercase;">How you did</h1>
+<div class="vault-ring ${neutralised === total ? 'sealed perfect' : compromised >= 3 ? 'cracked' : 'held'}"><span>${rank.icon}</span></div>
+${neutralised === total ? `
+<div class="perfect-badge">
+<div class="pb-title">Perfect Run — Untouchable</div>
+<div class="pb-sub">6/6 attacks stopped. Zero compromise. Maximum security.</div>
+</div>` : ''}
+<div class="rank-label">${rank.label}</div>
+<div class="rank-sub">${rank.sub}</div>
+<div class="report-metric">
+<div class="number" id="score-number">0/${total}</div>
+<div class="label">Attacks stopped</div>
+</div>
+<div class="tally">
+<div class="tally-item">
+<div class="tally-num" style="color:var(--success);">${neutralised}</div>
+<div class="tally-key">Stopped</div>
+</div>
+<div class="tally-item">
+<div class="tally-num" style="color:var(--warn);">${unresolved}</div>
+<div class="tally-key">Too slow</div>
+</div>
+<div class="tally-item">
+<div class="tally-num" style="color:var(--danger);">${compromised}</div>
+<div class="tally-key">They got in</div>
+</div>
+</div>
+<p style="text-align:center; color:var(--text);">
+${neutralised === total
+? "You stopped all six. Every time, you checked with the ATO yourself instead of trusting the message."
+: neutralised >= 4
+? "You stopped most of them. Have a look at the ones that got through — it's the same trick every time."
+: "A few got through. The move that always works: check it yourself in the ATO app or at my.gov.au."}
+</p>
+<div style="margin:18px 0;">
+${summaryHtml}
+</div>
+<div class="reveal-box" style="border-left-color:var(--success); background:rgba(34,197,94,0.06); border-color:rgba(34,197,94,0.22);">
+<h4 style="color:var(--success);">You'd use these anyway</h4>
+<ul class="everyday-list">${everydayHtml}</ul>
+</div>
+<div class="reveal-box" style="border-left-color:var(--accent); background:rgba(245,158,11,0.08); border-color:rgba(245,158,11,0.25);">
+<h4 style="color:var(--accent);">The one rule</h4>
+<p>If a message about your tax or super looks off, don't trust it and don't ignore it. <strong>Open the ATO app, or type my.gov.au yourself, and check.</strong> That's the whole thing.</p>
+</div>
+<button class="btn btn-primary" onclick="restart()" style="margin-top:16px;">Play again</button>
+</div>
+`;
+const scoreEl = container.querySelector('#score-number');
+const celebrate = () => {
+Sound.finish();
+if (neutralised >= 4) confetti(50);
+};
+if (reducedMotion() || neutralised === 0) {
+scoreEl.textContent = `${neutralised}/${total}`;
+setTimeout(celebrate, 200);
+} else {
+let n = 0;
+const tick = () => {
+n++;
+scoreEl.textContent = `${n}/${total}`;
+Sound.count();
+if (n < neutralised) setTimeout(tick, 220);
+else setTimeout(celebrate, 300);
+};
+setTimeout(tick, 320);
 }
-
+}
+let teacherOpener = null;
+function openTeachers() {
+teacherOpener = document.activeElement;
+const m = document.getElementById('teacher-modal');
+m.classList.remove('hidden');
+m.querySelector('.modal-card').scrollTop = 0;
+m.querySelector('.modal-close').focus();
+}
+function closeTeachers() {
+document.getElementById('teacher-modal').classList.add('hidden');
+if (teacherOpener && teacherOpener.focus) teacherOpener.focus();
+teacherOpener = null;
+}
+document.addEventListener('keydown', (e) => {
+if (e.key === 'Escape' && !document.getElementById('teacher-modal').classList.contains('hidden')) closeTeachers();
+});
 function seeMessage()    { reviewing = false; goTo('scenario-message'); }
 function reviewMessage() { reviewing = true;  goTo('scenario-message'); }
 function backToOptions() { reviewing = false; goTo('scenario-decision'); }
-
 function startScenarios() {
-  currentScenario = 0;
-  userChoices = [];
-  vaultHealth = 100;
-  goTo('scenario-setup');
+currentScenario = 0;
+userChoices = [];
+vaultHealth = 100;
+goTo('scenario-setup');
 }
-
 function goTo(screen) {
-  currentScreen = screen;
-  render();
-}
-
-function chooseOption(choiceId) {
-  lastChoice = choiceId;
-  const s = scenarios[currentScenario];
-  const opt = s.options.find(o => o.id === choiceId);
-
-  // Replace any previous answer for this scenario so that "Try again"
-  // does not leave a stale entry behind.
-  const entry = { scenarioId: s.id, choiceId, outcome: outcomeOf(opt) };
-  const existing = userChoices.findIndex(c => c.scenarioId === s.id);
-  if (existing >= 0) {
-    userChoices[existing] = entry;      // retry: no second hit, no refund
-  } else {
-    userChoices.push(entry);
-    vaultHealth = Math.max(0, Math.min(100, vaultHealth + HEALTH[entry.outcome]));
-  }
-
-  const dest = () => vaultHealth <= 0 ? 'gameover' : 'scenario-feedback';
-  if (opt.unsafe && opt.autofill) {
-    showExfiltration(() => { goTo(dest()); });
-  } else {
-    goTo(dest());
-  }
-}
-
-function showExfiltration(onComplete) {
-  const overlay = document.getElementById('exfil-overlay');
-  overlay.classList.remove('hidden');
-  const box = overlay.querySelector('.exfil-box');
-  box.innerHTML = box.innerHTML;
-  clearTimeout(exfilTimer);
-  exfilTimer = setTimeout(() => {
-    overlay.classList.add('hidden');
-    onComplete();
-  }, 4200);
-}
-
-function nextScenario() {
-  reviewing = false;
-  currentScenario++;
-  if (currentScenario >= scenarios.length) {
-    goTo('report');
-  } else {
-    goTo('scenario-setup');
-  }
-}
-
-function restart() {
-  clearTimeout(msgTimer);
-  clearTimeout(exfilTimer);
-  reviewing = false;
-  document.getElementById('exfil-overlay').classList.add('hidden');
-  currentScreen = 'landing';
-  currentScenario = 0;
-  userChoices = [];
-  lastChoice = null;
-  vaultHealth = 100;
-  render();
-}
-
-// Option buttons get their own outcome sound on the feedback screen, so exclude them here.
-document.addEventListener('click', (e) => {
-  const btn = e.target.closest('.btn');
-  if (btn && !btn.classList.contains('btn-option')) Sound.tap();
-});
-
+currentScreen = screen;
 render();
-
+}
+function chooseOption(choiceId) {
+lastChoice = choiceId;
+const s = scenarios[currentScenario];
+const opt = s.options.find(o => o.id === choiceId);
+const entry = { scenarioId: s.id, choiceId, outcome: outcomeOf(opt) };
+const existing = userChoices.findIndex(c => c.scenarioId === s.id);
+if (existing >= 0) {
+userChoices[existing] = entry;
+} else {
+userChoices.push(entry);
+vaultHealth = Math.max(0, Math.min(100, vaultHealth + HEALTH[entry.outcome]));
+}
+const dest = () => vaultHealth <= 0 ? 'gameover' : 'scenario-feedback';
+if (opt.unsafe && opt.autofill) {
+showExfiltration(() => { goTo(dest()); });
+} else {
+goTo(dest());
+}
+}
+function showExfiltration(onComplete) {
+const overlay = document.getElementById('exfil-overlay');
+overlay.classList.remove('hidden');
+const box = overlay.querySelector('.exfil-box');
+box.innerHTML = box.innerHTML;
+clearTimeout(exfilTimer);
+exfilTimer = setTimeout(() => {
+overlay.classList.add('hidden');
+onComplete();
+}, 4200);
+}
+function nextScenario() {
+reviewing = false;
+currentScenario++;
+if (currentScenario >= scenarios.length) {
+goTo('report');
+} else {
+goTo('scenario-setup');
+}
+}
+function restart() {
+clearTimeout(msgTimer);
+clearTimeout(exfilTimer);
+reviewing = false;
+document.getElementById('exfil-overlay').classList.add('hidden');
+currentScreen = 'landing';
+currentScenario = 0;
+userChoices = [];
+lastChoice = null;
+vaultHealth = 100;
+render();
+}
+document.addEventListener('click', (e) => {
+const btn = e.target.closest('.btn');
+if (btn && !btn.classList.contains('btn-option')) Sound.tap();
+});
+render();
 /* ══════════════════════════════════════════════════════════════════════════
    AMBIENT AUDIO LAYER — self-contained. Delete this whole block to remove it.
    Adds nothing to the HTML or CSS and patches nothing permanently: it builds
@@ -1986,152 +1338,124 @@ render();
    silently if Web Audio is unavailable or blocked.
    ══════════════════════════════════════════════════════════════════════════ */
 (function ambientLayer() {
-  'use strict';
-
-  var LEVEL = 0.12;   // ceiling is 0.15; was 0.06 and read as too quiet
-  var rig = null, btn = null;
-  var wanted = true;  // ON by default — muting is a deliberate act, not opt-in
-
-  function context() {
-    // Share the sound-effects context if it exists, otherwise stand alone.
-    if (typeof ac === 'function') return ac();
-    var Ctx = window.AudioContext || window.webkitAudioContext;
-    if (!Ctx) return null;
-    var c = new Ctx();
-    if (c.state === 'suspended') c.resume();
-    return c;
-  }
-
-  function build() {
-    var ctx = context();
-    if (!ctx || !ctx.createBiquadFilter || !ctx.createBuffer) return null;
-
-    var master = ctx.createGain();
-    master.gain.value = 0;
-    master.connect(ctx.destination);
-
-    // Bed sits between the sources and the master so the LFO can breathe on it
-    // without fighting the fade-in.
-    var bed = ctx.createGain();
-    bed.gain.value = 0.85;
-    bed.connect(master);
-
-    // Two low oscillators a fraction apart beat slowly against each other —
-    // that slow throb is what reads as "machine room" rather than "organ note".
-    [[55, 'triangle', 0.30], [55.4, 'triangle', 0.30], [110, 'sine', 0.10]].forEach(function (spec) {
-      var o = ctx.createOscillator(), g = ctx.createGain();
-      o.type = spec[1];
-      o.frequency.value = spec[0];
-      g.gain.value = spec[2];
-      o.connect(g).connect(bed);
-      o.start();
-    });
-
-    // Low-passed noise gives the drone some air so it doesn't sound synthetic.
-    var len = Math.floor(ctx.sampleRate * 2);
-    var buf = ctx.createBuffer(1, len, ctx.sampleRate);
-    var data = buf.getChannelData(0);
-    for (var i = 0; i < len; i++) data[i] = (Math.random() * 2 - 1);
-    var noise = ctx.createBufferSource();
-    noise.buffer = buf;
-    noise.loop = true;
-    var lp = ctx.createBiquadFilter();
-    lp.type = 'lowpass';
-    lp.frequency.value = 320;
-    lp.Q.value = 0.6;
-    var ng = ctx.createGain();
-    ng.gain.value = 0.32;
-    noise.connect(lp).connect(ng).connect(bed);
-    noise.start();
-
-    // ~22 second cycle. Slow enough to feel like drift, not a pulse.
-    var lfo = ctx.createOscillator(), depth = ctx.createGain();
-    lfo.frequency.value = 0.045;
-    depth.gain.value = 0.15;
-    lfo.connect(depth).connect(bed.gain);
-    lfo.start();
-
-    return { ctx: ctx, master: master };
-  }
-
-  function fade(to, seconds) {
-    if (!rig) return;
-    var g = rig.master.gain, now = rig.ctx.currentTime;
-    g.cancelScheduledValues(now);
-    g.setValueAtTime(g.value, now);
-    g.setTargetAtTime(to, now, seconds);
-  }
-
-  function paint() {
-    if (!btn) return;
-    btn.style.color = wanted ? 'var(--cyan)' : 'var(--text-muted)';
-    btn.style.borderColor = wanted ? 'rgba(56,189,248,0.45)' : 'var(--border)';
-    btn.style.opacity = wanted ? '1' : '0.72';
-    var label = wanted ? 'Ambient sound on — tap to mute' : 'Ambient sound off — tap to turn on';
-    btn.setAttribute('aria-label', label);
-    btn.setAttribute('aria-pressed', wanted ? 'true' : 'false');
-    btn.title = label;
-  }
-
-  function makeButton() {
-    if (btn) return;
-    btn = document.createElement('button');
-    btn.className = 'sound-toggle';
-    btn.textContent = 'AMB';
-    btn.style.right = '68px';
-    btn.style.fontFamily = 'var(--mono)';
-    btn.style.fontSize = '0.55rem';
-    btn.style.letterSpacing = '0.5px';
-    btn.style.fontWeight = '700';
-    btn.addEventListener('click', function () {
-      wanted = !wanted;
-      if (wanted && !rig) start();                       // first unmute also builds the rig
-      else if (rig) fade(wanted ? LEVEL : 0, wanted ? 0.8 : 0.35);
-      paint();
-    });
-    document.body.appendChild(btn);
-    paint();
-  }
-
-  function start() {
-    if (rig) return;
-    try {
-      rig = build();
-      if (!rig) return;          // no Web Audio — stay silent
-      fade(wanted ? LEVEL : 0, 1.6);   // slow swell so it never announces itself
-    } catch (e) {
-      rig = null;                // any failure: simulator carries on untouched
-    }
-  }
-
-  // Don't drone into an unattended tab.
-  document.addEventListener('visibilitychange', function () {
-    if (!rig || !wanted) return;
-    fade(document.hidden ? 0 : LEVEL, 0.4);
-  });
-
-  // The mute control exists from the first screen, so turning it OFF is discoverable.
-  // Sound itself still waits for a gesture — browsers require one, desktop and mobile alike.
-  if (window.AudioContext || window.webkitAudioContext) makeButton();
-
-  function unlock() {
-    document.removeEventListener('pointerdown', unlock);
-    document.removeEventListener('touchstart', unlock);
-    document.removeEventListener('click', unlock);
-    try { if (wanted) start(); } catch (e) { /* audio is optional */ }
-  }
-  document.addEventListener('pointerdown', unlock, { passive: true });
-  document.addEventListener('touchstart', unlock, { passive: true });
-  document.addEventListener('click', unlock);
-
-  var originalStart = window.startScenarios;
-  window.startScenarios = function () {
-    try { if (wanted) start(); } catch (e) { /* audio is optional, never block the app */ }
-    return originalStart.apply(this, arguments);
-  };
+'use strict';
+var LEVEL = 0.12;
+var rig = null, btn = null;
+var wanted = true;
+function context() {
+if (typeof ac === 'function') return ac();
+var Ctx = window.AudioContext || window.webkitAudioContext;
+if (!Ctx) return null;
+var c = new Ctx();
+if (c.state === 'suspended') c.resume();
+return c;
+}
+function build() {
+var ctx = context();
+if (!ctx || !ctx.createBiquadFilter || !ctx.createBuffer) return null;
+var master = ctx.createGain();
+master.gain.value = 0;
+master.connect(ctx.destination);
+var bed = ctx.createGain();
+bed.gain.value = 0.85;
+bed.connect(master);
+[[55, 'triangle', 0.30], [55.4, 'triangle', 0.30], [110, 'sine', 0.10]].forEach(function (spec) {
+var o = ctx.createOscillator(), g = ctx.createGain();
+o.type = spec[1];
+o.frequency.value = spec[0];
+g.gain.value = spec[2];
+o.connect(g).connect(bed);
+o.start();
+});
+var len = Math.floor(ctx.sampleRate * 2);
+var buf = ctx.createBuffer(1, len, ctx.sampleRate);
+var data = buf.getChannelData(0);
+for (var i = 0; i < len; i++) data[i] = (Math.random() * 2 - 1);
+var noise = ctx.createBufferSource();
+noise.buffer = buf;
+noise.loop = true;
+var lp = ctx.createBiquadFilter();
+lp.type = 'lowpass';
+lp.frequency.value = 320;
+lp.Q.value = 0.6;
+var ng = ctx.createGain();
+ng.gain.value = 0.32;
+noise.connect(lp).connect(ng).connect(bed);
+noise.start();
+var lfo = ctx.createOscillator(), depth = ctx.createGain();
+lfo.frequency.value = 0.045;
+depth.gain.value = 0.15;
+lfo.connect(depth).connect(bed.gain);
+lfo.start();
+return { ctx: ctx, master: master };
+}
+function fade(to, seconds) {
+if (!rig) return;
+var g = rig.master.gain, now = rig.ctx.currentTime;
+g.cancelScheduledValues(now);
+g.setValueAtTime(g.value, now);
+g.setTargetAtTime(to, now, seconds);
+}
+function paint() {
+if (!btn) return;
+btn.style.color = wanted ? 'var(--cyan)' : 'var(--text-muted)';
+btn.style.borderColor = wanted ? 'rgba(56,189,248,0.45)' : 'var(--border)';
+btn.style.opacity = wanted ? '1' : '0.72';
+var label = wanted ? 'Ambient sound on — tap to mute' : 'Ambient sound off — tap to turn on';
+btn.setAttribute('aria-label', label);
+btn.setAttribute('aria-pressed', wanted ? 'true' : 'false');
+btn.title = label;
+}
+function makeButton() {
+if (btn) return;
+btn = document.createElement('button');
+btn.className = 'sound-toggle';
+btn.textContent = 'AMB';
+btn.style.right = '68px';
+btn.style.fontFamily = 'var(--mono)';
+btn.style.fontSize = '0.55rem';
+btn.style.letterSpacing = '0.5px';
+btn.style.fontWeight = '700';
+btn.addEventListener('click', function () {
+wanted = !wanted;
+if (wanted && !rig) start();
+else if (rig) fade(wanted ? LEVEL : 0, wanted ? 0.8 : 0.35);
+paint();
+});
+document.body.appendChild(btn);
+paint();
+}
+function start() {
+if (rig) return;
+try {
+rig = build();
+if (!rig) return;
+fade(wanted ? LEVEL : 0, 1.6);
+} catch (e) {
+rig = null;
+}
+}
+document.addEventListener('visibilitychange', function () {
+if (!rig || !wanted) return;
+fade(document.hidden ? 0 : LEVEL, 0.4);
+});
+if (window.AudioContext || window.webkitAudioContext) makeButton();
+function unlock() {
+document.removeEventListener('pointerdown', unlock);
+document.removeEventListener('touchstart', unlock);
+document.removeEventListener('click', unlock);
+try { if (wanted) start(); } catch (e) {  }
+}
+document.addEventListener('pointerdown', unlock, { passive: true });
+document.addEventListener('touchstart', unlock, { passive: true });
+document.addEventListener('click', unlock);
+var originalStart = window.startScenarios;
+window.startScenarios = function () {
+try { if (wanted) start(); } catch (e) {  }
+return originalStart.apply(this, arguments);
+};
 })();
 /* ═══════════════════ END AMBIENT AUDIO LAYER ═══════════════════ */
 </script>
-
 </body>
 </html>
