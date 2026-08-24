@@ -978,8 +978,8 @@
   @keyframes confettiFall { to { transform: translate3d(var(--dx), 110vh, 0) rotate(var(--rot)); opacity: 0; } }
 
   .sound-toggle {
-    position: fixed; bottom: 14px; right: 14px; z-index: 150;
-    width: 38px; height: 38px; border-radius: 8px;
+    position: fixed; bottom: 16px; right: 16px; z-index: 150;
+    width: 44px; height: 44px; border-radius: 9px;
     background: rgba(26,36,56,0.94); border: 1px solid var(--border);
     color: var(--text-muted); font-size: 0.95rem; cursor: pointer;
     display: flex; align-items: center; justify-content: center;
@@ -1047,7 +1047,7 @@
 
 <div id="confetti" aria-hidden="true"></div>
 <div id="breach-flash" aria-hidden="true"></div>
-<button id="sound-toggle" class="sound-toggle" onclick="toggleSound()" aria-label="Mute sound" title="Mute sound">🔊</button>
+<button id="sound-toggle" class="sound-toggle" onclick="toggleSound()" aria-pressed="true" aria-label="Sound effects on — tap to mute" title="Sound effects on — tap to mute">🔊</button>
 
 <script>
 const scenarios = [
@@ -1531,8 +1531,11 @@ function toggleSound() {
   soundOn = !soundOn;
   const b = document.getElementById('sound-toggle');
   b.textContent = soundOn ? '🔊' : '🔇';
-  b.setAttribute('aria-label', soundOn ? 'Mute sound' : 'Unmute sound');
-  b.setAttribute('title', soundOn ? 'Mute sound' : 'Unmute sound');
+  const label = soundOn ? 'Sound effects on — tap to mute' : 'Sound effects off — tap to turn on';
+  b.setAttribute('aria-pressed', soundOn ? 'true' : 'false');
+  b.setAttribute('aria-label', label);
+  b.setAttribute('title', label);
+  b.style.opacity = soundOn ? '1' : '0.72';
   if (soundOn) Sound.tap();
 }
 
@@ -2051,8 +2054,9 @@ render();
 (function ambientLayer() {
   'use strict';
 
-  var LEVEL = 0.06;   // master ceiling — spec allows up to 0.15
-  var rig = null, playing = false, btn = null;
+  var LEVEL = 0.12;   // ceiling is 0.15; was 0.06 and read as too quiet
+  var rig = null, btn = null;
+  var wanted = true;  // ON by default — muting is a deliberate act, not opt-in
 
   function context() {
     // Share the sound-effects context if it exists, otherwise stand alone.
@@ -2126,11 +2130,12 @@ render();
 
   function paint() {
     if (!btn) return;
-    btn.style.color = playing ? 'var(--cyan)' : 'var(--text-muted)';
-    btn.style.borderColor = playing ? 'rgba(56,189,248,0.45)' : 'var(--border)';
-    var label = playing ? 'Mute ambient audio' : 'Unmute ambient audio';
+    btn.style.color = wanted ? 'var(--cyan)' : 'var(--text-muted)';
+    btn.style.borderColor = wanted ? 'rgba(56,189,248,0.45)' : 'var(--border)';
+    btn.style.opacity = wanted ? '1' : '0.72';
+    var label = wanted ? 'Ambient sound on — tap to mute' : 'Ambient sound off — tap to turn on';
     btn.setAttribute('aria-label', label);
-    btn.setAttribute('aria-pressed', playing ? 'true' : 'false');
+    btn.setAttribute('aria-pressed', wanted ? 'true' : 'false');
     btn.title = label;
   }
 
@@ -2139,14 +2144,15 @@ render();
     btn = document.createElement('button');
     btn.className = 'sound-toggle';
     btn.textContent = 'AMB';
-    btn.style.right = '60px';
+    btn.style.right = '68px';
     btn.style.fontFamily = 'var(--mono)';
-    btn.style.fontSize = '0.5rem';
+    btn.style.fontSize = '0.55rem';
     btn.style.letterSpacing = '0.5px';
     btn.style.fontWeight = '700';
     btn.addEventListener('click', function () {
-      playing = !playing;
-      fade(playing ? LEVEL : 0, playing ? 0.8 : 0.35);
+      wanted = !wanted;
+      if (wanted && !rig) start();                       // first unmute also builds the rig
+      else if (rig) fade(wanted ? LEVEL : 0, wanted ? 0.8 : 0.35);
       paint();
     });
     document.body.appendChild(btn);
@@ -2157,10 +2163,8 @@ render();
     if (rig) return;
     try {
       rig = build();
-      if (!rig) return;         // no Web Audio — stay silent, show no button
-      playing = true;
-      fade(LEVEL, 1.6);          // slow swell so it never announces itself
-      makeButton();
+      if (!rig) return;          // no Web Audio — stay silent
+      fade(wanted ? LEVEL : 0, 1.6);   // slow swell so it never announces itself
     } catch (e) {
       rig = null;                // any failure: simulator carries on untouched
     }
@@ -2168,14 +2172,27 @@ render();
 
   // Don't drone into an unattended tab.
   document.addEventListener('visibilitychange', function () {
-    if (!rig || !playing) return;
+    if (!rig || !wanted) return;
     fade(document.hidden ? 0 : LEVEL, 0.4);
   });
 
-  // Begin only when the user starts the simulation — never on page load.
+  // The mute control exists from the first screen, so turning it OFF is discoverable.
+  // Sound itself still waits for a gesture — browsers require one, desktop and mobile alike.
+  if (window.AudioContext || window.webkitAudioContext) makeButton();
+
+  function unlock() {
+    document.removeEventListener('pointerdown', unlock);
+    document.removeEventListener('touchstart', unlock);
+    document.removeEventListener('click', unlock);
+    try { if (wanted) start(); } catch (e) { /* audio is optional */ }
+  }
+  document.addEventListener('pointerdown', unlock, { passive: true });
+  document.addEventListener('touchstart', unlock, { passive: true });
+  document.addEventListener('click', unlock);
+
   var originalStart = window.startScenarios;
   window.startScenarios = function () {
-    try { start(); } catch (e) { /* audio is optional, never block the app */ }
+    try { if (wanted) start(); } catch (e) { /* audio is optional, never block the app */ }
     return originalStart.apply(this, arguments);
   };
 })();
