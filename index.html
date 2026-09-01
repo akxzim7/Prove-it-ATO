@@ -358,6 +358,20 @@ h1{font-size:1.4rem}
 .more>summary{border-radius:5px}
 
 h2.breach-banner,h2.decide-prompt,h2.verdict-title,h2.sys-head{margin-top:0}
+
+.feat-grid{display:grid;grid-template-columns:1fr;gap:12px;margin:14px 0 4px}
+@media (min-width:620px){.feat-grid{grid-template-columns:1fr 1fr}}
+.feat-card{background:var(--bg-deep);border:1px solid var(--border);border-radius:10px;padding:16px}
+.feat-head{display:flex;align-items:center;gap:9px;margin-bottom:7px}
+.feat-icon{font-size:1.15rem;line-height:1}
+.feat-name{font-size:0.9rem;font-weight:700;color:var(--text);line-height:1.3}
+.feat-desc{font-size:0.8rem;line-height:1.55;color:var(--text-muted);margin:0}
+.feat-card .screenshot-frame{margin:12px 0 0;padding:8px}
+.card.phase-manage{border-color:rgba(56,189,248,0.45);box-shadow:0 0 26px rgba(56,189,248,0.10)}
+.phase-tag.manage-tag{color:#7dd3fc;background:rgba(56,189,248,0.11);border:1px solid rgba(56,189,248,0.32)}
+.breach-banner.manage-banner{color:var(--cyan);text-shadow:0 0 26px rgba(56,189,248,0.35)}
+.codename.manage-name{color:var(--cyan)}
+.tag-manage{background:rgba(56,189,248,0.12);color:#7dd3fc;border:1px solid rgba(56,189,248,0.4)}
 </style>
 </head>
 <body>
@@ -485,68 +499,6 @@ screenshot: "ato-dashboard.jpg"
 },
 {
 id: 2,
-title: "Fake Account Security Alert",
-intrusionType: "They sent you a fake email",
-attacker: { name: "GHOST", emoji: "👻" },
-stake: 0,
-loss: "myGov login stolen",
-setup: "You use myGov to check your ATO messages. The app is how you'd view real alerts. But someone's trying to fake one.",
-message: {
-channel: "Email",
-subject: "URGENT: Suspicious activity detected on your ATO account",
-sender: "security@ato-gov-alert.com",
-timestamp: "Today, 9:47am",
-body: "Dear Taxpayer,\n\nWe have detected unusual login activity on your ATO account. For your security, your account has been temporarily restricted.\n\nYou must verify your identity within 24 hours to prevent permanent suspension.\n\n[Verify Account Now]\n\nAustralian Taxation Office"
-},
-question: "What now?",
-options: [
-{ icon: "🌐", text: "Type my.gov.au in the browser", id: "type_mygov", unsafe: false, autofill: false },
-{ icon: "🔗", text: "Click Verify Account Now — perfect branding", id: "click_link", unsafe: true, autofill: true, consequence: "myGov credentials submitted to a cloned login page." },
-{ icon: "✉️", text: "Reply asking them to confirm identity", id: "reply_email", unsafe: true, autofill: false, consequence: "Address confirmed as live. Target flagged for repeat attempts." },
-{ icon: "💬", text: "Forward it to a tax agent", id: "ask_agent", unsafe: true, passive: true, autofill: false, consequence: "Advice pending. The ATO account still unchecked." }
-],
-feedback: {
-type_mygov: {
-headline: "Nice. You went direct.",
-body: "You never touched the email — you opened the account yourself.",
-detail: "Typing my.gov.au into the address bar means no link, no lookalike domain, and no cloned page can sit between you and the real service. Genuine ATO messages wait for you in your myGov Inbox."
-},
-click_link: {
-headline: "They got your login",
-body: "Perfect branding is cheap — the sender address is the giveaway.",
-detail: "\"ato-gov-alert.com\" is not an ATO domain. Logos, footers and formatting can be copied in minutes, so how a message looks tells you nothing. The ATO never sends unsolicited emails containing hyperlinks or QR codes."
-},
-reply_email: {
-headline: "Now they know you're real",
-body: "Replying proves your address is live and invites more attempts.",
-detail: "A scammer who gets a reply now knows a real person reads that inbox, which makes you worth targeting again. The ATO will never ask for personal identifying information over email."
-},
-ask_agent: {
-headline: "Good instinct, still waiting",
-body: "A tax agent is a real authority, but the account still hasn't been checked.",
-detail: "Asking a professional is a genuinely good instinct and not a wrong one. It's just slower than the answer: you can settle this yourself in under a minute by logging in to myGov. Ask the agent as well, not instead."
-}
-},
-reveal: {
-title: "Checking The Real Account",
-steps: [
-"Type my.gov.au in the address bar",
-"Log in and open ATO from linked services",
-"Check the myGov Inbox for genuine ATO messages"
-],
-truth: "Your ATO account showed no restrictions at all.",
-cost: "<strong>myGov credentials stolen</strong> = scammers can redirect your refunds and alter your super.",
-everyday: "This is the same myGov inbox you'd check for real ATO letters. It also exposed this fake.",
-feature: "myGov Inbox",
-prompt: "How would you check?",
-manage: "Read genuine ATO letters and messages in your myGov Inbox.",
-protect: "Check your account directly instead of trusting a link in an email.",
-detail: "Real ATO communications arrive in your myGov Inbox or as official letters — never as an unsolicited email with a login link. If a message and your Inbox disagree, the Inbox is right.",
-source: "ato.gov.au/online-services/scams-cyber-safety-and-identity-protection/verify-or-report-an-ato-scam"
-}
-},
-{
-id: 3,
 title: "Fake ATO Debt Demand",
 intrusionType: "They left you a threatening voicemail",
 attacker: { name: "SPECTER", emoji: "☠" },
@@ -608,7 +560,7 @@ source: "ato.gov.au/individuals-and-families/paying-the-ato/how-much-you-owe"
 }
 },
 {
-id: 4,
+id: 3,
 title: "Unauthorised Super Transfer",
 intrusionType: "They are moving your super",
 attacker: { name: "VIPER", emoji: "🐍" },
@@ -671,7 +623,7 @@ source: "ato.gov.au/online-services/online-services-for-individuals-and-sole-tra
 }
 },
 {
-id: 5,
+id: 4,
 title: "Unauthorised Tax Lodgment",
 intrusionType: "They filed a tax return as you",
 attacker: { name: "WRAITH", emoji: "🎭" },
@@ -733,7 +685,7 @@ source: "ato.gov.au/online-services/scams-cyber-safety-and-identity-protection/h
 }
 },
 {
-id: 6,
+id: 5,
 title: "Verify an ATO Phone Call",
 intrusionType: "They are calling you right now",
 attacker: { name: "SHADOW", emoji: "🔦" },
@@ -795,6 +747,71 @@ detail: "Verify call is designed to shut down scam calls in real time by putting
 source: "ato.gov.au/media-centre/ato-launches-new-app-feature-to-stop-scam-calls",
 screenshot: "ato-verify-call.png"
 }
+},
+{
+id: 6,
+management: true,
+title: "Bob's Tax Withholding",
+intrusionType: "No scam here — just a tax question",
+banner: "Tax check<br>needed",
+attacker: { name: "BOB, 19", emoji: "🧾" },
+stake: 0,
+loss: "Withholding never checked",
+setup: "Bob started his first full-time job on $58,000. His payslips show $9,800 of tax withheld and he doesn't know if that's right.",
+message: {
+channel: "Payslip",
+subject: "Bob's payslip — year to date",
+sender: "Bob's payslip",
+timestamp: "This pay period",
+body: "Gross salary: $58,000 per year\nTax withheld: $9,800\n\nBob isn't sure whether his employer is withholding the right amount."
+},
+question: "He could guess, or he could check.",
+options: [
+{ icon: "⏳", text: "Wait for tax time and hope for a refund", id: "wait_hope", unsafe: true, passive: true, autofill: false, consequence: "Nothing checked. Any shortfall only surfaces at lodgment." },
+{ icon: "✋", text: "Ask his boss to withhold less", id: "reduce_withholding", unsafe: true, autofill: false, consequence: "Under-withholding sets up a tax bill at year end." },
+{ icon: "📱", text: "Use the ATO app tax withheld calculator", id: "use_calculator", unsafe: false, autofill: false },
+{ icon: "💬", text: "Guess from what his friends pay", id: "guess_friends", unsafe: true, passive: true, autofill: false, consequence: "Someone else's salary tells Bob nothing about his own." }
+],
+feedback: {
+wait_hope: {
+headline: "Still guessing",
+body: "Waiting doesn't answer the question, it just delays it.",
+detail: "If too little is withheld Bob owes money at lodgment. If too much, he has been short every payday for a year. Either way the calculator would have told him in a couple of minutes."
+},
+reduce_withholding: {
+headline: "That builds a debt",
+body: "Withholding less now means owing more later.",
+detail: "PAYG withholding is a prepayment of tax Bob will owe anyway. Lowering it without checking does not reduce the bill, it moves it to lodgment day."
+},
+use_calculator: {
+headline: "Checked it properly",
+body: "The ATO app has a calculator that answers this directly.",
+detail: "Bob enters his gross pay and how often he is paid, and the calculator returns the amount that should be withheld. The ATO puts the in-app version at one to two minutes."
+},
+guess_friends: {
+headline: "Wrong comparison",
+body: "Their pay, thresholds and loans are not his.",
+detail: "A study loan, a second job or a different tax-free threshold claim all change the answer. Bob's own numbers are the only ones that apply to Bob."
+}
+},
+reveal: {
+title: "Checking A Payslip",
+steps: [
+"Open the ATO app and select the tax withheld calculator",
+"Enter gross pay and how often Bob is paid",
+"Read the amount that should be withheld each pay"
+],
+truth: "The calculator put Bob's withholding in the expected range — no surprise bill waiting at lodgment.",
+cost: "<strong>Withholding never checked</strong> = either a bill you did not expect, or a year of smaller pays than you needed.",
+everyday: "This is the same calculator Australians use to sanity-check a new job, a pay rise or a second job.",
+feature: "Tax Withheld Calculator",
+prompt: "What would you do?",
+manage: "Check the tax coming out of each pay, and plan for lodgment.",
+protect: "Know your own numbers, so nobody can invent a refund or a debt for you.",
+detail: "The ATO app includes a simple version of the tax withheld calculator for payments made in 2026–27, which the ATO says takes one to two minutes. The full calculator on ato.gov.au covers weekly, fortnightly, monthly and quarterly pay.",
+source: "ato.gov.au/calculators-and-tools/tax-withheld-calculator",
+screenshot: "ato-tax-calculator.png"
+}
 }
 ];
 let currentScreen = 'landing';
@@ -809,7 +826,7 @@ const PHASES = {
 2: { label: "Phase 2 — They're going for your money" },
 3: { label: "Phase 3 — They're inside. Lock it down." }
 };
-function phaseClass() { return 'phase-' + phaseOf(currentScenario); }
+function phaseClass() { return scenarios[currentScenario] && scenarios[currentScenario].management ? 'phase-manage' : 'phase-' + phaseOf(currentScenario); }
 function comboStreak() {
 let streak = 0;
 for (const s of scenarios) {
@@ -941,10 +958,10 @@ if (!opt.unsafe) return 'safe';
 return opt.passive ? 'unresolved' : 'breach';
 }
 function rankFor(n) {
-if (n === 6) return { icon: '🏆', label: 'Untouchable',   sub: 'Nothing got through. Not one.' };
-if (n >= 4)  return { icon: '🛡', label: 'Lockdown Pro',  sub: 'You stopped most of them.' };
-if (n >= 2)  return { icon: '📡', label: 'Getting There', sub: 'Some got through. Look at those ones.' };
-return              { icon: '🔓', label: 'They Got You',  sub: 'They got in more than they should have.' };
+if (n === 6) return { icon: '🏆', label: 'Fortress',       sub: 'Perfect run. You used every ATO feature correctly.' };
+if (n === 5) return { icon: '🛡', label: 'Elite Defender', sub: 'Strong work. Nearly every feature used correctly.' };
+if (n === 4) return { icon: '📡', label: 'Operative',      sub: 'Good start. Review the features you missed.' };
+return              { icon: '🔓', label: 'Rookie',         sub: 'Keep practising. The ATO app both manages and protects.' };
 }
 function neutralisedCount() {
 return userChoices.filter(c => c.outcome === 'safe').length;
@@ -958,6 +975,7 @@ else if (currentScreen === 'scenario-message') renderScenarioMessage(app);
 else if (currentScreen === 'scenario-decision') renderScenarioDecision(app);
 else if (currentScreen === 'scenario-feedback') renderScenarioFeedback(app);
 else if (currentScreen === 'scenario-reveal') renderScenarioReveal(app);
+else if (currentScreen === 'ato-features') renderATOFeatures(app);
 else if (currentScreen === 'gameover') renderGameOver(app);
 else if (currentScreen === 'report') renderReport(app);
 }
@@ -1026,12 +1044,12 @@ const s = scenarios[currentScenario];
 container.innerHTML = `
 <div class="card ${phaseClass()}">
 ${renderProgress()}
-<div class="phase-tag">${PHASES[phaseOf(currentScenario)].label}</div>
-<h2 class="breach-banner">They're trying<br>to get in</h2>
+${s.management ? `<div class="phase-tag manage-tag">Phase 4 &mdash; Now manage it yourself</div>` : `<div class="phase-tag">${PHASES[phaseOf(currentScenario)].label}</div>`}
+<h2 class="breach-banner${s.management ? ' manage-banner' : ''}">${s.banner || "They're trying<br>to get in"}</h2>
 <div class="breach-sub">${s.intrusionType}</div>
 <div class="target-line">
 <span class="target-avatar">${s.attacker.emoji}</span>
-<span class="target-val"><b class="codename">${s.attacker.name}</b> <span class="target-sep">|</span> ${s.setup}</span>
+<span class="target-val"><b class="codename${s.management ? ' manage-name' : ''}">${s.attacker.name}</b> <span class="target-sep">|</span> ${s.setup}</span>
 </div>
 <button class="btn btn-primary" onclick="seeMessage()">See the message</button>
 </div>
@@ -1060,8 +1078,8 @@ ${reviewing
 container.innerHTML = `
 <div class="card ${phaseClass()}">
 ${renderProgress()}
-<span class="tag tag-simulated">⚠ Not real — this is a simulation</span>
-<h2 class="sys-head" style="font-size:0.92rem;">${reviewing ? 'Reading it again' : s.attacker.emoji + ' ' + s.attacker.name + ' just contacted you'}</h2>
+<span class="tag ${s.management ? 'tag-manage' : 'tag-simulated'}">${s.management ? '🧾 Tax check — no scam in this one' : '⚠ Not real — this is a simulation'}</span>
+<h2 class="sys-head" style="font-size:0.92rem;">${reviewing ? 'Reading it again' : (s.management ? s.attacker.emoji + ' ' + s.attacker.name + ' needs to check something' : s.attacker.emoji + ' ' + s.attacker.name + ' just contacted you')}</h2>
 <div class="sys-rule"></div>
 <div id="msg-slot">
 <div class="decrypt">
@@ -1190,7 +1208,7 @@ ${s.reveal.costNote ? `<div class="source-line" style="margin-top:9px;">${s.reve
 <div class="source-line">Source: ${s.reveal.source}</div>
 <div class="unlock-badge">🔓 Feature mastered: <b>${s.reveal.feature}</b></div>
 <button class="btn btn-primary" onclick="nextScenario()" style="margin-top:16px;">
-${currentScenario < scenarios.length - 1 ? 'Next attack' : 'See how you did'}
+${currentScenario < scenarios.length - 1 ? (scenarios[currentScenario + 1].management ? 'Next: manage it' : 'Next attack') : 'See the ATO app features'}
 </button>
 </div>
 `;
@@ -1230,6 +1248,34 @@ ${lastFb ? `<div class="last-move"><span class="last-move-key">Your last move</s
 Sound.breach();
 breachFlash();
 }
+function renderATOFeatures(container) {
+window.scrollTo(0, 0);
+const cards = [
+{ icon: '📄', name: 'myDeductions', desc: 'Record deductions on the go and upload them at tax time.', img: 'ato-my-deductions.png', cap: 'ATO app — myDeductions' },
+{ icon: '💰', name: 'Tax withheld calculator', desc: 'Check whether your employer is withholding the right amount.' },
+{ icon: '📬', name: 'myGov Inbox', desc: 'Real ATO letters arrive here. Scam emails never do.' },
+{ icon: '📊', name: 'Super balance', desc: 'Track every super account in one place, and find lost super.' },
+{ icon: '🔒', name: 'Account lock', desc: 'Lock your ATO record if you see activity you did not start.' },
+{ icon: '📞', name: 'Verify call', desc: 'Confirm an ATO phone call is genuine before you say anything.' }
+];
+const cardsHtml = cards.map(c => `
+<div class="feat-card">
+<div class="feat-head"><span class="feat-icon" aria-hidden="true">${c.icon}</span><span class="feat-name">${c.name}</span></div>
+<p class="feat-desc">${c.desc}</p>
+${c.img ? `<div class="screenshot-frame"><img src="${c.img}" alt="${c.cap}" onerror="this.parentElement.style.display='none'"><div class="screenshot-caption">${c.cap}</div></div>` : ''}
+</div>`).join('');
+container.innerHTML = `
+<div class="card">
+<div class="sys-label">Everything you just used</div>
+<h1 style="font-family:var(--mono);font-size:1.15rem;letter-spacing:1.6px;text-transform:uppercase;margin-bottom:6px;">ATO app features</h1>
+<p class="lede">The same tools that manage your tax and super are the ones that stop scammers.</p>
+<div class="sys-rule"></div>
+<div class="feat-grid">${cardsHtml}</div>
+<button class="btn btn-primary" onclick="goTo('report')">View your report</button>
+</div>
+`;
+}
+
 function renderReport(container) {
 window.scrollTo(0, 0);
 const total = scenarios.length;
@@ -1264,7 +1310,7 @@ ${neutralised === total ? `
 <div class="rank-sub">${rank.sub}</div>
 <div class="report-metric">
 <div class="number" id="score-number">0/${total}</div>
-<div class="label">Verified through an official ATO channel</div>
+<div class="label">ATO features used correctly</div>
 </div>
 <div class="tally">
 <div class="tally-item">
@@ -1281,9 +1327,7 @@ ${neutralised === total ? `
 </div>
 </div>
 <p style="text-align:center; color:var(--text);">
-${neutralised >= 2
-? `You stopped <strong>${neutralised} of ${total}</strong> fraud attempts using ATO tax and super management features. The same tools that manage your money also protect it.`
-: `You stopped <strong>${neutralised} of ${total}</strong> fraud attempts. Every one of them was stoppable with a feature you already have. The same tools that manage your money also protect it.`}
+You used <strong>${neutralised} of ${total}</strong> ATO tax and super management features correctly. The same tools that manage your money also protect it.
 </p>
 <div class="reveal-box" style="border-left-color:var(--accent); background:rgba(245,158,11,0.08); border-color:rgba(245,158,11,0.25);">
 <h2 style="color:var(--accent);font-family:var(--mono);font-size:0.7rem;text-transform:uppercase;letter-spacing:1.3px;margin-bottom:6px;">What you learned</h2>
@@ -1393,7 +1437,7 @@ function nextScenario() {
 reviewing = false;
 currentScenario++;
 if (currentScenario >= scenarios.length) {
-goTo('report');
+goTo('ato-features');
 } else {
 goTo('scenario-setup');
 }
