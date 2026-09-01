@@ -327,6 +327,25 @@ h1{font-size:1.4rem}
 @media (max-width:480px){.hud-stats{margin-bottom:10px;padding-top:7px;gap:4px 12px}.phase-tag{margin-bottom:8px;padding:4px 8px}.breach-banner{margin:2px 0 6px}.breach-sub{margin-bottom:10px}.target-line{padding:9px 11px;margin-bottom:12px}.sys-rule{margin:14px 0}}
 
 @media (max-height:700px){.target-val{font-size:0.85rem}.target-line{padding:8px 10px;margin-bottom:10px}.hud-stats{margin-bottom:8px}}
+
+.sim-banner{background:rgba(245,158,11,0.16);border:1px solid rgba(245,158,11,0.5);color:#fde68a;font-family:var(--mono);font-size:0.7rem;letter-spacing:1px;text-transform:uppercase;text-align:center;padding:8px 10px;border-radius:6px;margin-bottom:14px;line-height:1.4}
+.fict{color:#94a3b8;font-size:0.7rem;letter-spacing:0.6px;opacity:0.85}
+.decide-prompt{font-family:var(--mono);font-weight:700;font-size:clamp(1.25rem,5.5vw,1.7rem);letter-spacing:1.5px;text-transform:uppercase;color:var(--cyan);line-height:1.15;margin:2px 0 8px;text-shadow:0 0 22px rgba(56,189,248,0.3)}
+.decide-sub{font-size:0.95rem;color:var(--text-muted);line-height:1.5;margin-bottom:6px}
+.ato-help{background:rgba(34,197,94,0.07);border:1px solid rgba(34,197,94,0.28);border-left:3px solid var(--success);border-radius:0 8px 8px 0;padding:14px 16px;margin:14px 0}
+.ato-help-head{font-family:var(--mono);font-size:0.7rem;letter-spacing:1.3px;text-transform:uppercase;color:var(--success);margin-bottom:7px}
+.ato-feature{font-size:1rem;font-weight:600;color:var(--text);margin-bottom:11px;line-height:1.35}
+.ato-row{display:flex;gap:10px;align-items:flex-start;margin-bottom:8px}
+.ato-tag{flex:0 0 auto;font-family:var(--mono);font-size:0.7rem;font-weight:700;letter-spacing:0.8px;padding:3px 8px;border-radius:4px;min-width:64px;text-align:center}
+.ato-tag.manage{background:rgba(56,189,248,0.16);color:#7dd3fc;border:1px solid rgba(56,189,248,0.4)}
+.ato-tag.protect{background:rgba(34,197,94,0.16);color:#86efac;border:1px solid rgba(34,197,94,0.42)}
+.ato-txt{flex:1 1 auto;font-size:0.86rem;line-height:1.55;color:#cbd5e1}
+.ato-note{margin-top:10px;padding-top:9px;border-top:1px solid rgba(148,163,184,0.14);font-size:0.82rem;line-height:1.55;color:var(--text-muted)}
+.ato-links{margin:16px 0 4px;text-align:left}
+.ato-links-head{font-family:var(--mono);font-size:0.7rem;letter-spacing:1.3px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px}
+.ato-links a{display:block;font-size:0.86rem;color:var(--cyan);text-decoration:none;padding:8px 0;min-height:40px;border-bottom:1px solid rgba(148,163,184,0.12);line-height:1.5}
+.ato-links a:last-child{border-bottom:none}
+.ato-links a:hover{text-decoration:underline}
 </style>
 </head>
 <body>
@@ -340,18 +359,19 @@ An independent student project. Not affiliated with or endorsed by the Australia
 <div class="container" id="app"></div>
 <div id="exfil-overlay" class="exfil-screen hidden">
 <div class="exfil-box">
+<div class="sim-banner">Simulation &mdash; no real information is requested</div>
 <div class="exfil-head">⚠ Your info is being stolen</div>
 <div class="exfil-sub">Going straight to someone you don't know</div>
 <div class="fake-field">
-<div class="fake-field-label">Full Name</div>
+<div class="fake-field-label">Full Name <span class="fict">fictional</span></div>
 <div class="fake-field-value"><span class="typed" style="animation-delay:0.3s;">Your name</span><span class="cursor"></span></div>
 </div>
 <div class="fake-field">
-<div class="fake-field-label">Tax File Number</div>
+<div class="fake-field-label">Tax File Number <span class="fict">fictional</span></div>
 <div class="fake-field-value"><span class="typed" style="animation-delay:1.2s;">••• ••• •••</span><span class="cursor"></span></div>
 </div>
 <div class="fake-field">
-<div class="fake-field-label">Bank BSB / Account</div>
+<div class="fake-field-label">Bank BSB / Account <span class="fict">fictional</span></div>
 <div class="fake-field-value"><span class="typed" style="animation-delay:2.0s;">062-000 / ••••••••</span><span class="cursor"></span></div>
 </div>
 <div class="exfil-warning">
@@ -443,6 +463,9 @@ truth: "Your return was still processing. No refund had been issued.",
 cost: "<strong>$642 stolen</strong> = about 24 hours of work at the national minimum wage.",
 everyday: "This is the ATO screen Australians use to track real refunds. It also caught this fake.",
 feature: "Tax Return Status",
+prompt: "How would you check?",
+manage: "Track your tax return from lodgment through to refund.",
+protect: "Confirm whether a refund message is real before you act on it.",
 detail: "Online returns generally process within two weeks, and up to 30 days if a manual review is needed. Three weeks with no refund is completely normal — which is exactly the uncertainty this scam is built to exploit.",
 source: "ato.gov.au/individuals-and-families/your-tax-return/check-the-progress-of-your-tax-return",
 screenshot: "ato-dashboard.jpg"
@@ -503,6 +526,9 @@ truth: "Your ATO account showed no restrictions at all.",
 cost: "<strong>myGov credentials stolen</strong> = scammers can redirect your refunds and alter your super.",
 everyday: "This is the same myGov inbox you'd check for real ATO letters. It also exposed this fake.",
 feature: "myGov Inbox",
+prompt: "How would you check?",
+manage: "Read genuine ATO letters and messages in your myGov Inbox.",
+protect: "Check your account directly instead of trusting a link in an email.",
 detail: "Real ATO communications arrive in your myGov Inbox or as official letters — never as an unsolicited email with a login link. If a message and your Inbox disagree, the Inbox is right.",
 source: "ato.gov.au/online-services/scams-cyber-safety-and-identity-protection/verify-or-report-an-ato-scam"
 }
@@ -562,6 +588,9 @@ truth: "Your ATO account showed no debt. The voicemail was fake.",
 cost: "<strong>$1,204.65 paid to a scammer</strong> = about 46 hours of work you'll never get back.",
 everyday: "This is where Australians check genuine tax debts and set up payment plans. It also proved this voicemail was a lie.",
 feature: "Account Balance &amp; Payment Plans",
+prompt: "How would you check?",
+manage: "See exactly what you owe and set up a payment plan.",
+protect: "Confirm whether a demanded debt actually exists.",
 detail: "A genuine debt appears here with the exact amount and due date, and the ATO will work with you on a payment plan. It does not arrive as a threatening voicemail with a 24-hour deadline.",
 source: "ato.gov.au/individuals-and-families/paying-the-ato/how-much-you-owe"
 }
@@ -622,6 +651,9 @@ cost: "<strong>$4,850 stolen from super today</strong> = about $73,000 less at r
 costNote: "Independent calculation for illustration, not an ATO forecast.",
 everyday: "This is how Australians track super balances and find lost super. It also stopped this unauthorised transfer.",
 feature: "Super Balance &amp; Account Lock",
+prompt: "What would you do?",
+manage: "Track super balances, find lost super and consolidate funds.",
+protect: "Get alerted to a transfer you didn't request, and lock the account.",
 detail: "Account locking is a powerful fraud prevention tool. While locked, most personalised features and ATO Online services are inaccessible, and you can unlock from the same registered device once it's safe.",
 source: "ato.gov.au/online-services/online-services-for-individuals-and-sole-traders/ato-app/manage-your-tax-and-super-with-the-ato-app"
 }
@@ -681,6 +713,9 @@ truth: "Your identity was targeted. Locking the record stopped it going further.
 cost: "<strong>Scammers can steal your refund</strong> and lock you out of your own account.",
 everyday: "This is how Australians check when their real agent lodged their return. It also caught this identity fraud.",
 feature: "Lodgment History &amp; Security Alerts",
+prompt: "What would you do?",
+manage: "See your lodgment history, including when your agent lodges for you.",
+protect: "Get a real-time alert if a return is lodged in your name.",
 detail: "Real-time security messages fire when key changes occur — income tax lodgments, bank account updates and device registrations. The feature exists to help you catch identity crime as it happens.",
 source: "ato.gov.au/online-services/scams-cyber-safety-and-identity-protection/help-for-identity-theft"
 }
@@ -741,6 +776,9 @@ truth: "The call was genuine. You verified it and carried on safely.",
 cost: "<strong>TFN + myGov password stolen</strong> = full account access. Scammers can redirect refunds and alter your super.",
 everyday: "This is how business owners manage BAS and verify ATO contact. It also confirmed this call was real.",
 feature: "Verify Call",
+prompt: "How would you check?",
+manage: "Lodge and track your BAS and other business obligations.",
+protect: "Confirm in about 30 seconds whether an ATO call is genuine.",
 detail: "Verify call is designed to shut down scam calls in real time by putting the check in the taxpayer's hands. If verification can't be confirmed, treat the interaction as suspicious and end the call.",
 source: "ato.gov.au/media-centre/ato-launches-new-app-feature-to-stop-scam-calls",
 screenshot: "ato-verify-call.png"
@@ -1045,8 +1083,8 @@ optionsHtml += `
 container.innerHTML = `
 <div class="card ${phaseClass()}">
 ${renderProgress()}
-<div class="sys-label">What do you do?</div>
-<h2 style="margin-top:6px;">${s.question}</h2>
+<div class="decide-prompt">${s.reveal.prompt}</div>
+<p class="decide-sub">${s.question}</p>
 <button class="btn-review" onclick="reviewMessage()">↩ Review message</button>
 <div class="sys-rule"></div>
 ${optionsHtml}
@@ -1116,9 +1154,12 @@ ${renderProgress()}
 <h2>${s.reveal.title}</h2>
 <div class="sys-rule"></div>
 ${screenshotHtml}
-<div class="reveal-box" style="border-left-color:var(--success); background:rgba(34,197,94,0.06); border-color:rgba(34,197,94,0.22);">
-<h4 style="color:var(--success);">Everyday use</h4>
-<p>${s.reveal.everyday}</p>
+<div class="ato-help">
+<div class="ato-help-head">How the ATO app helps</div>
+<div class="ato-feature">${s.reveal.feature}</div>
+<div class="ato-row"><span class="ato-tag manage">Manage</span><span class="ato-txt">${s.reveal.manage}</span></div>
+<div class="ato-row"><span class="ato-tag protect">Protect</span><span class="ato-txt">${s.reveal.protect}</span></div>
+<div class="ato-note">${s.reveal.everyday}</div>
 </div>
 <div class="reveal-box">
 <div class="check-head" style="margin-top:0; padding-top:0; border-top:none;">How to check it yourself</div>
@@ -1211,7 +1252,7 @@ ${neutralised === total ? `
 <div class="rank-sub">${rank.sub}</div>
 <div class="report-metric">
 <div class="number" id="score-number">0/${total}</div>
-<div class="label">Attacks stopped</div>
+<div class="label">Verified through an official ATO channel</div>
 </div>
 <div class="tally">
 <div class="tally-item">
@@ -1242,6 +1283,16 @@ ${summaryHtml}
 <div class="reveal-box" style="border-left-color:var(--accent); background:rgba(245,158,11,0.08); border-color:rgba(245,158,11,0.25);">
 <h4 style="color:var(--accent);">The one rule</h4>
 <p>If a message about your tax or super looks off, don't trust it and don't ignore it. <strong>Open the ATO app, or type my.gov.au yourself, and check.</strong> That's the whole thing.</p>
+</div>
+<div class="reveal-box" style="border-left-color:var(--cyan);">
+<h4>What you learned</h4>
+<p>You used an official verification method in <strong>${neutralised} of ${total}</strong> situations. When something involves your tax, super or ATO account, don't trust the message itself &mdash; check it through an official ATO channel.</p>
+</div>
+<div class="ato-links">
+<div class="ato-links-head">Official ATO resources</div>
+<a href="https://www.ato.gov.au/online-services/scams-cyber-safety-and-identity-protection/verify-or-report-an-ato-scam" target="_blank" rel="noopener noreferrer">Verify or report an ATO scam</a>
+<a href="https://www.ato.gov.au/online-services/scams-cyber-safety-and-identity-protection/help-for-identity-theft" target="_blank" rel="noopener noreferrer">Help for identity theft</a>
+<a href="https://www.ato.gov.au/online-services/online-services-for-individuals-and-sole-traders/ato-app" target="_blank" rel="noopener noreferrer">The ATO app</a>
 </div>
 <button class="btn btn-primary" onclick="restart()" style="margin-top:16px;">Play again</button>
 </div>
