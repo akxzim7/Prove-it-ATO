@@ -113,7 +113,7 @@ to{transform:scaleX(1)}
 }
 .verdict-title{font-family:var(--mono);font-size:0.95rem;letter-spacing:1.4px;font-weight:700;text-transform:uppercase}
 .verdict-title.safe{color:var(--success)}
-.verdict-title.risky{color:var(--danger)}
+.verdict-title.risky{color:#fca5a5}
 .verdict-title.unresolved{color:var(--warn)}
 .consequence{font-family:var(--mono);font-size:0.74rem;line-height:1.65;padding:10px 12px;border-radius:6px;margin-bottom:14px}
 .consequence.risky{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#fca5a5}
@@ -127,8 +127,8 @@ to{transform:scaleX(1)}
 .pathway-text{font-size:0.9rem;color:#cbd5e1}
 .screenshot-frame{background:var(--bg-deep);border:1px solid var(--border);border-radius:8px;padding:12px;margin:16px 0;text-align:center}
 .screenshot-frame img{max-width:100%;border-radius:6px;display:block;margin:0 auto}
-.screenshot-caption{font-family:var(--mono);font-size:0.7rem;color:#64748b;margin-top:8px;letter-spacing:0.5px}
-.source-line{font-family:var(--mono);font-size:0.7rem;color:#5b6b85;margin-top:16px;line-height:1.7;word-break:break-word}
+.screenshot-caption{font-family:var(--mono);font-size:0.7rem;color:#93a5c0;margin-top:8px;letter-spacing:0.5px}
+.source-line{font-family:var(--mono);font-size:0.7rem;color:#93a5c0;margin-top:16px;line-height:1.7;word-break:break-word}
 .lede{font-size:1rem;line-height:1.55;color:var(--text);margin:14px 0 4px}
 .more{margin:10px 0 14px}
 .more>summary{list-style:none;cursor:pointer;font-family:var(--mono);font-size:0.7rem;text-transform:uppercase;letter-spacing:1.2px;color:var(--cyan);padding:7px 0;display:flex;align-items:center;gap:7px}
@@ -139,7 +139,7 @@ to{transform:scaleX(1)}
 .more>p{margin:4px 0 0;font-size:0.84rem;line-height:1.65;color:var(--text-muted);border-left:2px solid rgba(56,189,248,0.25);padding-left:12px}
 .threat-meter{background:var(--bg-deep);border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:14px 16px;margin:18px 0;text-align:left}
 .tm-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
-.tm-val{font-family:var(--mono);font-size:0.7rem;font-weight:700;letter-spacing:1.3px;color:var(--danger);animation:livePulse 2s ease-in-out infinite}
+.tm-val{font-family:var(--mono);font-size:0.7rem;font-weight:700;letter-spacing:1.3px;color:#fca5a5;animation:livePulse 2s ease-in-out infinite}
 .tm-track{height:7px;background:#1b2740;border-radius:3px;overflow:hidden}
 .tm-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--danger));transform-origin:left;animation:fillMeter 1.4s cubic-bezier(0.2,0.8,0.3,1) forwards}
 @keyframes fillMeter{from{transform:scaleX(0)}
@@ -163,7 +163,7 @@ to{opacity:1;transform:scale(1);letter-spacing:3px}
 .target-line{display:flex;gap:10px;align-items:baseline;background:var(--bg-deep);border:1px solid var(--border);border-radius:8px;padding:11px 13px;margin-bottom:16px}
 .target-key{font-family:var(--mono);font-size:0.7rem;letter-spacing:1.1px;text-transform:uppercase;color:var(--accent);flex:0 0 auto;white-space:nowrap}
 .target-val{font-size:0.9rem;color:#cbd5e1;line-height:1.5}
-.target-sep{color:#475569;padding:0 2px}
+.target-sep{color:#8095b3;padding:0 2px}
 .btn-option{display:flex;align-items:center;gap:14px;padding:15px 16px;min-height:62px}
 .btn-option:active{transform:translateX(3px) scale(0.985)}
 .btn:active{transform:scale(0.985)}
@@ -172,7 +172,7 @@ to{opacity:1;transform:scale(1);letter-spacing:3px}
 .btn-option:hover .opt-icon{border-color:var(--cyan)}
 .hud-stats{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:9px;margin-bottom:15px;padding-top:9px;border-top:1px solid rgba(148,163,184,0.13)}
 .hud-stat{display:flex;align-items:baseline;gap:6px}
-.hud-stat-key{font-family:var(--mono);font-size:0.7rem;letter-spacing:1px;text-transform:uppercase;color:#64748b}
+.hud-stat-key{font-family:var(--mono);font-size:0.7rem;letter-spacing:1px;text-transform:uppercase;color:#93a5c0}
 .hud-stat-val{font-family:var(--mono);font-size:0.8rem;font-weight:700;letter-spacing:0.6px;color:var(--cyan)}
 .check-head{font-family:var(--mono);font-size:0.7rem;letter-spacing:1.2px;text-transform:uppercase;color:var(--accent);margin:13px 0 9px;padding-top:11px;border-top:1px solid rgba(148,163,184,0.14)}
 .reveal-box .pathway-step:last-child{margin-bottom:0}
@@ -203,7 +203,7 @@ to{opacity:1;transform:scale(1);letter-spacing:3px}
 .phase-2 .phase-tag{color:#fdba74;background:rgba(249,115,22,0.12);border:1px solid rgba(249,115,22,0.35)}
 .phase-3 .phase-tag{color:#fca5a5;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.38)}
 .target-avatar{font-size:1.15rem;line-height:1;flex:0 0 auto}
-.codename{font-family:var(--mono);letter-spacing:1.4px;color:var(--danger)}
+.codename{font-family:var(--mono);letter-spacing:1.4px;color:#fca5a5}
 .vault-ring{width:92px;height:92px;margin:4px auto 14px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2.1rem;background:radial-gradient(circle at 50% 38%,#1e2b45 0%,#131c2e 70%);border:3px solid var(--border);position:relative}
 .vault-ring::after{content:'';position:absolute;inset:7px;border-radius:50%;border:1px dashed rgba(148,163,184,0.24)}
 .vault-ring.landing{border-color:rgba(245,158,11,0.55);box-shadow:0 0 30px rgba(245,158,11,0.28),inset 0 0 20px rgba(245,158,11,0.10)}
@@ -242,7 +242,7 @@ to{opacity:1;transform:scale(1);letter-spacing:3px}
 .stolen-list li:last-child{border-bottom:none}
 .stolen-list li::before{content:'✕';position:absolute;left:2px;top:7px;color:var(--danger);font-size:0.7rem}
 .last-move{text-align:left;font-size:0.83rem;line-height:1.6;color:#cbd5e1;background:rgba(15,23,42,0.5);border:1px solid var(--border);border-radius:8px;padding:11px 13px;margin-bottom:16px}
-.last-move-key{display:block;font-family:var(--mono);font-size:0.7rem;letter-spacing:1.2px;text-transform:uppercase;color:#64748b;margin-bottom:4px}
+.last-move-key{display:block;font-family:var(--mono);font-size:0.7rem;letter-spacing:1.2px;text-transform:uppercase;color:#93a5c0;margin-bottom:4px}
 .vault-ring.perfect{border-color:#fbbf24;box-shadow:0 0 40px rgba(251,191,36,0.5),inset 0 0 24px rgba(251,191,36,0.2);animation:perfectGlow 2.6s ease-in-out infinite}
 @keyframes perfectGlow{0%,100%{box-shadow:0 0 40px rgba(251,191,36,0.5),inset 0 0 24px rgba(251,191,36,0.2)}
 50%{box-shadow:0 0 58px rgba(251,191,36,0.75),inset 0 0 30px rgba(251,191,36,0.3)}
@@ -350,6 +350,14 @@ h1{font-size:1.4rem}
 .summary-wrap{margin-top:4px}
 .more>p,.more>div,.more>ul{margin-top:6px}
 .more>ul.everyday-list{border-left:2px solid rgba(56,189,248,0.25);padding-left:22px;margin-left:0}
+
+.gameover-head{font-family:var(--mono)}
+:focus-visible{outline:3px solid var(--cyan);outline-offset:3px;border-radius:6px}
+.btn:focus-visible,.btn-option:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.btn-review:focus-visible,.teacher-link:focus-visible,.sound-toggle:focus-visible,.modal-close:focus-visible,.ato-links a:focus-visible,.more>summary:focus-visible{outline:3px solid var(--cyan);outline-offset:3px}
+.more>summary{border-radius:5px}
+
+h2.breach-banner,h2.decide-prompt,h2.verdict-title,h2.sys-head{margin-top:0}
 </style>
 </head>
 <body>
@@ -396,7 +404,7 @@ SENDING TO AN UNKNOWN SERVER
 <div class="tg-row"><span class="tg-key">Time required</span><span class="tg-val">15 minutes total (5 min simulator + 10 min class discussion)</span></div>
 <div class="tg-row"><span class="tg-key">Setup</span><span class="tg-val">None. No login, no app install, no student data collected. Works on mobile and school networks.</span></div>
 </div>
-<h4 class="tg-head">Learning outcomes</h4>
+<h3 class="tg-head">Learning outcomes</h3>
 <ul class="tg-list">
 <li>Identify common ATO impersonation scams across SMS, email, phone and app notifications.</li>
 <li>Verify suspicious contact independently through the ATO app or my.gov.au instead of trusting the message.</li>
@@ -1019,7 +1027,7 @@ container.innerHTML = `
 <div class="card ${phaseClass()}">
 ${renderProgress()}
 <div class="phase-tag">${PHASES[phaseOf(currentScenario)].label}</div>
-<div class="breach-banner">They're trying<br>to get in</div>
+<h2 class="breach-banner">They're trying<br>to get in</h2>
 <div class="breach-sub">${s.intrusionType}</div>
 <div class="target-line">
 <span class="target-avatar">${s.attacker.emoji}</span>
@@ -1053,7 +1061,7 @@ container.innerHTML = `
 <div class="card ${phaseClass()}">
 ${renderProgress()}
 <span class="tag tag-simulated">⚠ Not real — this is a simulation</span>
-<div class="sys-head" style="font-size:0.92rem;">${reviewing ? 'Reading it again' : s.attacker.emoji + ' ' + s.attacker.name + ' just contacted you'}</div>
+<h2 class="sys-head" style="font-size:0.92rem;">${reviewing ? 'Reading it again' : s.attacker.emoji + ' ' + s.attacker.name + ' just contacted you'}</h2>
 <div class="sys-rule"></div>
 <div id="msg-slot">
 <div class="decrypt">
@@ -1087,7 +1095,7 @@ optionsHtml += `
 container.innerHTML = `
 <div class="card ${phaseClass()}">
 ${renderProgress()}
-<div class="decide-prompt">${s.reveal.prompt}</div>
+<h2 class="decide-prompt">${s.reveal.prompt}</h2>
 <p class="decide-sub">${s.question}</p>
 <button class="btn-review" onclick="reviewMessage()">↩ Review message</button>
 <div class="sys-rule"></div>
@@ -1117,7 +1125,7 @@ container.innerHTML = `
 ${renderProgress({ bump: outcome === 'safe' })}
 <div class="verdict">
 <div class="verdict-icon ${view.iconClass}">${view.icon}</div>
-<div class="verdict-title ${view.iconClass}">${fb.headline}</div>
+<h2 class="verdict-title ${view.iconClass}">${fb.headline}</h2>
 </div>
 ${streakText ? `<div class="streak-badge ${outcome === 'safe' ? 'on' : 'off'}">${outcome === 'safe' ? '🔥 ' : '💔 '}${streakText}</div>` : ''}
 <div class="consequence ${consequenceClass}">&gt; ${view.consequence}</div>
@@ -1163,16 +1171,15 @@ ${screenshotHtml}
 <div class="ato-feature">${s.reveal.feature}</div>
 <div class="ato-row"><span class="ato-tag manage">Manage</span><span class="ato-txt">${s.reveal.manage}</span></div>
 <div class="ato-row"><span class="ato-tag protect">Protect</span><span class="ato-txt">${s.reveal.protect}</span></div>
-<div class="ato-note">${s.reveal.everyday}</div>
 </div>
 <div class="reveal-box">
 <div class="check-head" style="margin-top:0; padding-top:0; border-top:none;">How to check it yourself</div>
 ${stepsHtml}
-<h4 style="margin-top:14px;">The real story</h4>
+<h3 style="margin-top:14px;">The real story</h3>
 <p>${s.reveal.truth}</p>
 </div>
 <div class="reveal-box" style="border-left-color:var(--danger); background:rgba(239,68,68,0.07); border-color:rgba(239,68,68,0.22);">
-<h4 style="color:#fca5a5;">Cost of getting it wrong</h4>
+<h3 style="color:#fca5a5;">Cost of getting it wrong</h3>
 <p>${s.reveal.cost}</p>
 ${s.reveal.costNote ? `<div class="source-line" style="margin-top:9px;">${s.reveal.costNote}</div>` : ''}
 </div>
@@ -1208,13 +1215,13 @@ const lastFb = lastOpt ? scenarios[currentScenario].feedback[lastOpt.id] : null;
 container.innerHTML = `
 <div class="card card-breach phase-3" style="text-align:center;">
 <div class="vault-ring cracked"><span>🔓</span></div>
-<div class="gameover-head">They got in</div>
+<h2 class="gameover-head">They got in</h2>
 <div class="gameover-loss">${loss}</div>
 <ul class="stolen-list">${stolenList}</ul>
 ${lastFb ? `<div class="last-move"><span class="last-move-key">Your last move</span>${lastFb.headline} — ${lastFb.body}</div>` : ''}
 <p style="color:var(--text);">Your vault is compromised. Every one of those attacks had the same way out: stop, and check it yourself in the ATO app or at my.gov.au.</p>
 <div class="reveal-box" style="border-left-color:var(--accent); background:rgba(245,158,11,0.08); border-color:rgba(245,158,11,0.25); text-align:left;">
-<h4 style="color:var(--accent);">The one rule</h4>
+<h3 style="color:var(--accent);">The one rule</h3>
 <p>Never trust the message. Open the ATO app or type my.gov.au yourself. A real message will still be there. A fake one can't follow you.</p>
 </div>
 <button class="btn btn-primary" onclick="restart()" style="margin-top:16px;">Try again</button>
@@ -1279,7 +1286,7 @@ ${neutralised >= 2
 : `You stopped <strong>${neutralised} of ${total}</strong> fraud attempts. Every one of them was stoppable with a feature you already have. The same tools that manage your money also protect it.`}
 </p>
 <div class="reveal-box" style="border-left-color:var(--accent); background:rgba(245,158,11,0.08); border-color:rgba(245,158,11,0.25);">
-<h4 style="color:var(--accent);">What you learned</h4>
+<h2 style="color:var(--accent);font-family:var(--mono);font-size:0.7rem;text-transform:uppercase;letter-spacing:1.3px;margin-bottom:6px;">What you learned</h2>
 <p>You used an official verification method in <strong>${neutralised} of ${total}</strong> situations. When something involves your tax, super or ATO account, don't trust the message &mdash; <strong>open the ATO app, or type my.gov.au yourself, and check.</strong></p>
 </div>
 <button class="btn btn-primary" onclick="restart()">Play again</button>
