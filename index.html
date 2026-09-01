@@ -346,6 +346,10 @@ h1{font-size:1.4rem}
 .ato-links a{display:block;font-size:0.86rem;color:var(--cyan);text-decoration:none;padding:8px 0;min-height:40px;border-bottom:1px solid rgba(148,163,184,0.12);line-height:1.5}
 .ato-links a:last-child{border-bottom:none}
 .ato-links a:hover{text-decoration:underline}
+
+.summary-wrap{margin-top:4px}
+.more>p,.more>div,.more>ul{margin-top:6px}
+.more>ul.everyday-list{border-left:2px solid rgba(56,189,248,0.25);padding-left:22px;margin-left:0}
 </style>
 </head>
 <body>
@@ -1185,6 +1189,7 @@ ${currentScenario < scenarios.length - 1 ? 'Next attack' : 'See how you did'}
 `;
 }
 function renderGameOver(container) {
+window.scrollTo(0, 0);
 clearTimeout(msgTimer);
 clearTimeout(exfilTimer);
 document.getElementById('exfil-overlay').classList.add('hidden');
@@ -1219,6 +1224,7 @@ Sound.breach();
 breachFlash();
 }
 function renderReport(container) {
+window.scrollTo(0, 0);
 const total = scenarios.length;
 const neutralised = userChoices.filter(c => c.outcome === 'safe').length;
 const compromised = userChoices.filter(c => c.outcome === 'breach').length;
@@ -1240,8 +1246,7 @@ const everydayHtml = scenarios.map(s =>
 `<li><b>${s.title}</b> — ${s.reveal.everyday}</li>`).join('');
 container.innerHTML = `
 <div class="card">
-<div class="sys-label" style="text-align:center;">Done</div>
-<h1 style="text-align:center; font-family:var(--mono); font-size:1.3rem; letter-spacing:1.6px; text-transform:uppercase;">How you did</h1>
+<h1 style="text-align:center; font-family:var(--mono); font-size:1.15rem; letter-spacing:1.6px; text-transform:uppercase; margin-bottom:2px;">How you did</h1>
 <div class="vault-ring ${neutralised === total ? 'sealed perfect' : compromised >= 3 ? 'cracked' : 'held'}"><span>${rank.icon}</span></div>
 ${neutralised === total ? `
 <div class="perfect-badge">
@@ -1273,28 +1278,26 @@ ${neutralised >= 2
 ? `You stopped <strong>${neutralised} of ${total}</strong> fraud attempts using ATO tax and super management features. The same tools that manage your money also protect it.`
 : `You stopped <strong>${neutralised} of ${total}</strong> fraud attempts. Every one of them was stoppable with a feature you already have. The same tools that manage your money also protect it.`}
 </p>
-<div style="margin:18px 0;">
-${summaryHtml}
-</div>
-<div class="reveal-box" style="border-left-color:var(--success); background:rgba(34,197,94,0.06); border-color:rgba(34,197,94,0.22);">
-<h4 style="color:var(--success);">The tools you used</h4>
-<ul class="everyday-list">${everydayHtml}</ul>
-</div>
 <div class="reveal-box" style="border-left-color:var(--accent); background:rgba(245,158,11,0.08); border-color:rgba(245,158,11,0.25);">
-<h4 style="color:var(--accent);">The one rule</h4>
-<p>If a message about your tax or super looks off, don't trust it and don't ignore it. <strong>Open the ATO app, or type my.gov.au yourself, and check.</strong> That's the whole thing.</p>
+<h4 style="color:var(--accent);">What you learned</h4>
+<p>You used an official verification method in <strong>${neutralised} of ${total}</strong> situations. When something involves your tax, super or ATO account, don't trust the message &mdash; <strong>open the ATO app, or type my.gov.au yourself, and check.</strong></p>
 </div>
-<div class="reveal-box" style="border-left-color:var(--cyan);">
-<h4>What you learned</h4>
-<p>You used an official verification method in <strong>${neutralised} of ${total}</strong> situations. When something involves your tax, super or ATO account, don't trust the message itself &mdash; check it through an official ATO channel.</p>
-</div>
+<button class="btn btn-primary" onclick="restart()">Play again</button>
+<details class="more">
+<summary>Your choices (${total})</summary>
+<div class="summary-wrap">${summaryHtml}</div>
+</details>
+<details class="more">
+<summary>The ATO features you used</summary>
+<ul class="everyday-list">${everydayHtml}</ul>
+</details>
 <div class="ato-links">
 <div class="ato-links-head">Official ATO resources</div>
 <a href="https://www.ato.gov.au/online-services/scams-cyber-safety-and-identity-protection/verify-or-report-an-ato-scam" target="_blank" rel="noopener noreferrer">Verify or report an ATO scam</a>
 <a href="https://www.ato.gov.au/online-services/scams-cyber-safety-and-identity-protection/help-for-identity-theft" target="_blank" rel="noopener noreferrer">Help for identity theft</a>
 <a href="https://www.ato.gov.au/online-services/online-services-for-individuals-and-sole-traders/ato-app" target="_blank" rel="noopener noreferrer">The ATO app</a>
 </div>
-<button class="btn btn-primary" onclick="restart()" style="margin-top:16px;">Play again</button>
+
 </div>
 `;
 const scoreEl = container.querySelector('#score-number');
