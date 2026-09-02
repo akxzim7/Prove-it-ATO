@@ -492,7 +492,7 @@ detail: "The link leads to a cloned login page built to capture your myGov crede
 call_number: {
 headline: "You called them back",
 body: "A scam message can list any number it likes, including one that looks right.",
-detail: "Search results can be paid for, so \"it matches Google\" proves nothing. The ATO does not display a number when it calls. If you need to phone the ATO, take the number from ato.gov.au — scam reports go to 1800 008 540."
+detail: "Search results can be paid for, so \"it matches Google\" proves nothing. The ATO says never to trust caller ID — scammers can spoof any number, including real ATO ones. If you need to phone the ATO, take the number from ato.gov.au — scam reports go to 1800 008 540."
 },
 ato_app: {
 headline: "Stopped them",
@@ -635,7 +635,7 @@ title: "Locking The Record",
 steps: [
 "Open the ATO app security message",
 "Follow the prompts to lock your ATO record",
-"Phone 1800 467 033 to report suspected fraud"
+"Report it at ato.gov.au/scamsafe or call 1800 008 540"
 ],
 truth: "Your super was safe. Locking the account stopped the transfer.",
 cost: "<strong>$4,850 stolen from super today</strong> = about $73,000 less at retirement, assuming 7% annual growth over 40 years.",
@@ -685,7 +685,7 @@ detail: "This is the most convincing wrong answer here, because it feels like ex
 verify_call: {
 headline: "Confirmed. It's really them.",
 body: "The ATO app confirms in about 30 seconds whether the call is genuine.",
-detail: "Verify call is a real feature launched in April 2026 under the ATO Counter Fraud Program. It's the one check the caller can't influence — the confirmation comes from the ATO's side, not theirs."
+detail: "Verify call is a real feature launched in April 2026 to stop scam calls. It's the one check the caller can't influence — the confirmation comes from the ATO's side, not theirs."
 },
 hang_up: {
 headline: "You'll miss the real ones",
@@ -766,7 +766,7 @@ steps: [
 "Enter gross pay and how often Bob is paid",
 "Read the amount that should be withheld each pay"
 ],
-truth: "The calculator put Bob's withholding in the expected range — no surprise bill waiting at lodgment.",
+truth: "The calculator showed Bob is having slightly more withheld than he needs — no bill at lodgment, and a small refund instead.",
 cost: "<strong>Withholding never checked</strong> = either a bill you did not expect, or a year of smaller pays than you needed.",
 everyday: "This is the same calculator Australians use to sanity-check a new job, a pay rise or a second job.",
 feature: "Tax Withheld Calculator",
@@ -793,7 +793,7 @@ channel: "Payslip note",
 subject: "Sarah's payslip — super line",
 sender: "Sarah's payslip",
 timestamp: "This pay period",
-body: "Super guarantee: 12% of ordinary earnings\nThis pay: $120\nThis year so far: $6,240\n\nFrom 1 July 2026 employers pay super every payday, not quarterly. Sarah doesn't know what any of that means."
+body: "Super guarantee: 12% of ordinary earnings\nThis pay: $120\nThis year so far: $6,240\n\nFrom 1 July 2026 employers must pay super so it reaches your fund within 7 business days of payday, instead of quarterly. Sarah doesn't know what any of that means."
 },
 question: "She could scroll for answers, or go to the source.",
 options: [
@@ -821,7 +821,7 @@ detail: "Some are good. None are accountable to you, and none of them can see yo
 ignore_old: {
 headline: "That's the expensive one",
 body: "Super compounds, so the early years are the ones that matter most.",
-detail: "Unpaid super is a real problem: the ATO estimates about $6.25 billion went unpaid in the most recent financial year. Nobody checks Sarah's super for her, and the earliest contributions have the longest to grow."
+detail: "Unpaid super is a real problem: the ATO estimates about $6.25 billion went unpaid in 2022–23, the most recent year measured. Nobody checks Sarah's super for her, and the earliest contributions have the longest to grow."
 }
 },
 reveal: {
@@ -838,7 +838,7 @@ feature: "ATOtv & Super Balance",
 prompt: "What would you do?",
 manage: "Learn how super works, then track your balance and find lost accounts.",
 protect: "Knowing your real balance is what exposes a fake super transfer alert.",
-detail: "From 1 July 2026 employers must pay super on payday rather than quarterly, which lets the ATO spot unpaid super in weeks instead of months. The ATO estimates about $6.25 billion in super went unpaid in the most recent financial year.",
+detail: "From 1 July 2026 employers must pay super on payday rather than quarterly, which lets the ATO spot unpaid super in weeks instead of months. The ATO estimates about $6.25 billion in super went unpaid in 2022–23, the most recent year measured.",
 source: "tv.ato.gov.au — Super",
 screenshot: "ato-super-learn.png"
 }
@@ -1085,7 +1085,7 @@ container.innerHTML = `
 <div class="how-arrow">→</div>
 <div class="how-step"><div class="how-icon">✅</div><div class="how-text">See result</div></div>
 </div>
-<div class="spec-bar">6 rounds &nbsp;·&nbsp; ~5 minutes &nbsp;·&nbsp; Zero data required</div>
+<div class="spec-bar">6 rounds &nbsp;·&nbsp; ~6 minutes &nbsp;·&nbsp; Zero data required</div>
 <button class="btn btn-primary" onclick="startScenarios()">Start</button>
 <button class="teacher-link" onclick="openTeachers()">For Teachers &rarr;</button>
 <div class="source-line" style="text-align:center;">Source: ATO Media Centre, April 2026</div>
@@ -1407,7 +1407,7 @@ You used <strong>${neutralised} of ${total}</strong> ATO tax and super managemen
 </p>
 <div class="reveal-box" style="border-left-color:var(--accent); background:rgba(245,158,11,0.08); border-color:rgba(245,158,11,0.25);">
 <h2 style="color:var(--accent);font-family:var(--mono);font-size:0.7rem;text-transform:uppercase;letter-spacing:1.3px;margin-bottom:6px;">What you learned</h2>
-<p>You used an official verification method in <strong>${neutralised} of ${total}</strong> situations. When something involves your tax, super or ATO account, don't trust the message &mdash; <strong>open the ATO app, or type my.gov.au yourself, and check.</strong></p>
+<p>When something involves your tax, super or ATO account, don't trust the message &mdash; <strong>open the ATO app, or type my.gov.au yourself, and check.</strong></p>
 </div>
 <button class="btn btn-primary" onclick="restart()">Play again</button>
 <details class="more">
