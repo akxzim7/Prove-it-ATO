@@ -18,9 +18,9 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .disclaimer{font-size:11px;color:var(--text-muted);text-align:center;padding:8px 12px;background:rgba(0,0,0,0.35);border:1px solid var(--border);border-radius:6px;margin-bottom:14px;max-width:620px;width:100%}
 .container{max-width:620px;width:100%;flex:1;display:flex;flex-direction:column;justify-content:center}
 .card{background:var(--bg-card);border-radius:var(--radius);padding:26px 24px 28px;box-shadow:var(--shadow);border:1px solid var(--border);animation:fadeIn 0.35s ease;position:relative;overflow:hidden}
-.card::before,.card::after{content:'';position:absolute;width:14px;height:14px;border-color:rgba(56,189,248,0.45);border-style:solid;pointer-events:none}
-.card::before{top:8px;left:8px;border-width:1px 0 0 1px}
-.card::after{bottom:8px;right:8px;border-width:0 1px 1px 0}
+.card::before,
+
+
 @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}
 to{opacity:1;transform:translateY(0)}
 }
@@ -386,10 +386,19 @@ h2.breach-banner,h2.decide-prompt,h2.verdict-title,h2.sys-head{margin-top:0}
 .feat-desc{font-size:0.8rem;line-height:1.55;color:#cbd5e1;margin:0 0 8px}
 .feat-fraud{font-size:0.78rem;line-height:1.55;color:#fcd34d;margin:0;padding:8px 10px;background:rgba(245,158,11,0.09);border-left:2px solid rgba(245,158,11,0.5);border-radius:0 5px 5px 0}
 .feat-inner .screenshot-frame{margin:12px 0 0;padding:8px}
-.scroll-hint{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font-size:1.1rem;color:var(--text-muted);opacity:.75;pointer-events:none;z-index:5;animation:bounceHint 1.8s infinite}
+
 .scroll-hint.gone{opacity:0;transition:opacity .4s;animation:none}
-@keyframes bounceHint{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(6px)}}
+
 .report-verdict{display:inline-block;margin-top:8px;color:var(--cyan);font-size:0.9rem}
+
+
+.scroll-hint.gone{opacity:0;transition:opacity .4s;animation:none}
+@keyframes bounceHint{0%,100%{transform:translateY(0)}50%{transform:translateY(5px)}}
+.landing-sub{font-size:0.95rem;color:var(--text-muted);text-align:center;max-width:320px;margin:0 auto 18px;line-height:1.45}
+
+.scroll-hint{position:fixed;left:50%;bottom:12px;transform:translateX(-50%);z-index:120;font-size:1.15rem;line-height:1;color:var(--text);opacity:.85;pointer-events:none;padding:10px 16px;border-radius:20px;background:rgba(15,23,42,.88);border:1px solid var(--border);animation:bounceHint 1.5s ease infinite}
+.scroll-hint.gone{opacity:0;transition:opacity .4s;animation:none}
+@keyframes bounceHint{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(5px)}}
 </style>
 </head>
 <body>
@@ -988,20 +997,24 @@ function neutralisedCount() {
 return userChoices.filter(c => c.outcome === 'safe').length;
 }
 
-// A card taller than the viewport gets a nudge; it clears on the first scroll.
+// Long screens get a nudge. It lives on <body> because .card is overflow:hidden,
+// which kills both sticky and fixed positioning inside it.
 function addScrollHint() {
+const old = document.getElementById('scroll-hint');
+if (old) old.remove();
 if (reducedMotion()) return;
 const card = document.querySelector('#app .card');
 if (!card) return;
-if (card.getBoundingClientRect().height <= window.innerHeight - 40) return;
+if (card.getBoundingClientRect().height <= window.innerHeight + 20) return;
 const h = document.createElement('div');
+h.id = 'scroll-hint';
 h.className = 'scroll-hint';
 h.setAttribute('aria-hidden', 'true');
-h.textContent = '\u25be';
-card.appendChild(h);
+h.textContent = '\u2193';
+document.body.appendChild(h);
 const clear = () => { h.classList.add('gone'); window.removeEventListener('scroll', clear); };
 window.addEventListener('scroll', clear, { passive: true, once: true });
-setTimeout(() => { if (h.isConnected) clear(); }, 6000);
+setTimeout(() => { if (h.isConnected) clear(); }, 8000);
 }
 
 function render() {
@@ -1056,6 +1069,7 @@ container.innerHTML = `
 <div class="sys-label">Lockdown Protocol</div>
 <h1>Your tax. Your super. One app.</h1>
 <p style="font-size:1.02rem; color:var(--text);">Prove It teaches you to manage your tax and super through the ATO app &mdash; and stop scammers using the exact same tools.<br><b>Can you tell the difference?</b></p>
+<p class="landing-sub">A 5-minute game: read fake tax messages, pick what you'd do, and learn the real ATO app.</p>
 <div class="threat-meter">
 <div class="tm-head">
 <span class="sys-label">Threat Level</span>
