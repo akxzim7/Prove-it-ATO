@@ -509,7 +509,7 @@ reveal: {
 title: "Inside The ATO App",
 steps: [
 "Log in to the ATO app",
-"Select \"Your tax return for 2025-26\"",
+"Select your tax return",
 "Read the status: issued, processing, or tax owed"
 ],
 truth: "Your return was still processing. No refund had been issued.",
@@ -521,7 +521,8 @@ manage: "Track your tax return from lodgment through to refund.",
 protect: "Confirm whether a refund message is real before you act on it.",
 detail: "Online returns generally process within two weeks, and up to 30 days if a manual review is needed. Three weeks with no refund is completely normal — which is exactly the uncertainty this scam is built to exploit.",
 source: "ato.gov.au/individuals-and-families/your-tax-return/check-the-progress-of-your-tax-return",
-screenshot: "ato-dashboard.jpg"
+screenshot: "ato-dashboard.jpg",
+screenshotCaption: "Official ATO app screenshot · Source: ATO Media Centre"
 }
 },
 {
@@ -710,7 +711,8 @@ manage: "Lodge and track your BAS and other business obligations.",
 protect: "Confirm in about 30 seconds whether an ATO call is genuine.",
 detail: "Verify call is designed to shut down scam calls in real time by putting the check in the taxpayer's hands. If verification can't be confirmed, treat the interaction as suspicious and end the call.",
 source: "ato.gov.au/media-centre/ato-launches-new-app-feature-to-stop-scam-calls",
-screenshot: "ato-verify-call.png"
+screenshot: "ato-verify-call.png",
+screenshotCaption: "Official ATO app screenshot · Source: ATO Media Centre"
 }
 },
 {
@@ -733,7 +735,7 @@ body: "Gross salary: $58,000 per year\nTax withheld: $9,800\n\nBob isn't sure wh
 question: "He could guess, or he could check.",
 options: [
 { icon: "⏳", text: "Wait for tax time and hope for a refund", id: "wait_hope", unsafe: true, passive: true, autofill: false, consequence: "Nothing checked. Any shortfall only surfaces at lodgment." },
-{ icon: "✋", text: "Ask his boss to withhold less", id: "reduce_withholding", unsafe: true, autofill: false, consequence: "Under-withholding sets up a tax bill at year end." },
+{ icon: "✋", text: "Ask his boss to withhold less", id: "reduce_withholding", unsafe: true, passive: true, autofill: false, consequence: "Under-withholding sets up a tax bill at year end." },
 { icon: "📱", text: "Use the ATO app tax withheld calculator", id: "use_calculator", unsafe: false, autofill: false },
 { icon: "💬", text: "Guess from what his friends pay", id: "guess_friends", unsafe: true, passive: true, autofill: false, consequence: "Someone else's salary tells Bob nothing about his own." }
 ],
@@ -775,7 +777,8 @@ manage: "Check the tax coming out of each pay, and plan for lodgment.",
 protect: "Know your own numbers, so nobody can invent a refund or a debt for you.",
 detail: "The ATO app includes a simple version of the tax withheld calculator for payments made in 2026–27, which the ATO says takes one to two minutes. The full calculator on ato.gov.au covers weekly, fortnightly, monthly and quarterly pay.",
 source: "ato.gov.au/calculators-and-tools/tax-withheld-calculator",
-screenshot: "ato-tax-calculator.png"
+screenshot: "ato-tax-calculator.png",
+screenshotCaption: "ATO app screenshot"
 }
 },
 {
@@ -831,7 +834,7 @@ steps: [
 "Watch the ATO's own videos on super and Payday Super",
 "Open the ATO app to see your real balance and find lost super"
 ],
-truth: "Sarah learned what super is from the ATO itself, then checked her own balance in the app.",
+truth: "Sarah learned what super is from the ATO itself, then checked her own balance in the ATO app.",
 cost: "<strong>Super never understood</strong> = unpaid contributions and forgotten accounts that nobody else is going to notice for you.",
 everyday: "This is where Australians go to understand super before they start making decisions about it.",
 feature: "ATOtv & Super Balance",
@@ -839,8 +842,9 @@ prompt: "What would you do?",
 manage: "Learn how super works, then track your balance and find lost accounts.",
 protect: "Knowing your real balance is what exposes a fake super transfer alert.",
 detail: "From 1 July 2026 employers must pay super on payday rather than quarterly, which lets the ATO spot unpaid super in weeks instead of months. The ATO estimates about $6.25 billion in super went unpaid in 2022–23, the most recent year measured.",
-source: "tv.ato.gov.au — Super",
-screenshot: "ato-super-learn.png"
+source: "tv.ato.gov.au",
+screenshot: "ato-super-learn.png",
+screenshotCaption: "ATOtv screenshot · tv.ato.gov.au"
 }
 }
 ];
@@ -1085,7 +1089,7 @@ container.innerHTML = `
 <div class="how-arrow">→</div>
 <div class="how-step"><div class="how-icon">✅</div><div class="how-text">See result</div></div>
 </div>
-<div class="spec-bar">6 rounds &nbsp;·&nbsp; ~6 minutes &nbsp;·&nbsp; Zero data required</div>
+<div class="spec-bar">6 rounds &nbsp;·&nbsp; ~5 minutes &nbsp;·&nbsp; Zero data required</div>
 <button class="btn btn-primary" onclick="startScenarios()">Start</button>
 <button class="teacher-link" onclick="openTeachers()">For Teachers &rarr;</button>
 <div class="source-line" style="text-align:center;">Source: ATO Media Centre, April 2026</div>
@@ -1228,7 +1232,8 @@ stepsHtml += `
 });
 let screenshotHtml = '';
 if (s.reveal.screenshot) {
-screenshotHtml = `<div class="screenshot-frame"><img src="${s.reveal.screenshot}" alt="Official ATO app screenshot" onerror="this.style.display='none'"><div class="screenshot-caption">Official ATO app screenshot · Source: ATO Media Centre</div></div>`;
+const cap = s.reveal.screenshotCaption || '';
+screenshotHtml = `<div class="screenshot-frame"><img src="${s.reveal.screenshot}" alt="${cap || 'ATO screenshot'}" onerror="this.style.display='none'">${cap ? `<div class="screenshot-caption">${cap}</div>` : ''}</div>`;
 }
 container.innerHTML = `
 <div class="card ${phaseClass()}">
@@ -1304,7 +1309,7 @@ breachFlash();
 function renderATOFeatures(container) {
 window.scrollTo(0, 0);
 const cards = [
-{ icon: '📄', name: 'myDeductions', desc: 'Record deductions on the go and upload them straight into your tax return.', fraud: "Scammers can't fake deductions you already logged in the official app.", img: 'ato-my-deductions.png', cap: 'ATO app — myDeductions' },
+{ icon: '📄', name: 'myDeductions', desc: 'Record deductions on the go and upload them straight into your tax return.', fraud: "Scammers can't fake deductions you already logged in the ATO app.", img: 'ato-my-deductions.png', cap: 'ATO app — myDeductions' },
 { icon: '🧮', name: 'Tax withheld calculator', desc: 'Check whether your employer is withholding the right amount of tax.', fraud: 'Knowing your real tax position stops fake refund and debt claims before they start.' },
 { icon: '📬', name: 'myGov Inbox', desc: "Real ATO letters arrive here. If it isn't in the Inbox, it isn't from the ATO.", fraud: 'Every scam email and SMS fails the same test: is it in your myGov Inbox?' },
 { icon: '📊', name: 'Super balance', desc: 'Track every super account in one place, and find super from old jobs.', fraud: 'Checking your real balance is what exposes a fake transfer alert.' },
